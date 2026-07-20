@@ -22,7 +22,8 @@ runner/preflight.py       loud pre-run checks: auth, env, paths, MCP reachabilit
 runner/run_job.py         entrypoint; --dry-run blocks each job's write tools
 .claude/skills/<name>/    skill definitions (top-level skills/ is a symlink here)
 mcp/servers.template.json all MCP servers, ${ENV_VAR} placeholders — single source
-scripts/                  launchd installer (per-job), mcp renderer, git hooks
+scripts/                  launchd installer (per-job), mcp renderer
+.pre-commit-config.yaml   git hooks: ruff format/check, ty, uv-lock, gitleaks
 dashboard/                read-only Hono/TS view over logs/ (Docker)
 academy -> …              gitignored symlink to the private wiki (never committed)
 .env / .env.example       real values (gitignored) / documented variable names
@@ -61,8 +62,8 @@ logs/<job>/*.jsonl        full run streams + history.jsonl summaries (gitignored
 ## Hygiene (public repo)
 
 - Never commit: `.env`, `academy`, `logs/`, `.mcp.json`, rendered plists —
-  all gitignored; the gitleaks pre-commit hook is a backstop, not permission
-  to be sloppy.
+  all gitignored; the gitleaks hook (via `pre-commit`) is a backstop, not
+  permission to be sloppy.
 - No literal credentials even in `.env`: secrets are `op://` references
   (resolved lazily by the runner), `*_OP_REF` pass-by-reference vars (the
   agent op-reads them itself — the runner never dereferences), or per-run

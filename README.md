@@ -32,9 +32,9 @@ academy -> …              gitignored symlink to the private wiki
 ## Setup
 
 ```sh
-# 1. deps
+# 1. deps + git hooks
 uv sync
-./scripts/install-hooks.sh          # gitleaks pre-commit backstop (brew install gitleaks)
+uv run pre-commit install           # ruff format/check, ty, uv-lock, gitleaks on every commit
 
 # 2. private bits (both gitignored)
 cp .env.example .env                # fill in values
@@ -94,5 +94,5 @@ spend or actions.
 - `.env`, `academy`, `logs/`, and the rendered `.mcp.json` are gitignored.
 - Prompts and skills carry no emails, IDs, client names, or tokens — those are
   supplied at runtime from `.env` and the local wiki.
-- The gitleaks pre-commit hook blocks accidental secret commits; it refuses to
-  run if gitleaks isn't installed.
+- Pre-commit hooks (`.pre-commit-config.yaml`) run gitleaks on every commit as
+  a backstop against accidental secret commits, alongside ruff and ty.

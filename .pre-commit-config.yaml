@@ -1,0 +1,22 @@
+# Managed git hooks — install once with: uv run pre-commit install
+# Runs on every commit: ruff format/check + ty over all staged Python files
+# (any directory), uv.lock consistency, and gitleaks as the secrets backstop.
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.22
+    hooks:
+      - id: ruff-check
+        args: [--fix]
+      - id: ruff-format
+  - repo: https://github.com/astral-sh/ty-pre-commit
+    rev: v0.0.61
+    hooks:
+      - id: ty
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    rev: 0.11.29
+    hooks:
+      - id: uv-lock
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks
