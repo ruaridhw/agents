@@ -10,6 +10,7 @@ from __future__ import annotations
 import asyncio
 import dataclasses
 import datetime as dt
+import importlib
 import json
 import subprocess
 import sys
@@ -181,6 +182,18 @@ async def run(job_name: str, *, dry_run: bool = False) -> int:
                 result=result,
                 error=getattr(result, "result", None) or "no result message",
             )
+
+        # Deterministic post-render (e.g. brief.json → latest.html): runs
+        # before the artifact check so the check validates the final output.
+        if spec.post_render and not dry_run:
+            try:
+                module_name, _, func_name = spec.post_render.partition(":")
+                getattr(importlib.import_module(module_name), func_name)()
+                emit({"event": "post_render", "hook": spec.post_render})
+            except Exception as err:
+                emit({"event": "error", "stage": "post_render", "error": str(err)})
+                print(f"[{spec.name}] post_render failed: {err}", file=sys.stderr)
+                return finish("error", result=result, error=f"post_render: {err}")
 
         # The SDK reporting success is not the same as the job succeeding: if
         # the job promises an output artifact, it must exist and be fresh.

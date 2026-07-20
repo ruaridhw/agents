@@ -1,0 +1,109 @@
+{#-
+  Morning brief chrome — the fixed design from the morning skill's Design
+  section. The agent authors brief.json (content, terrain SVG, sections);
+  this template owns all boilerplate: bands, palette, type, layout,
+  responsive rules. Rendered by runner/render_brief.py (autoescape on;
+  sentences support [text](url) links via the md_links filter; terrain_svg
+  and extra_css are model-authored and sanitised, then trusted).
+-#}
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Morning brief</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=Lexend+Deca:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FCFCFB; --wash: #F9F9F7; --ink: #2E2C27; --ink-soft: #6B6A63;
+    --ink-grey: #B4B3A8; --hairline: #E4E3DC; --edge: #E1E1DF;
+    --clay: #C6613F; --clay-hover: #AE5133;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--ink-soft); font: 400 15px/1.6 "Lexend Deca", sans-serif; }
+  .band { width: 100%; }
+  .band.top { background: var(--wash); border-bottom: 1px solid var(--edge); }
+  .band.bottom { background: var(--bg); }
+  .inner { max-width: 860px; margin: 0 auto; padding: 56px 32px; }
+  .day-date { color: var(--ink-soft); font-size: 13px; letter-spacing: 0.02em; margin-bottom: 12px; }
+  h1 { font-family: "Fraunces", serif; font-weight: 400; font-size: 40px; line-height: 1.2; color: var(--ink); margin-bottom: 28px; }
+  .terrain { width: 100%; margin-bottom: 28px; }
+  .terrain svg { width: 100%; height: auto; display: block; }
+  .acts { display: flex; gap: 0; }
+  .act { flex: 1; padding: 0 20px; }
+  .act:first-child { padding-left: 0; }
+  .act + .act { border-left: 1px solid var(--hairline); }
+  .act .time { display: block; font-weight: 500; font-size: 13px; color: var(--ink); letter-spacing: 0.04em; margin-bottom: 6px; }
+  .act .sentence { font-size: 14px; }
+  h2 { font-family: "Lexend Deca", sans-serif; font-weight: 500; font-size: 15px; color: var(--ink); margin: 40px 0 16px; }
+  section:first-child h2 { margin-top: 0; }
+  ol.items { list-style: none; counter-reset: item; }
+  ol.items li { counter-increment: item; display: flex; gap: 14px; padding: 10px 0; }
+  ol.items li::before { content: counter(item); color: var(--ink-grey); font-size: 13px; min-width: 16px; padding-top: 2px; }
+  .item-title { font-weight: 500; color: var(--ink); }
+  .item-title a { color: var(--ink); text-decoration: none; }
+  .item-body a { color: var(--ink-soft); text-decoration: underline; text-underline-offset: 2px; }
+  .item-body { font-size: 14px; }
+  .button { display: inline-block; margin-top: 8px; background: var(--clay); border: 1px solid var(--clay); border-radius: 8px; padding: 9px 16px; color: var(--bg); font: 500 13px "Lexend Deca", sans-serif; text-decoration: none; }
+  .button:hover { background: var(--clay-hover); border-color: var(--clay-hover); }
+  .prose { font-size: 14px; }
+  .empty-line, .footer-line { font-size: 14px; color: var(--ink-soft); margin-top: 8px; }
+  @media (max-width: 640px) {
+    h1 { font-size: 30px; }
+    .inner { padding: 40px 20px; }
+    .acts { flex-direction: column; }
+    .act { padding: 14px 0; }
+    .act + .act { border-left: none; border-top: 1px solid var(--hairline); }
+  }
+  {{ extra_css }}
+</style>
+</head>
+<body>
+<div class="band top"><div class="inner">
+  {% if day_date %}<div class="day-date">{{ day_date }}</div>{% endif %}
+  <h1>{{ headline }}</h1>
+  {% if terrain_svg %}<div class="terrain">{{ terrain_svg }}</div>{% endif %}
+  {% if acts %}
+  <div class="acts">
+    {% for act in acts %}
+    <div class="act">
+      <span class="time">{{ act.time }}</span>
+      <span class="sentence">{{ act.sentence | md_links }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div></div>
+<div class="band bottom"><div class="inner">
+  {% macro item_list(items) -%}
+  <ol class="items">
+    {% for item in items %}
+    <li><div>
+      <div class="item-title">{% if item.title_url %}<a href="{{ item.title_url }}">{{ item.title }}</a>{% else %}{{ item.title }}{% endif %}</div>
+      <div class="item-body">{{ item.sentence | md_links }}</div>
+      {% if item.button %}<a class="button" href="{{ item.button.url }}">{{ item.button.label }}</a>{% endif %}
+    </div></li>
+    {% endfor %}
+  </ol>
+  {%- endmacro %}
+  {% if needs_attention %}
+  <section><h2>Needs attention</h2>{{ item_list(needs_attention) }}</section>
+  {% endif %}
+  {% if resolved %}
+  <section><h2>Resolved</h2>{{ item_list(resolved) }}</section>
+  {% endif %}
+  {% if not needs_attention and not resolved and empty_line %}
+  <p class="empty-line">{{ empty_line }}</p>
+  {% endif %}
+  {% for section in sections %}
+  <section>
+    <h2>{{ section.heading }}</h2>
+    {% if section.get('items') %}{{ item_list(section.get('items')) }}{% endif %}
+    {% if section.get('prose') %}<p class="prose">{{ section.get('prose') | md_links }}</p>{% endif %}
+  </section>
+  {% endfor %}
+  {% if footer_line %}<p class="footer-line">{{ footer_line | md_links }}</p>{% endif %}
+</div></div>
+</body>
+</html>

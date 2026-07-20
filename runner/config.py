@@ -128,6 +128,9 @@ class JobSpec:
     precheck_max_turns: int = 8
     required_env: list[str] = field(default_factory=list)
     required_paths: list[str] = field(default_factory=list)
+    # "module:function" run after a successful query, before the artifact
+    # check — e.g. deterministic template rendering of agent-written JSON.
+    post_render: str | None = None
     # Repo-relative file to `open -a <browser>` after a successful run.
     post_run_open: str | None = None
     browser: str = "Firefox"

@@ -12,6 +12,9 @@ JOB = JobSpec(
     name="morning_brief",
     description="Render the styled HTML morning brief from calendar, email, "
     "chat and tracker connectors",
+    # Opus deliberately: this is the showcase output. The JSON+template
+    # pipeline keeps its output tokens (and so its latency) in check.
+    model="claude-opus-4-8",
     mcp_servers=["gcal", "gmail", "slack", "linear", "notion", "granola"],
     allowed_tools=[
         "Skill",
@@ -36,6 +39,7 @@ JOB = JobSpec(
         "USER_FIRST_NAME",
         "HOME_TIMEZONE",
     ],
+    post_render="runner.render_brief:render_default",
     post_run_open="logs/morning_brief/latest.html",
     browser="Firefox",
 )
