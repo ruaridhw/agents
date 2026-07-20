@@ -63,6 +63,8 @@ class JobSpec:
     # Repo-relative file to `open -a <browser>` after a successful run.
     post_run_open: str | None = None
     browser: str = "Firefox"
+    # Tools blocked when running with --dry-run (e.g. the connector's writes).
+    dry_run_disallowed: list[str] = field(default_factory=list)
 
     @property
     def prompt_path(self) -> Path:

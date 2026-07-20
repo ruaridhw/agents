@@ -1,8 +1,10 @@
 #!/bin/zsh
-# Render and load the two LaunchAgents. Idempotent: reloads if already loaded.
-#   ./scripts/install-launchd.sh            install/reload both
-#   ./scripts/install-launchd.sh render     write plists to launchd/ only (no load)
-#   ./scripts/install-launchd.sh remove     unload and delete both
+# Render and load the LaunchAgents. Idempotent: reloads if already loaded.
+#   ./scripts/install-launchd.sh [jobs…]           install/reload (default: both)
+#   ./scripts/install-launchd.sh render            write plists to launchd/ only (no load)
+#   ./scripts/install-launchd.sh remove [jobs…]    unload and delete (default: both)
+# Job names: morning-brief granola-notion-sync — per-job installs support the
+# one-at-a-time migration cutover.
 #
 # launchd (not cron) because StartCalendarInterval fires a missed run once on
 # the next wake — cron silently skips runs while the Mac is asleep.
@@ -47,13 +49,23 @@ unload_agent() {
   launchctl bootout "gui/$(id -u)/${label}" 2>/dev/null || true
 }
 
+ALL_JOBS=(morning-brief granola-notion-sync)
+
 if [[ "${1:-}" == "remove" ]]; then
-  for job in morning-brief granola-notion-sync; do
+  shift
+  if [[ $# -gt 0 ]]; then jobs=("$@"); else jobs=("${ALL_JOBS[@]}"); fi
+  for job in "${jobs[@]}"; do
     unload_agent "${PREFIX}.${job}"
     rm -f "${AGENTS_DIR}/${PREFIX}.${job}.plist"
     echo "removed ${PREFIX}.${job}"
   done
   exit 0
+fi
+
+if [[ "${1:-}" == "render" || $# -eq 0 ]]; then
+  jobs=("${ALL_JOBS[@]}")
+else
+  jobs=("$@")
 fi
 
 if [[ "${1:-}" == "render" ]]; then
@@ -62,25 +74,34 @@ fi
 
 mkdir -p "$AGENTS_DIR" "$REPO/logs"
 
-# morning-brief: 08:00 Mon–Fri
-brief_intervals=""
-for wd in 1 2 3 4 5; do
-  brief_intervals+="$(interval_entry "$wd" 8)"$'\n'
+for job in "${jobs[@]}"; do
+  case "$job" in
+    morning-brief)  # 08:00 Mon–Fri
+      intervals=""
+      for wd in 1 2 3 4 5; do
+        intervals+="$(interval_entry "$wd" 8)"$'\n'
+      done
+      render_plist "${PREFIX}.${job}" "morning_brief" "${intervals%$'\n'}" \
+        > "${AGENTS_DIR}/${PREFIX}.${job}.plist"
+      ;;
+    granola-notion-sync)  # hourly 08:00–18:00 Mon–Fri (launchd has no range syntax)
+      intervals=""
+      for wd in 1 2 3 4 5; do
+        for hour in $(seq 8 18); do
+          intervals+="$(interval_entry "$wd" "$hour")"$'\n'
+        done
+      done
+      render_plist "${PREFIX}.${job}" "granola_notion_sync" "${intervals%$'\n'}" \
+        > "${AGENTS_DIR}/${PREFIX}.${job}.plist"
+      ;;
+    *)
+      echo "unknown job: $job (expected: ${ALL_JOBS[*]})" >&2
+      exit 2
+      ;;
+  esac
 done
-render_plist "${PREFIX}.morning-brief" "morning_brief" "${brief_intervals%$'\n'}" \
-  > "${AGENTS_DIR}/${PREFIX}.morning-brief.plist"
 
-# granola-notion-sync: hourly 08:00–18:00 Mon–Fri (launchd has no range syntax)
-sync_intervals=""
-for wd in 1 2 3 4 5; do
-  for hour in $(seq 8 18); do
-    sync_intervals+="$(interval_entry "$wd" "$hour")"$'\n'
-  done
-done
-render_plist "${PREFIX}.granola-notion-sync" "granola_notion_sync" "${sync_intervals%$'\n'}" \
-  > "${AGENTS_DIR}/${PREFIX}.granola-notion-sync.plist"
-
-for job in morning-brief granola-notion-sync; do
+for job in "${jobs[@]}"; do
   label="${PREFIX}.${job}"
   plutil -lint "${AGENTS_DIR}/${label}.plist" >/dev/null
   if [[ "${1:-}" == "render" ]]; then

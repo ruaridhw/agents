@@ -6,8 +6,8 @@ set -euo pipefail
 REPO="$(cd "$(dirname "$0")" && pwd)"
 cd "$REPO"
 
-if [[ $# -ne 1 ]]; then
-  echo "usage: ./run.sh <job-name>" >&2
+if [[ $# -lt 1 ]]; then
+  echo "usage: ./run.sh <job-name> [--dry-run]" >&2
   exit 2
 fi
 
@@ -30,4 +30,4 @@ if ! command -v node >/dev/null 2>&1 && [[ -d "$HOME/.nvm" ]]; then
   [[ -s "$NVM_DIR/nvm.sh" ]] && source "$NVM_DIR/nvm.sh"
 fi
 
-exec python -m runner.run_job "$1"
+exec python -m runner.run_job "$@"

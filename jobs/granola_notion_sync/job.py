@@ -25,4 +25,13 @@ JOB = JobSpec(
         "NOTION_MEETINGS_DATA_SOURCE_ID",
     ],
     required_paths=["academy/wiki"],
+    dry_run_disallowed=[
+        "mcp__notion__notion-create-pages",
+        "mcp__notion__notion-update-page",
+        "mcp__notion__notion-create-database",
+        "mcp__notion__notion-update-data-source",
+        "mcp__notion__notion-move-pages",
+        "mcp__notion__notion-duplicate-page",
+        "mcp__notion__notion-create-comment",
+    ],
 )

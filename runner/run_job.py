@@ -23,6 +23,17 @@ from .config import LOGS_DIR, REPO_ROOT, ConfigError, JobSpec, load_env, load_jo
 HISTORY_KEEP = 500  # one-line summaries kept per job
 RUN_LOG_KEEP_DAYS = 30  # full per-run jsonl logs older than this are pruned
 
+DRY_RUN_SUFFIX = """
+
+---
+DRY RUN — report-only. Do everything above EXCEPT writing: do not create,
+update, move, or comment on anything in Notion (those tools are blocked and
+will be denied — do not retry them). Instead, finish with a report of exactly
+what a real run would have done: which meetings would be created (title,
+date, attendees, topics, type), each correction that would be applied
+(was → now), each ambiguity that would be flagged, and which meetings would
+be skipped as already synced."""
+
 
 def _jsonable(obj):
     if dataclasses.is_dataclass(obj) and not isinstance(obj, type):
@@ -46,7 +57,7 @@ def _append_history(job_dir, entry: dict) -> None:
     history.write_text("\n".join(lines[-HISTORY_KEEP:]) + "\n")
 
 
-async def run(job_name: str) -> int:
+async def run(job_name: str, *, dry_run: bool = False) -> int:
     env = load_env()
     spec = load_job(job_name)
 
@@ -77,7 +88,8 @@ async def run(job_name: str) -> int:
             log.write(json.dumps(record, default=_jsonable) + "\n")
             log.flush()
 
-        emit({"event": "start", "job": spec.name, "ts": started.isoformat()})
+        emit({"event": "start", "job": spec.name, "ts": started.isoformat(),
+              "dry_run": dry_run})
 
         try:
             checks = preflight.run_checks(spec, env)
@@ -91,14 +103,19 @@ async def run(job_name: str) -> int:
             cwd=str(REPO_ROOT),
             mcp_servers=load_mcp_servers(spec.mcp_servers, env),
             allowed_tools=spec.allowed_tools,
+            disallowed_tools=spec.dry_run_disallowed if dry_run else [],
             permission_mode=spec.permission_mode,
             setting_sources=["project"],  # loads .claude/skills/ from this repo
             max_turns=spec.max_turns,
         )
 
+        prompt = spec.load_prompt(env)
+        if dry_run:
+            prompt += DRY_RUN_SUFFIX
+
         result: ResultMessage | None = None
         try:
-            async for message in query(prompt=spec.load_prompt(env), options=options):
+            async for message in query(prompt=prompt, options=options):
                 emit({"event": "message", "message": message})
                 if isinstance(message, ResultMessage):
                     result = message
@@ -112,8 +129,9 @@ async def run(job_name: str) -> int:
             return finish("error", result=result,
                           error=getattr(result, "result", None) or "no result message")
 
-    _post_run(spec)
-    return finish("ok", result=result)
+    if not dry_run:
+        _post_run(spec)
+    return finish("dry_run_ok" if dry_run else "ok", result=result)
 
 
 def _post_run(spec: JobSpec) -> None:
@@ -125,10 +143,12 @@ def _post_run(spec: JobSpec) -> None:
 
 
 def main() -> None:
-    if len(sys.argv) != 2:
-        print("usage: python -m runner.run_job <job-name>", file=sys.stderr)
+    args = [a for a in sys.argv[1:] if a != "--dry-run"]
+    dry_run = "--dry-run" in sys.argv[1:]
+    if len(args) != 1:
+        print("usage: python -m runner.run_job <job-name> [--dry-run]", file=sys.stderr)
         sys.exit(2)
-    sys.exit(asyncio.run(run(sys.argv[1])))
+    sys.exit(asyncio.run(run(args[0], dry_run=dry_run)))
 
 
 if __name__ == "__main__":
