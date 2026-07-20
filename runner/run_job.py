@@ -81,7 +81,7 @@ async def run(job_name: str, *, dry_run: bool = False) -> int:
         }
         _append_history(job_dir, summary)
         print(f"[{spec.name}] {status} in {summary['duration_s']}s — {run_log}")
-        return 0 if status == "ok" else 1
+        return 0 if status in ("ok", "dry_run_ok") else 1
 
     with run_log.open("w") as log:
         def emit(record: dict) -> None:
