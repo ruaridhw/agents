@@ -1,0 +1,12 @@
+#!/bin/zsh
+# Backstop for the public repo: block a commit containing secrets.
+# Install with ./scripts/install-hooks.sh
+set -euo pipefail
+
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "pre-commit: gitleaks is not installed — refusing to commit to a public repo without it." >&2
+  echo "            brew install gitleaks   (or bypass once with --no-verify)" >&2
+  exit 1
+fi
+
+exec gitleaks protect --staged --redact -v
