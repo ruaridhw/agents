@@ -16,10 +16,11 @@ JOB = JobSpec(
     allowed_tools=[
         "Skill",
         "Read",
-        # Both forms: the agent writes absolute paths, which the relative
-        # gitignore-style rule does not match (proven in the first live run).
-        "Write(logs/morning_brief/**)",
-        f"Write(/{_REPO}/logs/morning_brief/**)",
+        # Path-scoped Write(...) rules are ignored by the SDK's allowed_tools
+        # (proven by probes 2026-07-20): plain Write + acceptEdits is the only
+        # combination that works headless. The artifact check in run_job and
+        # the prompt confine what actually gets written.
+        "Write",
         "mcp__gcal",
         "mcp__gmail",
         "mcp__slack",
@@ -27,6 +28,7 @@ JOB = JobSpec(
         "mcp__notion",
         "mcp__granola",
     ],
+    permission_mode="acceptEdits",
     required_env=[
         "USER_FIRST_NAME",
         "HOME_TIMEZONE",
