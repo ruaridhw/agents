@@ -21,10 +21,10 @@ _PLACEHOLDER = re.compile(r"\$\{([A-Z0-9_]+)\}")
 # Placeholders filled by running a command instead of reading .env — for
 # short-lived credentials that must never sit in a file. Computed lazily, only
 # when a selected server/prompt actually references them.
+_SCRIPTS = Path(__file__).resolve().parent.parent / "scripts"
 COMPUTED_VARS = {
-    "GOOGLE_MCP_ACCESS_TOKEN": [
-        sys.executable, str(Path(__file__).resolve().parent.parent / "scripts" / "google-oauth.py"), "token",
-    ],
+    "GOOGLE_MCP_ACCESS_TOKEN": [sys.executable, str(_SCRIPTS / "google-oauth.py"), "token"],
+    "SLACK_MCP_TOKEN": [sys.executable, str(_SCRIPTS / "slack-token.py"), "token"],
 }
 
 
@@ -46,8 +46,33 @@ def load_env() -> dict[str, str]:
     return dict(os.environ)
 
 
+def op_read(ref: str, *, context: str = "") -> str:
+    """Resolve an op:// secret reference via the 1Password CLI.
+
+    Uses the service-account token from the macOS Keychain
+    (item: op-service-account) so it works headless under launchd.
+    """
+    keychain = subprocess.run(
+        ["security", "find-generic-password", "-s", "op-service-account", "-w"],
+        capture_output=True, text=True,
+    )
+    proc = subprocess.run(
+        ["op", "read", ref],
+        capture_output=True, text=True, timeout=30,
+        env={"OP_SERVICE_ACCOUNT_TOKEN": keychain.stdout.strip(),
+             "PATH": "/opt/homebrew/bin:/usr/bin:/bin"},
+    )
+    if proc.returncode != 0:
+        raise ConfigError(f"{context}: op read {ref} failed: {proc.stderr.strip()}")
+    return proc.stdout.strip()
+
+
 def resolve(text: str, env: dict[str, str], *, context: str) -> str:
-    """Replace ${VAR} placeholders; a missing variable is a hard error."""
+    """Replace ${VAR} placeholders; a missing variable is a hard error.
+
+    A value that is itself an op:// reference is resolved through the
+    1Password CLI — lazily, so a job only touches the secrets it uses.
+    """
 
     def _sub(match: re.Match) -> str:
         name = match.group(1)
@@ -66,6 +91,10 @@ def resolve(text: str, env: dict[str, str], *, context: str) -> str:
                 f"{context}: ${{{name}}} is not set — add it to .env "
                 f"(see .env.example)"
             )
+        # Vars named *_OP_REF are pass-by-reference on purpose (the agent
+        # op-reads them itself at run time) — never dereference those here.
+        if env[name].startswith("op://") and not name.endswith("_OP_REF"):
+            env[name] = op_read(env[name], context=f"{context}: ${{{name}}}")
         return env[name]
 
     return _PLACEHOLDER.sub(_sub, text)

@@ -38,9 +38,38 @@ CLIENT_JSON = Path(
 TOKEN_FILE = Path.home() / ".config" / "google" / "mcp-token.json"
 
 
+OP_ITEM = "op://Duvo/GoogleOAuth"
+
+
+def _op_read(field: str) -> str | None:
+    keychain = subprocess.run(
+        ["security", "find-generic-password", "-s", "op-service-account", "-w"],
+        capture_output=True, text=True,
+    )
+    proc = subprocess.run(
+        ["op", "read", f"{OP_ITEM}/{field}"],
+        capture_output=True, text=True,
+        env={"OP_SERVICE_ACCOUNT_TOKEN": keychain.stdout.strip(),
+             "PATH": "/opt/homebrew/bin:/usr/bin:/bin"},
+    )
+    return proc.stdout.strip() if proc.returncode == 0 else None
+
+
 def load_client() -> dict:
+    # Prefer 1Password (item: Duvo/GoogleOAuth, fields client_id/client_secret);
+    # fall back to the downloaded client JSON for first-time setup.
+    client_id = _op_read("client_id")
+    if client_id:
+        return {
+            "client_id": client_id,
+            "client_secret": _op_read("client_secret"),
+            "token_uri": "https://oauth2.googleapis.com/token",
+        }
     if not CLIENT_JSON.exists():
-        sys.exit(f"missing OAuth client JSON at {CLIENT_JSON} — set GOOGLE_OAUTH_CREDENTIALS")
+        sys.exit(
+            f"no Google OAuth client found: neither {OP_ITEM} in 1Password nor "
+            f"a JSON file at {CLIENT_JSON} (override with GOOGLE_OAUTH_CREDENTIALS)"
+        )
     data = json.loads(CLIENT_JSON.read_text())
     return data.get("installed") or data.get("web") or sys.exit("unrecognised client JSON")
 

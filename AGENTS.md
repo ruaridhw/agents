@@ -63,6 +63,11 @@ logs/<job>/*.jsonl        full run streams + history.jsonl summaries (gitignored
 - Never commit: `.env`, `academy`, `logs/`, `.mcp.json`, rendered plists —
   all gitignored; the gitleaks pre-commit hook is a backstop, not permission
   to be sloppy.
+- No literal credentials even in `.env`: secrets are `op://` references
+  (resolved lazily by the runner), `*_OP_REF` pass-by-reference vars (the
+  agent op-reads them itself — the runner never dereferences), or per-run
+  computed tokens (`COMPUTED_VARS` in `runner/config.py`, backed by
+  `scripts/*-token/oauth*.py` with client creds in 1Password).
 - No emails, tenant IDs, colleague or client names anywhere in tracked files —
   including skill examples. Sweep with `git grep` before pushing.
 - Commits are atomic gitmoji style with a one-line body saying WHY.
