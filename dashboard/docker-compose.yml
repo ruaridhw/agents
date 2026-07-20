@@ -1,0 +1,9 @@
+# Read-only view of run history: mounts ../logs ro, no secrets needed.
+services:
+  dashboard:
+    build: .
+    ports:
+      - "8787:8787"
+    volumes:
+      - ../logs:/logs:ro
+    restart: unless-stopped
