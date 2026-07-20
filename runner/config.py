@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import importlib
 import importlib.util
 import json
 import os
@@ -181,6 +182,13 @@ def load_mcp_servers(names: list[str], env: dict[str, str]) -> dict:
         raise ConfigError(f"MCP servers not in {MCP_TEMPLATE.name}: {missing}")
     resolved = {}
     for name in names:
-        raw = json.dumps(servers[name])
+        cfg = servers[name]
+        if cfg.get("type") == "sdk":
+            # In-process server: import "module:factory" and instantiate.
+            module_name, _, factory_name = cfg["factory"].partition(":")
+            module = importlib.import_module(module_name)
+            resolved[name] = getattr(module, factory_name)()
+            continue
+        raw = json.dumps(cfg)
         resolved[name] = json.loads(resolve(raw, env, context=f"mcp server {name!r}"))
     return resolved

@@ -17,6 +17,12 @@ env = load_env()
 template = json.loads(MCP_TEMPLATE.read_text())
 servers = {}
 for name, cfg in template["servers"].items():
+    if cfg.get("type") == "sdk":
+        print(
+            f"skipping {name}: in-process sdk server (not usable by the CLI)",
+            file=sys.stderr,
+        )
+        continue
     try:
         servers[name] = json.loads(resolve(json.dumps(cfg), env, context=name))
     except Exception as err:

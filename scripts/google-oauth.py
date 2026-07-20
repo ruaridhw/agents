@@ -28,8 +28,13 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 
 SCOPES = [
+    # openid/email: Google's MCP gateways appear to resolve the user's
+    # identity; a token with only API scopes gets PERMISSION_DENIED there.
+    "openid",
+    "https://www.googleapis.com/auth/userinfo.email",
     "https://www.googleapis.com/auth/gmail.readonly",
     "https://www.googleapis.com/auth/calendar.readonly",
+    "https://www.googleapis.com/auth/calendar.events.readonly",
 ]
 CLIENT_JSON = Path(
     os.environ.get("GOOGLE_OAUTH_CREDENTIALS")

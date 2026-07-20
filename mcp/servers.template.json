@@ -8,12 +8,13 @@
     "then `claude` in this repo and use /mcp to complete each OAuth once — the",
     "Claude Code binary caches the tokens and headless SDK runs reuse them.",
     "",
-    "Google's remote MCP endpoints speak standard bearer auth but their OAuth",
-    "server (accounts.google.com) has no dynamic client registration, so",
-    "`claude mcp login` can't drive them. Instead scripts/google-oauth.py mints",
-    "tokens from your own Google OAuth desktop client (one-time `authorize`,",
-    "silent refresh per run); ${GOOGLE_MCP_ACCESS_TOKEN} is computed at job",
-    "load by runner/config.py, never stored in .env."
+    "gcal/gmail are `sdk` entries: in-process read-only tools served by",
+    "runner/google_tools.py over the plain REST APIs, authenticated with the",
+    "token scripts/google-oauth.py mints from your own OAuth desktop client.",
+    "Google's first-party MCP endpoints (calendarmcp/gmailmcp.googleapis.com)",
+    "were tried and return PERMISSION_DENIED to non-partner OAuth clients even",
+    "with correct scopes and the APIs enabled — don't re-attempt without new",
+    "evidence. `sdk` entries are skipped by scripts/render-mcp-json.py."
   ],
   "servers": {
     "notion": {
@@ -36,18 +37,12 @@
       }
     },
     "gcal": {
-      "type": "http",
-      "url": "https://calendarmcp.googleapis.com/mcp/v1",
-      "headers": {
-        "Authorization": "Bearer ${GOOGLE_MCP_ACCESS_TOKEN}"
-      }
+      "type": "sdk",
+      "factory": "runner.google_tools:gcal_server"
     },
     "gmail": {
-      "type": "http",
-      "url": "https://gmailmcp.googleapis.com/mcp/v1",
-      "headers": {
-        "Authorization": "Bearer ${GOOGLE_MCP_ACCESS_TOKEN}"
-      }
+      "type": "sdk",
+      "factory": "runner.google_tools:gmail_server"
     }
   }
 }

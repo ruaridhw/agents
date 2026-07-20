@@ -21,8 +21,11 @@ JOB = JobSpec(
         # combination that works headless. The artifact check in run_job and
         # the prompt confine what actually gets written.
         "Write",
-        "mcp__gcal",
-        "mcp__gmail",
+        # In-process (sdk) servers need exact tool names — bare mcp__<server>
+        # grants only expand for external servers (probed 2026-07-20).
+        "mcp__gcal__list_events",
+        "mcp__gmail__search_threads",
+        "mcp__gmail__get_thread",
         "mcp__slack",
         "mcp__linear",
         "mcp__notion",
