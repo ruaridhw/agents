@@ -78,6 +78,8 @@ class JobSpec:
     mcp_servers: list[str] = field(default_factory=list)
     allowed_tools: list[str] = field(default_factory=list)
     permission_mode: str = "default"
+    # SDK model override (e.g. "claude-sonnet-5"); None = subscription default.
+    model: str | None = None
     max_turns: int | None = None
     required_env: list[str] = field(default_factory=list)
     required_paths: list[str] = field(default_factory=list)
