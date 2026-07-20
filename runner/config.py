@@ -6,6 +6,8 @@ import importlib.util
 import json
 import os
 import re
+import subprocess
+import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -15,6 +17,15 @@ LOGS_DIR = REPO_ROOT / "logs"
 MCP_TEMPLATE = REPO_ROOT / "mcp" / "servers.template.json"
 
 _PLACEHOLDER = re.compile(r"\$\{([A-Z0-9_]+)\}")
+
+# Placeholders filled by running a command instead of reading .env — for
+# short-lived credentials that must never sit in a file. Computed lazily, only
+# when a selected server/prompt actually references them.
+COMPUTED_VARS = {
+    "GOOGLE_MCP_ACCESS_TOKEN": [
+        sys.executable, str(Path(__file__).resolve().parent.parent / "scripts" / "google-oauth.py"), "token",
+    ],
+}
 
 
 class ConfigError(Exception):
@@ -40,6 +51,16 @@ def resolve(text: str, env: dict[str, str], *, context: str) -> str:
 
     def _sub(match: re.Match) -> str:
         name = match.group(1)
+        if not env.get(name) and name in COMPUTED_VARS:
+            proc = subprocess.run(
+                COMPUTED_VARS[name], capture_output=True, text=True, timeout=60,
+            )
+            if proc.returncode != 0:
+                raise ConfigError(
+                    f"{context}: computing ${{{name}}} failed: "
+                    f"{proc.stderr.strip() or proc.stdout.strip()}"
+                )
+            env[name] = proc.stdout.strip()
         if name not in env or env[name] == "":
             raise ConfigError(
                 f"{context}: ${{{name}}} is not set — add it to .env "

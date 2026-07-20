@@ -25,7 +25,6 @@ JOB = JobSpec(
     required_env=[
         "USER_FIRST_NAME",
         "HOME_TIMEZONE",
-        "GOOGLE_OAUTH_CREDENTIALS",
     ],
     post_run_open="logs/morning_brief/latest.html",
     browser="Firefox",
