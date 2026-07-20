@@ -12,10 +12,10 @@ to-do list.
 No cloud runner, no server, no new inbox to check. Each job is a prompt, a
 schedule, and a strict tool allowlist: launchd fires it, the Claude Agent SDK
 runs it with only the connectors it needs, and everything it does is logged
-locally and visible on a read-only dashboard. Secrets live in 1Password,
-personal data never leaves the machine, and a cheap pre-check probe skips runs
-with nothing to do. Add a skill, add a schedule — and the machine takes one
-more chore off your plate.
+locally and visible on a read-only dashboard. Secrets live in 1Password and
+never touch the repo, logs and briefs stay on your machine, and a cheap
+pre-check probe skips runs with nothing to do. Add a skill, add a schedule —
+and the machine takes one more chore off your plate.
 
 ---
 
