@@ -1,5 +1,24 @@
 # agent-jobs
 
+**Your Mac, quietly working for you before you sit down.**
+
+agent-jobs turns a laptop and a Claude subscription into a small fleet of
+scheduled AI agents. While you make coffee, they've already read your calendar,
+mail, chat and meeting notes — and handed back the results: a hand-drawn
+morning brief waiting in your browser at 08:00, every meeting filed into
+Notion with names spelled right, and each action item already sitting in your
+to-do list.
+
+No cloud runner, no server, no new inbox to check. Each job is a prompt, a
+schedule, and a strict tool allowlist: launchd fires it, the Claude Agent SDK
+runs it with only the connectors it needs, and everything it does is logged
+locally and visible on a read-only dashboard. Secrets live in 1Password,
+personal data never leaves the machine, and a cheap pre-check probe skips runs
+with nothing to do. Add a skill, add a schedule — and the machine takes one
+more chore off your plate.
+
+---
+
 Scheduled local agent jobs on the **Python Claude Agent SDK**, driven by
 **launchd** on a Mac, authenticated against a Claude subscription via
 `claude login`. Migrated out of Cowork's scheduled-task harness.
