@@ -24,7 +24,6 @@ _PLACEHOLDER = re.compile(r"\$\{([A-Z0-9_]+)\}")
 _SCRIPTS = Path(__file__).resolve().parent.parent / "scripts"
 COMPUTED_VARS = {
     "GOOGLE_MCP_ACCESS_TOKEN": [sys.executable, str(_SCRIPTS / "google-oauth.py"), "token"],
-    "SLACK_MCP_TOKEN": [sys.executable, str(_SCRIPTS / "slack-token.py"), "token"],
 }
 
 
