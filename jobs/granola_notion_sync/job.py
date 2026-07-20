@@ -18,11 +18,22 @@ JOB = JobSpec(
         "Glob",
         "mcp__granola",
         "mcp__notion",
+        # For the chained notion-todoist-tasks fast pass (Todoist REST via
+        # curl; token from 1Password bootstrapped off the Keychain).
+        "Bash(security find-generic-password:*)",
+        "Bash(op read:*)",
+        "Bash(curl:*)",
+        "Bash(python3:*)",
     ],
     required_env=[
         "GRANOLA_ACCOUNT_EMAIL",
         "NOTION_MEETINGS_PAGE_ID",
         "NOTION_MEETINGS_DATA_SOURCE_ID",
+        # Chained task sync
+        "NOTION_TASKS_DATA_SOURCE_ID",
+        "TODOIST_PROJECT_ID",
+        "TODOIST_TOKEN_OP_REF",
+        "USER_FULL_NAME",
     ],
     required_paths=["academy/wiki"],
     dry_run_disallowed=[

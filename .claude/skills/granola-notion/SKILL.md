@@ -119,6 +119,10 @@ correction applied" in the report. Never guess corrections without the wiki.
 6. **Report** the new page URL(s) back to the user, plus a short **corrections
    summary** per meeting: each fix applied (`was → now`) and each ambiguous item
    left untouched. If the wiki couldn't be read, say so here.
+7. **Chain the task sync.** If any rows were created, run the
+   **notion-todoist-tasks** skill in **fast mode** for those meetings — it
+   extracts the action items into the Tasks database and syncs them with
+   Todoist (its invocation parameters are supplied alongside this skill's).
 
 ## Property mapping
 
@@ -184,6 +188,9 @@ manually only for backfills, a specific meeting, or if the agent is unloaded.
 
 - Because the skill is create-only + skip-if-present, running it repeatedly is
   safe — a meeting is only ever created once.
+- The job's prompt chains the **notion-todoist-tasks** skill (fast mode) after
+  each sync, so new action items reach the Tasks database and Todoist within
+  the same run.
 - **Runs only while the Mac is awake** (launchd fires a missed slot once on
   wake) — acceptable, since no meetings happen while it's closed.
 
