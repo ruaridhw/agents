@@ -16,9 +16,12 @@ the **Tasks** database, then sync with Todoist. Two modes:
 - **fast** (default when chained after a granola-notion sync): only process the
   meeting pages named/created in this session, then run the Todoist pass over
   rows touched or pending.
-- **full** (daily reconciliation): re-scan **all** meeting pages for action
-  items, diff against the Tasks database, then run the Todoist pass over all
-  non-terminal rows.
+- **full** (daily reconciliation): re-scan meeting pages **dated within the
+  last 7 days** for action items and diff against the Tasks database — older
+  bodies are treated as settled (their items were extracted when fresh, and
+  completions still reach them via the Todoist pull). The Todoist pass then
+  runs over **all** non-terminal rows with a Todoist ID, regardless of
+  meeting age.
 
 > **Invocation parameters.** This skill is public; everything identifying is
 > supplied by the invocation prompt (resolved from `.env` by the runner):
@@ -122,8 +125,10 @@ for that meeting (`notion-query-data-sources` on the Tasks source, filter by
   rename: update that row's `Sync Key`; if the row is **unsynced**, also update
   Task/Description from the new text (if synced, Todoist owns the text — key
   update only). Otherwise create a new row.
-- **Row's key matches no body line** (full mode only) → the item was removed
-  from the body: unsynced row → `Cancelled`; synced row → leave alone.
+- **Row's key matches no body line** (full mode only, within the scanned
+  7-day window) → the item was removed from the body: unsynced row →
+  `Cancelled`; synced row → leave alone. Rows from older meetings are never
+  tombstoned by omission.
 
 ## Todoist pass
 

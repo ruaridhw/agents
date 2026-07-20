@@ -1,6 +1,7 @@
-Run the notion-todoist-tasks skill in **full mode**: re-scan all Notion
-meeting pages for action items, diff them into the Tasks database, and sync
-with Todoist in both directions.
+Run the notion-todoist-tasks skill in **full mode**: re-scan Notion meeting
+pages **dated within the last 7 days** for action items, diff them into the
+Tasks database, and sync with Todoist in both directions. (The Todoist pull
+pass still covers ALL non-terminal synced rows regardless of meeting age.)
 
 Operational parameters for this run (the skill refers to these as "provided in
 the invocation"):
