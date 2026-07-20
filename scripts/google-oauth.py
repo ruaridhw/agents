@@ -44,13 +44,17 @@ OP_ITEM = "op://Duvo/GoogleOAuth"
 def _op_read(field: str) -> str | None:
     keychain = subprocess.run(
         ["security", "find-generic-password", "-s", "op-service-account", "-w"],
-        capture_output=True, text=True,
+        capture_output=True,
+        text=True,
     )
     proc = subprocess.run(
         ["op", "read", f"{OP_ITEM}/{field}"],
-        capture_output=True, text=True,
-        env={"OP_SERVICE_ACCOUNT_TOKEN": keychain.stdout.strip(),
-             "PATH": "/opt/homebrew/bin:/usr/bin:/bin"},
+        capture_output=True,
+        text=True,
+        env={
+            "OP_SERVICE_ACCOUNT_TOKEN": keychain.stdout.strip(),
+            "PATH": "/opt/homebrew/bin:/usr/bin:/bin",
+        },
     )
     return proc.stdout.strip() if proc.returncode == 0 else None
 
@@ -71,7 +75,9 @@ def load_client() -> dict:
             f"a JSON file at {CLIENT_JSON} (override with GOOGLE_OAUTH_CREDENTIALS)"
         )
     data = json.loads(CLIENT_JSON.read_text())
-    return data.get("installed") or data.get("web") or sys.exit("unrecognised client JSON")
+    return (
+        data.get("installed") or data.get("web") or sys.exit("unrecognised client JSON")
+    )
 
 
 def post_form(url: str, params: dict) -> dict:
@@ -100,7 +106,7 @@ def authorize() -> None:
             self.end_headers()
             self.wfile.write(b"<h2>Authorised &mdash; you can close this tab.</h2>")
 
-        def log_message(self, *args):
+        def log_message(self, format: str, *args: object) -> None:
             pass
 
     with socket.socket() as probe:
@@ -109,14 +115,16 @@ def authorize() -> None:
     server = HTTPServer(("127.0.0.1", port), Handler)
     redirect = f"http://localhost:{port}"
 
-    auth_url = "https://accounts.google.com/o/oauth2/v2/auth?" + urllib.parse.urlencode({
-        "client_id": client["client_id"],
-        "redirect_uri": redirect,
-        "response_type": "code",
-        "scope": " ".join(SCOPES),
-        "access_type": "offline",
-        "prompt": "consent",
-    })
+    auth_url = "https://accounts.google.com/o/oauth2/v2/auth?" + urllib.parse.urlencode(
+        {
+            "client_id": client["client_id"],
+            "redirect_uri": redirect,
+            "response_type": "code",
+            "scope": " ".join(SCOPES),
+            "access_type": "offline",
+            "prompt": "consent",
+        }
+    )
     print(f"Opening browser for consent (redirect on port {port})…")
     subprocess.run(["open", auth_url], check=False)
 
@@ -127,13 +135,16 @@ def authorize() -> None:
     if "error" in code_holder:
         sys.exit(f"consent failed: {code_holder['error']}")
 
-    tokens = post_form(client["token_uri"], {
-        "client_id": client["client_id"],
-        "client_secret": client["client_secret"],
-        "code": code_holder["code"],
-        "grant_type": "authorization_code",
-        "redirect_uri": redirect,
-    })
+    tokens = post_form(
+        client["token_uri"],
+        {
+            "client_id": client["client_id"],
+            "client_secret": client["client_secret"],
+            "code": code_holder["code"],
+            "grant_type": "authorization_code",
+            "redirect_uri": redirect,
+        },
+    )
     if "refresh_token" not in tokens:
         sys.exit(f"no refresh token in response: {tokens}")
     tokens["expires_at"] = time.time() + tokens.get("expires_in", 0)
@@ -143,18 +154,23 @@ def authorize() -> None:
 
 def token() -> None:
     if not TOKEN_FILE.exists():
-        sys.exit(f"no token file at {TOKEN_FILE} — run: python3 scripts/google-oauth.py authorize")
+        sys.exit(
+            f"no token file at {TOKEN_FILE} — run: python3 scripts/google-oauth.py authorize"
+        )
     tokens = json.loads(TOKEN_FILE.read_text())
     if tokens.get("expires_at", 0) - time.time() > 120:
         print(tokens["access_token"])
         return
     client = load_client()
-    fresh = post_form(client["token_uri"], {
-        "client_id": client["client_id"],
-        "client_secret": client["client_secret"],
-        "refresh_token": tokens["refresh_token"],
-        "grant_type": "refresh_token",
-    })
+    fresh = post_form(
+        client["token_uri"],
+        {
+            "client_id": client["client_id"],
+            "client_secret": client["client_secret"],
+            "refresh_token": tokens["refresh_token"],
+            "grant_type": "refresh_token",
+        },
+    )
     tokens["access_token"] = fresh["access_token"]
     tokens["expires_at"] = time.time() + fresh.get("expires_in", 0)
     save_tokens(tokens)

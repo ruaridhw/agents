@@ -11,6 +11,8 @@ import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from claude_agent_sdk import PermissionMode
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 JOBS_DIR = REPO_ROOT / "jobs"
 LOGS_DIR = REPO_ROOT / "logs"
@@ -23,7 +25,11 @@ _PLACEHOLDER = re.compile(r"\$\{([A-Z0-9_]+)\}")
 # when a selected server/prompt actually references them.
 _SCRIPTS = Path(__file__).resolve().parent.parent / "scripts"
 COMPUTED_VARS = {
-    "GOOGLE_MCP_ACCESS_TOKEN": [sys.executable, str(_SCRIPTS / "google-oauth.py"), "token"],
+    "GOOGLE_MCP_ACCESS_TOKEN": [
+        sys.executable,
+        str(_SCRIPTS / "google-oauth.py"),
+        "token",
+    ],
 }
 
 
@@ -53,13 +59,18 @@ def op_read(ref: str, *, context: str = "") -> str:
     """
     keychain = subprocess.run(
         ["security", "find-generic-password", "-s", "op-service-account", "-w"],
-        capture_output=True, text=True,
+        capture_output=True,
+        text=True,
     )
     proc = subprocess.run(
         ["op", "read", ref],
-        capture_output=True, text=True, timeout=30,
-        env={"OP_SERVICE_ACCOUNT_TOKEN": keychain.stdout.strip(),
-             "PATH": "/opt/homebrew/bin:/usr/bin:/bin"},
+        capture_output=True,
+        text=True,
+        timeout=30,
+        env={
+            "OP_SERVICE_ACCOUNT_TOKEN": keychain.stdout.strip(),
+            "PATH": "/opt/homebrew/bin:/usr/bin:/bin",
+        },
     )
     if proc.returncode != 0:
         raise ConfigError(f"{context}: op read {ref} failed: {proc.stderr.strip()}")
@@ -77,7 +88,10 @@ def resolve(text: str, env: dict[str, str], *, context: str) -> str:
         name = match.group(1)
         if not env.get(name) and name in COMPUTED_VARS:
             proc = subprocess.run(
-                COMPUTED_VARS[name], capture_output=True, text=True, timeout=60,
+                COMPUTED_VARS[name],
+                capture_output=True,
+                text=True,
+                timeout=60,
             )
             if proc.returncode != 0:
                 raise ConfigError(
@@ -87,8 +101,7 @@ def resolve(text: str, env: dict[str, str], *, context: str) -> str:
             env[name] = proc.stdout.strip()
         if name not in env or env[name] == "":
             raise ConfigError(
-                f"{context}: ${{{name}}} is not set — add it to .env "
-                f"(see .env.example)"
+                f"{context}: ${{{name}}} is not set — add it to .env (see .env.example)"
             )
         # Vars named *_OP_REF are pass-by-reference on purpose (the agent
         # op-reads them itself at run time) — never dereference those here.
@@ -105,7 +118,7 @@ class JobSpec:
     description: str
     mcp_servers: list[str] = field(default_factory=list)
     allowed_tools: list[str] = field(default_factory=list)
-    permission_mode: str = "default"
+    permission_mode: PermissionMode = "default"
     # SDK model override (e.g. "claude-sonnet-5"); None = subscription default.
     model: str | None = None
     max_turns: int | None = None
@@ -145,6 +158,8 @@ def load_job(name: str) -> JobSpec:
         available = sorted(p.parent.name for p in JOBS_DIR.glob("*/job.py"))
         raise ConfigError(f"unknown job {name!r} — available: {', '.join(available)}")
     module_spec = importlib.util.spec_from_file_location(f"jobs.{name}", job_py)
+    if module_spec is None or module_spec.loader is None:
+        raise ConfigError(f"could not load jobs/{name}/job.py as a module")
     module = importlib.util.module_from_spec(module_spec)
     module_spec.loader.exec_module(module)
     job: JobSpec = module.JOB
