@@ -7,7 +7,10 @@ scheduled AI agents. While you make coffee, they've already read your calendar,
 mail, chat and meeting notes — and handed back the results: a hand-drawn
 morning brief waiting in your browser at 08:00, every meeting filed into
 Notion with names spelled right, and each action item already sitting in your
-to-do list.
+to-do list. Before a meeting is written to Notion, it is corrected against the
+local "second-brain" wiki (here, a gitignored separately maintained repo,
+"academy"), so misheard names, companies and acronyms are fixed against your
+private source of truth without any of it leaving your machine.
 
 No cloud runner, no server, no new inbox to check. Each job is a prompt, a
 schedule, and a strict tool allowlist: launchd fires it, the Claude Agent SDK
