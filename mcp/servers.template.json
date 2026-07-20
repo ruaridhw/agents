@@ -8,8 +8,11 @@
     "then `claude` in this repo and use /mcp to complete each OAuth once — the",
     "Claude Code binary caches the tokens and headless SDK runs reuse them.",
     "",
-    "Endpoints/packages below are the Phase-2/3 starting point — pin or swap",
-    "them during those phases if a connector's shape has changed."
+    "Endpoints below are the Phase-2/3 starting point — pin or swap them",
+    "during those phases if a connector's shape has changed. slack/gcal/gmail",
+    "use the first-party remote endpoints (verified live via `claude mcp list`);",
+    "if one refuses direct OAuth from Claude Code, fall back to a stdio server",
+    "(e.g. @modelcontextprotocol/server-slack with SLACK_BOT_TOKEN in .env)."
   ],
   "servers": {
     "notion": {
@@ -25,29 +28,16 @@
       "url": "https://mcp.linear.app/mcp"
     },
     "slack": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-slack"],
-      "env": {
-        "SLACK_BOT_TOKEN": "${SLACK_BOT_TOKEN}",
-        "SLACK_TEAM_ID": "${SLACK_TEAM_ID}"
-      }
+      "type": "http",
+      "url": "https://mcp.slack.com/mcp"
     },
     "gcal": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@cocal/google-calendar-mcp"],
-      "env": {
-        "GOOGLE_OAUTH_CREDENTIALS": "${GOOGLE_OAUTH_CREDENTIALS}"
-      }
+      "type": "http",
+      "url": "https://calendarmcp.googleapis.com/mcp/v1"
     },
     "gmail": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@gongrzhe/server-gmail-autoauth-mcp"],
-      "env": {
-        "GOOGLE_OAUTH_CREDENTIALS": "${GOOGLE_OAUTH_CREDENTIALS}"
-      }
+      "type": "http",
+      "url": "https://gmailmcp.googleapis.com/mcp/v1"
     }
   }
 }

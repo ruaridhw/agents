@@ -42,11 +42,10 @@ ln -s ~/Documents/academy academy   # or wherever the wiki lives
 # 3. subscription auth — once, interactively
 claude login
 
-# 4. remote MCP OAuth — once, interactively
+# 4. remote MCP OAuth — once per connector, from an interactive terminal
 python3 scripts/render-mcp-json.py  # renders .mcp.json (gitignored)
-claude                              # in this repo: run /mcp, complete each OAuth
-                                    # (notion, granola, linear); tokens are
-                                    # cached and reused by headless runs
+claude mcp login granola            # repeat for: notion linear slack gcal gmail
+                                    # tokens are cached and reused by headless runs
 
 # 5. smoke test, then schedule
 ./run.sh hello
