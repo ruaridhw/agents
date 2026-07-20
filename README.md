@@ -8,6 +8,7 @@ Scheduled local agent jobs on the **Python Claude Agent SDK**, driven by
 |---|---|---|
 | `morning_brief` | 08:00 Mon–Fri | Renders the styled HTML morning brief (read-only across calendar/email/chat/tracker connectors) and opens it in Firefox. |
 | `granola_notion_sync` | hourly 08:00–18:00 Mon–Fri | Syncs the last 7 days of Granola meetings into the Notion Meetings DB, correcting ASR mishearings against the local wiki first. Create-only, dedup by Granola ID. |
+| `notion_todoist_sync` | 07:00 Mon–Fri | Full reconciliation of meeting action items → Notion Tasks DB → Todoist: re-scans all meeting pages, pushes new tasks, pulls back completions/edits/sections (Todoist is source of truth once synced). Also chained in fast mode after each `granola_notion_sync` run. |
 | `hello` | manual | Trivial round-trip to verify auth + scheduling (Phase-1 spike). |
 
 Everything identifying stays out of git: `.env` (secrets/IDs), `academy`

@@ -3,7 +3,7 @@
 #   ./scripts/install-launchd.sh [jobs…]           install/reload (default: both)
 #   ./scripts/install-launchd.sh render            write plists to launchd/ only (no load)
 #   ./scripts/install-launchd.sh remove [jobs…]    unload and delete (default: both)
-# Job names: morning-brief granola-notion-sync — per-job installs support the
+# Job names: morning-brief granola-notion-sync notion-todoist-sync — per-job installs support the
 # one-at-a-time migration cutover.
 #
 # launchd (not cron) because StartCalendarInterval fires a missed run once on
@@ -49,7 +49,7 @@ unload_agent() {
   launchctl bootout "gui/$(id -u)/${label}" 2>/dev/null || true
 }
 
-ALL_JOBS=(morning-brief granola-notion-sync)
+ALL_JOBS=(morning-brief granola-notion-sync notion-todoist-sync)
 
 if [[ "${1:-}" == "remove" ]]; then
   shift
@@ -92,6 +92,14 @@ for job in "${jobs[@]}"; do
         done
       done
       render_plist "${PREFIX}.${job}" "granola_notion_sync" "${intervals%$'\n'}" \
+        > "${AGENTS_DIR}/${PREFIX}.${job}.plist"
+      ;;
+    notion-todoist-sync)  # 07:00 Mon–Fri daily full reconciliation
+      intervals=""
+      for wd in 1 2 3 4 5; do
+        intervals+="$(interval_entry "$wd" 7)"$'\n'
+      done
+      render_plist "${PREFIX}.${job}" "notion_todoist_sync" "${intervals%$'\n'}" \
         > "${AGENTS_DIR}/${PREFIX}.${job}.plist"
       ;;
     *)
