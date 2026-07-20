@@ -11,6 +11,7 @@ JOB = JobSpec(
     description="Re-scan all Notion meeting pages for action items, diff into "
                 "the Tasks DB, and sync both directions with Todoist",
     model="claude-sonnet-5",  # mechanical sync work — Opus not needed
+    max_turns=80,  # runaway guard; healthy runs stay well under
     mcp_servers=["notion"],
     allowed_tools=[
         "Skill",

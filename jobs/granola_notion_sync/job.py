@@ -11,6 +11,7 @@ JOB = JobSpec(
     description="Sync last-7-days Granola meetings into the Notion Meetings DB, "
                 "wiki-correcting mishearings first",
     model="claude-sonnet-5",  # mechanical sync work — Opus not needed
+    max_turns=60,  # runaway guard; healthy runs stay well under
     mcp_servers=["granola", "notion"],
     allowed_tools=[
         "Skill",
