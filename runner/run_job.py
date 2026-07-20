@@ -156,6 +156,16 @@ async def run(job_name: str, *, dry_run: bool = False) -> int:
             return finish("error", result=result,
                           error=getattr(result, "result", None) or "no result message")
 
+        # The SDK reporting success is not the same as the job succeeding: if
+        # the job promises an output artifact, it must exist and be fresh.
+        if spec.post_run_open and not dry_run:
+            target = REPO_ROOT / spec.post_run_open
+            if not target.exists() or target.stat().st_mtime < started.timestamp():
+                emit({"event": "error", "stage": "artifact",
+                      "error": f"{spec.post_run_open} missing or stale"})
+                return finish("error", result=result,
+                              error=f"expected artifact {spec.post_run_open} was not written")
+
     if not dry_run:
         _post_run(spec)
     return finish("dry_run_ok" if dry_run else "ok", result=result)

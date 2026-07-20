@@ -6,6 +6,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from runner.config import JobSpec
 
+_REPO = Path(__file__).resolve().parents[2]
+
 JOB = JobSpec(
     name="morning_brief",
     description="Render the styled HTML morning brief from calendar, email, "
@@ -14,7 +16,10 @@ JOB = JobSpec(
     allowed_tools=[
         "Skill",
         "Read",
+        # Both forms: the agent writes absolute paths, which the relative
+        # gitignore-style rule does not match (proven in the first live run).
         "Write(logs/morning_brief/**)",
+        f"Write(/{_REPO}/logs/morning_brief/**)",
         "mcp__gcal",
         "mcp__gmail",
         "mcp__slack",
