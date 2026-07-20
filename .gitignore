@@ -1,0 +1,26 @@
+# Secrets — never committed
+.env
+
+# Private wiki symlink — points outside the repo
+academy
+
+# Run output
+logs/
+
+# Rendered MCP config (contains resolved secrets)
+.mcp.json
+
+# Rendered launchd previews (contain absolute local paths)
+launchd/*.plist
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Node / dashboard
+node_modules/
+dashboard/dist/
+
+# macOS
+.DS_Store
