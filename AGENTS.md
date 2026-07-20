@@ -20,7 +20,7 @@ jobs/<name>/precheck.md   optional cheap probe (Haiku, read-only): last line NO_
 runner/config.py          .env loading, ${VAR} resolution, JobSpec, MCP subsetting
 runner/preflight.py       loud pre-run checks: auth, env, paths, MCP reachability
 runner/run_job.py         entrypoint; --dry-run blocks each job's write tools
-.claude/skills/<name>/    skill definitions (top-level skills/ is a symlink here)
+.claude/skills/<name>/    skill definitions
 mcp/servers.template.json all MCP servers, ${ENV_VAR} placeholders — single source
 scripts/                  launchd installer (per-job), mcp renderer
 .pre-commit-config.yaml   git hooks: ruff format/check, ty, uv-lock, gitleaks

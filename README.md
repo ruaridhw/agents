@@ -22,7 +22,7 @@ jobs/<name>/prompt.md     invocation prompt; ${VAR}s resolved from .env
 runner/run_job.py         entrypoint: preflight → query() → jsonl logs
 runner/config.py          .env loading, ${VAR} resolution, MCP subsetting
 runner/preflight.py       auth/env/paths/MCP checks that fail loudly
-.claude/skills/           the `morning` and `granola-notion` skills (skills/ symlinks here)
+.claude/skills/           the `morning` and `granola-notion` skills
 mcp/servers.template.json MCP server defs with ${ENV_VAR} placeholders
 launchd + scripts/        LaunchAgent renderer/installer, hooks, mcp render
 dashboard/                read-only TS/Docker view over logs/
