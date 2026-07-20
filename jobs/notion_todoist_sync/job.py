@@ -16,11 +16,10 @@ JOB = JobSpec(
         "Read",
         "Grep",
         "Glob",
-        # Todoist has no MCP: the skill drives its REST API via curl, with the
-        # token fetched from 1Password (op) bootstrapped off the Keychain.
-        "Bash(security find-generic-password:*)",
-        "Bash(op read:*)",
-        "Bash(curl:*)",
+        # Todoist has no MCP: all calls go through the wrapper, which resolves
+        # the token internally (Keychain -> op) so it never hits a command line.
+        "Bash(scripts/todoist-api.sh:*)",
+        "Bash(./scripts/todoist-api.sh:*)",
         "Bash(python3:*)",  # Sync Key sha1 hashing
         "mcp__notion",
     ],
@@ -41,7 +40,8 @@ JOB = JobSpec(
         "mcp__notion__notion-duplicate-page",
         "mcp__notion__notion-create-comment",
         # Blocks ALL Todoist calls (reads too) — a dry run reports Notion-side
-        # diffs only, since curl can't be write-scoped by tool name.
-        "Bash(curl:*)",
+        # diffs only, since the wrapper can't be write-scoped by tool name.
+        "Bash(scripts/todoist-api.sh:*)",
+        "Bash(./scripts/todoist-api.sh:*)",
     ],
 )

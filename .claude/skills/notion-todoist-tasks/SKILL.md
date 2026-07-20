@@ -97,6 +97,7 @@ import hashlib, re
 def norm(s):
     s = s.replace('’',"'").replace('‘',"'").replace('“','"').replace('”','"')
     s = s.replace('—','-').replace('–','-').replace('~','')
+    s = s.replace('\\','')           # markdown escape backslashes (e.g. \~)
     s = re.sub(r'[*_`]','',s)          # markdown
     s = re.sub(r'\s+',' ',s).strip().lower()
     return s
@@ -126,24 +127,27 @@ for that meeting (`notion-query-data-sources` on the Tasks source, filter by
 
 ## Todoist pass
 
-### Credentials
+### Credentials & API access
 
-The Todoist API token lives in 1Password, read via a **service account**
-whose token is in the macOS Keychain. The `op://` reference is provided in
-the invocation:
+**Every Todoist call goes through `scripts/todoist-api.sh METHOD PATH
+[JSON_BODY]`** (run from the repo root). It resolves the API token internally
+— macOS Keychain (`op-service-account`) → 1Password service account →
+`op read` of the reference in `$TODOIST_TOKEN_OP_REF` — and calls
+`https://api.todoist.com/api/v1`. Examples:
 
 ```bash
-export OP_SERVICE_ACCOUNT_TOKEN=$(security find-generic-password -s "op-service-account" -w)
-TODOIST_TOKEN=$(op read "<op reference provided in the invocation>")
+scripts/todoist-api.sh GET "/tasks?project_id=$TODOIST_PROJECT_ID&limit=200"
+scripts/todoist-api.sh POST /tasks '{"content":"…","section_id":"…"}'
+scripts/todoist-api.sh POST /tasks/<id>/close
 ```
 
-If the token can't be read, do the Notion-side extraction anyway, skip the
-Todoist pass, and report "Todoist pass skipped — credentials unavailable".
+**Never fetch, print, echo, or embed the service-account token or the Todoist
+token in a command line, script, file, or output** — the wrapper exists so
+tokens stay out of logs. Do not call `op` or `security` directly.
 
-### API
-
-Use the unified Todoist API, `https://api.todoist.com/api/v1` (header
-`Authorization: Bearer $TODOIST_TOKEN`). Verify endpoint shapes against
+If the wrapper fails (token unreadable), do the Notion-side extraction anyway,
+skip the Todoist pass, and report "Todoist pass skipped — credentials
+unavailable". Verify endpoint shapes against
 https://developer.todoist.com/api/v1 if a call 404s unexpectedly.
 
 - **Project**: all tasks live in the project whose ID is provided in the

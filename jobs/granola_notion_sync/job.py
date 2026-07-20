@@ -18,11 +18,10 @@ JOB = JobSpec(
         "Glob",
         "mcp__granola",
         "mcp__notion",
-        # For the chained notion-todoist-tasks fast pass (Todoist REST via
-        # curl; token from 1Password bootstrapped off the Keychain).
-        "Bash(security find-generic-password:*)",
-        "Bash(op read:*)",
-        "Bash(curl:*)",
+        # For the chained notion-todoist-tasks fast pass: Todoist REST goes
+        # through the wrapper, which resolves the token internally.
+        "Bash(scripts/todoist-api.sh:*)",
+        "Bash(./scripts/todoist-api.sh:*)",
         "Bash(python3:*)",
     ],
     required_env=[
