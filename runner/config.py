@@ -81,6 +81,9 @@ class JobSpec:
     # SDK model override (e.g. "claude-sonnet-5"); None = subscription default.
     model: str | None = None
     max_turns: int | None = None
+    # Model for the cheap pre-check probe (jobs/<name>/precheck.md, if present).
+    precheck_model: str = "claude-haiku-4-5-20251001"
+    precheck_max_turns: int = 8
     required_env: list[str] = field(default_factory=list)
     required_paths: list[str] = field(default_factory=list)
     # Repo-relative file to `open -a <browser>` after a successful run.
@@ -92,6 +95,16 @@ class JobSpec:
     @property
     def prompt_path(self) -> Path:
         return JOBS_DIR / self.name / "prompt.md"
+
+    @property
+    def precheck_path(self) -> Path:
+        return JOBS_DIR / self.name / "precheck.md"
+
+    def load_precheck(self, env: dict[str, str]) -> str | None:
+        if not self.precheck_path.exists():
+            return None
+        raw = self.precheck_path.read_text()
+        return resolve(raw, env, context=f"jobs/{self.name}/precheck.md")
 
     def load_prompt(self, env: dict[str, str]) -> str:
         raw = self.prompt_path.read_text()

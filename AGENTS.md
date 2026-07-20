@@ -16,6 +16,7 @@ OAuth tokens are cached per server name by the Claude Code binary.
 ```
 jobs/<name>/job.py        JobSpec: MCP server subset, allowed_tools, required env/paths
 jobs/<name>/prompt.md     invocation prompt; ${VAR}s resolved from .env at run time
+jobs/<name>/precheck.md   optional cheap probe (Haiku, read-only): last line NO_WORK skips the run
 runner/config.py          .env loading, ${VAR} resolution, JobSpec, MCP subsetting
 runner/preflight.py       loud pre-run checks: auth, env, paths, MCP reachability
 runner/run_job.py         entrypoint; --dry-run blocks each job's write tools

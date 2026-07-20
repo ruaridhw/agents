@@ -81,7 +81,7 @@ async def run(job_name: str, *, dry_run: bool = False) -> int:
         }
         _append_history(job_dir, summary)
         print(f"[{spec.name}] {status} in {summary['duration_s']}s — {run_log}")
-        return 0 if status in ("ok", "dry_run_ok") else 1
+        return 0 if status in ("ok", "dry_run_ok", "skipped_no_work") else 1
 
     with run_log.open("w") as log:
         def emit(record: dict) -> None:
@@ -98,6 +98,32 @@ async def run(job_name: str, *, dry_run: bool = False) -> int:
             emit({"event": "error", "stage": "preflight", "error": str(err)})
             print(f"[{spec.name}] preflight failed: {err}", file=sys.stderr)
             return finish("preflight_failed", error=str(err))
+
+        # Cheap pre-check: a small read-only probe decides whether the full
+        # session is needed at all. NO_WORK skips the run; anything else —
+        # including a probe failure — falls through to the real run (fail-open).
+        precheck_prompt = spec.load_precheck(env)
+        if precheck_prompt and not dry_run:
+            pre_options = ClaudeAgentOptions(
+                cwd=str(REPO_ROOT),
+                mcp_servers=load_mcp_servers(spec.mcp_servers, env),
+                allowed_tools=spec.allowed_tools,
+                disallowed_tools=spec.dry_run_disallowed,  # probe never writes
+                permission_mode=spec.permission_mode,
+                model=spec.precheck_model,
+                max_turns=spec.precheck_max_turns,
+            )
+            pre_result: ResultMessage | None = None
+            try:
+                async for message in query(prompt=precheck_prompt, options=pre_options):
+                    emit({"event": "precheck_message", "message": message})
+                    if isinstance(message, ResultMessage):
+                        pre_result = message
+            except Exception as err:
+                emit({"event": "error", "stage": "precheck_probe", "error": str(err)})
+            verdict = (getattr(pre_result, "result", None) or "").strip()
+            if verdict and verdict.splitlines()[-1].strip() == "NO_WORK":
+                return finish("skipped_no_work", result=pre_result)
 
         options = ClaudeAgentOptions(
             cwd=str(REPO_ROOT),
