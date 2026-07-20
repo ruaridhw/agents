@@ -5,7 +5,7 @@ Operational parameters for this run:
 - My name for the headline: ${USER_FIRST_NAME}
 - Home timezone for the calendar window: ${HOME_TIMEZONE}
 - Tool roles: calendar = the gcal MCP server · email = the gmail MCP server ·
-  chat = the slack MCP server · other = linear, notion, granola, box. A server
+  chat = the slack MCP server · other = linear, notion, granola. A server
   whose tools fail or are missing counts as a disconnected role — the page
   adapts per the skill.
 

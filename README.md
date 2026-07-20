@@ -45,7 +45,7 @@ claude login
 # 4. remote MCP OAuth — once, interactively
 python3 scripts/render-mcp-json.py  # renders .mcp.json (gitignored)
 claude                              # in this repo: run /mcp, complete each OAuth
-                                    # (notion, granola, linear, box); tokens are
+                                    # (notion, granola, linear); tokens are
                                     # cached and reused by headless runs
 
 # 5. smoke test, then schedule
@@ -85,7 +85,7 @@ spend or actions.
 - Runs draw on the Claude subscription allowance via `claude login`
   credentials (supported for headless SDK use). Never hand-extract OAuth
   tokens into other tools — that violates the Consumer ToS. Watch usage in
-  week one; the brief fans out across 7 connectors.
+  week one; the brief fans out across 6 connectors.
 - Setting `ANTHROPIC_API_KEY` in `.env` switches all runs to pay-as-you-go
   API billing. Decide deliberately.
 

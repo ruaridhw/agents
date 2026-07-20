@@ -10,7 +10,7 @@ JOB = JobSpec(
     name="morning_brief",
     description="Render the styled HTML morning brief from calendar, email, "
                 "chat and tracker connectors",
-    mcp_servers=["gcal", "gmail", "slack", "linear", "notion", "granola", "box"],
+    mcp_servers=["gcal", "gmail", "slack", "linear", "notion", "granola"],
     allowed_tools=[
         "Skill",
         "Read",
@@ -21,7 +21,6 @@ JOB = JobSpec(
         "mcp__linear",
         "mcp__notion",
         "mcp__granola",
-        "mcp__box",
     ],
     required_env=[
         "USER_FIRST_NAME",
