@@ -18,7 +18,15 @@ import traceback
 from claude_agent_sdk import ClaudeAgentOptions, ResultMessage, query
 
 from . import preflight
-from .config import LOGS_DIR, REPO_ROOT, ConfigError, JobSpec, load_env, load_job, load_mcp_servers
+from .config import (
+    LOGS_DIR,
+    REPO_ROOT,
+    ConfigError,
+    JobSpec,
+    load_env,
+    load_job,
+    load_mcp_servers,
+)
 
 HISTORY_KEEP = 500  # one-line summaries kept per job
 RUN_LOG_KEEP_DAYS = 30  # full per-run jsonl logs older than this are pruned
@@ -67,7 +75,9 @@ async def run(job_name: str, *, dry_run: bool = False) -> int:
     run_log = job_dir / f"{started.strftime('%Y-%m-%dT%H-%M-%S')}.jsonl"
     _prune_run_logs(job_dir)
 
-    def finish(status: str, *, result: ResultMessage | None = None, error: str | None = None) -> int:
+    def finish(
+        status: str, *, result: ResultMessage | None = None, error: str | None = None
+    ) -> int:
         ended = dt.datetime.now().astimezone()
         summary = {
             "ts": started.isoformat(timespec="seconds"),
@@ -84,12 +94,19 @@ async def run(job_name: str, *, dry_run: bool = False) -> int:
         return 0 if status in ("ok", "dry_run_ok", "skipped_no_work") else 1
 
     with run_log.open("w") as log:
+
         def emit(record: dict) -> None:
             log.write(json.dumps(record, default=_jsonable) + "\n")
             log.flush()
 
-        emit({"event": "start", "job": spec.name, "ts": started.isoformat(),
-              "dry_run": dry_run})
+        emit(
+            {
+                "event": "start",
+                "job": spec.name,
+                "ts": started.isoformat(),
+                "dry_run": dry_run,
+            }
+        )
 
         try:
             checks = preflight.run_checks(spec, env)
@@ -147,24 +164,41 @@ async def run(job_name: str, *, dry_run: bool = False) -> int:
                 if isinstance(message, ResultMessage):
                     result = message
         except Exception as err:  # SDK/transport failure — log it, don't swallow it
-            emit({"event": "error", "stage": "query", "error": str(err),
-                  "traceback": traceback.format_exc()})
+            emit(
+                {
+                    "event": "error",
+                    "stage": "query",
+                    "error": str(err),
+                    "traceback": traceback.format_exc(),
+                }
+            )
             print(f"[{spec.name}] run failed: {err}", file=sys.stderr)
             return finish("error", error=str(err))
 
         if result is None or result.is_error:
-            return finish("error", result=result,
-                          error=getattr(result, "result", None) or "no result message")
+            return finish(
+                "error",
+                result=result,
+                error=getattr(result, "result", None) or "no result message",
+            )
 
         # The SDK reporting success is not the same as the job succeeding: if
         # the job promises an output artifact, it must exist and be fresh.
         if spec.post_run_open and not dry_run:
             target = REPO_ROOT / spec.post_run_open
             if not target.exists() or target.stat().st_mtime < started.timestamp():
-                emit({"event": "error", "stage": "artifact",
-                      "error": f"{spec.post_run_open} missing or stale"})
-                return finish("error", result=result,
-                              error=f"expected artifact {spec.post_run_open} was not written")
+                emit(
+                    {
+                        "event": "error",
+                        "stage": "artifact",
+                        "error": f"{spec.post_run_open} missing or stale",
+                    }
+                )
+                return finish(
+                    "error",
+                    result=result,
+                    error=f"expected artifact {spec.post_run_open} was not written",
+                )
 
     if not dry_run:
         _post_run(spec)

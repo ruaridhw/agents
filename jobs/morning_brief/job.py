@@ -11,7 +11,7 @@ _REPO = Path(__file__).resolve().parents[2]
 JOB = JobSpec(
     name="morning_brief",
     description="Render the styled HTML morning brief from calendar, email, "
-                "chat and tracker connectors",
+    "chat and tracker connectors",
     mcp_servers=["gcal", "gmail", "slack", "linear", "notion", "granola"],
     allowed_tools=[
         "Skill",

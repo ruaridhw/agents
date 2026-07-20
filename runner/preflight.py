@@ -12,7 +12,6 @@ Usable standalone (`python -m runner.preflight <job>`) or via run_job.
 from __future__ import annotations
 
 import json
-import os
 import socket
 import subprocess
 import sys
@@ -35,7 +34,9 @@ def _read_credentials() -> dict | None:
     try:
         out = subprocess.run(
             ["security", "find-generic-password", "-s", KEYCHAIN_SERVICE, "-w"],
-            capture_output=True, text=True, timeout=10,
+            capture_output=True,
+            text=True,
+            timeout=10,
         )
         if out.returncode == 0 and out.stdout.strip():
             return json.loads(out.stdout)
