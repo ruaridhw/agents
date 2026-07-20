@@ -1,0 +1,57 @@
+{
+  "//": [
+    "MCP server definitions with ${ENV_VAR} placeholders, resolved from .env",
+    "at load time by runner/config.py. Each job selects only the servers it",
+    "needs (jobs/<name>/job.py), so unused connectors never block a run.",
+    "",
+    "Remote (url) servers authenticate via OAuth: run `scripts/render-mcp-json.py`",
+    "then `claude` in this repo and use /mcp to complete each OAuth once — the",
+    "Claude Code binary caches the tokens and headless SDK runs reuse them.",
+    "",
+    "Endpoints/packages below are the Phase-2/3 starting point — pin or swap",
+    "them during those phases if a connector's shape has changed."
+  ],
+  "servers": {
+    "notion": {
+      "type": "http",
+      "url": "https://mcp.notion.com/mcp"
+    },
+    "granola": {
+      "type": "http",
+      "url": "https://mcp.granola.ai/mcp"
+    },
+    "linear": {
+      "type": "http",
+      "url": "https://mcp.linear.app/mcp"
+    },
+    "box": {
+      "type": "http",
+      "url": "https://mcp.box.com/mcp"
+    },
+    "slack": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-slack"],
+      "env": {
+        "SLACK_BOT_TOKEN": "${SLACK_BOT_TOKEN}",
+        "SLACK_TEAM_ID": "${SLACK_TEAM_ID}"
+      }
+    },
+    "gcal": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@cocal/google-calendar-mcp"],
+      "env": {
+        "GOOGLE_OAUTH_CREDENTIALS": "${GOOGLE_OAUTH_CREDENTIALS}"
+      }
+    },
+    "gmail": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@gongrzhe/server-gmail-autoauth-mcp"],
+      "env": {
+        "GOOGLE_OAUTH_CREDENTIALS": "${GOOGLE_OAUTH_CREDENTIALS}"
+      }
+    }
+  }
+}
