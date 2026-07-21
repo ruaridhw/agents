@@ -22,7 +22,6 @@ from . import preflight
 from .config import (
     LOGS_DIR,
     REPO_ROOT,
-    ConfigError,
     JobSpec,
     load_env,
     load_job,
@@ -112,7 +111,9 @@ async def run(job_name: str, *, dry_run: bool = False) -> int:
         try:
             checks = preflight.run_checks(spec, env)
             emit({"event": "preflight", "checks": checks})
-        except (preflight.PreflightError, ConfigError) as err:
+        except Exception as err:
+            # Catch everything: an uncaught preflight crash previously killed
+            # the process without a history line (2026-07-21 07:00 brief).
             emit({"event": "error", "stage": "preflight", "error": str(err)})
             print(f"[{spec.name}] preflight failed: {err}", file=sys.stderr)
             return finish("preflight_failed", error=str(err))
@@ -143,18 +144,23 @@ async def run(job_name: str, *, dry_run: bool = False) -> int:
             if verdict and verdict.splitlines()[-1].strip() == "NO_WORK":
                 return finish("skipped_no_work", result=pre_result)
 
-        options = ClaudeAgentOptions(
-            cwd=str(REPO_ROOT),
-            mcp_servers=load_mcp_servers(spec.mcp_servers, env),
-            allowed_tools=spec.allowed_tools,
-            disallowed_tools=spec.dry_run_disallowed if dry_run else [],
-            permission_mode=spec.permission_mode,
-            model=spec.model,
-            setting_sources=["project"],  # loads .claude/skills/ from this repo
-            max_turns=spec.max_turns,
-        )
+        try:
+            options = ClaudeAgentOptions(
+                cwd=str(REPO_ROOT),
+                mcp_servers=load_mcp_servers(spec.mcp_servers, env),
+                allowed_tools=spec.allowed_tools,
+                disallowed_tools=spec.dry_run_disallowed if dry_run else [],
+                permission_mode=spec.permission_mode,
+                model=spec.model,
+                setting_sources=["project"],  # loads .claude/skills/ from this repo
+                max_turns=spec.max_turns,
+            )
+            prompt = spec.load_prompt(env)
+        except Exception as err:  # config/secret resolution must never crash silently
+            emit({"event": "error", "stage": "configure", "error": str(err)})
+            print(f"[{spec.name}] configure failed: {err}", file=sys.stderr)
+            return finish("error", error=str(err))
 
-        prompt = spec.load_prompt(env)
         if dry_run:
             prompt += DRY_RUN_SUFFIX
 

@@ -52,15 +52,22 @@ def _op_read(field: str) -> str | None:
         capture_output=True,
         text=True,
     )
-    proc = subprocess.run(
-        ["op", "read", f"{OP_ITEM}/{field}"],
-        capture_output=True,
-        text=True,
-        env={
-            "OP_SERVICE_ACCOUNT_TOKEN": keychain.stdout.strip(),
-            "PATH": "/opt/homebrew/bin:/usr/bin:/bin",
-        },
-    )
+    if not keychain.stdout.strip():
+        return None
+    # Inherit the full environment — op hangs without HOME under launchd.
+    env = dict(os.environ)
+    env["OP_SERVICE_ACCOUNT_TOKEN"] = keychain.stdout.strip()
+    env["PATH"] = env.get("PATH", "") + ":/opt/homebrew/bin:/usr/bin:/bin"
+    try:
+        proc = subprocess.run(
+            ["op", "read", f"{OP_ITEM}/{field}"],
+            capture_output=True,
+            text=True,
+            timeout=90,
+            env=env,
+        )
+    except subprocess.TimeoutExpired:
+        return None
     return proc.stdout.strip() if proc.returncode == 0 else None
 
 

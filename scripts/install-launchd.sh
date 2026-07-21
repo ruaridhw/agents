@@ -41,7 +41,7 @@ PLIST
 }
 
 interval_entry() {
-  printf '    <dict><key>Weekday</key><integer>%s</integer><key>Hour</key><integer>%s</integer><key>Minute</key><integer>0</integer></dict>\n' "$1" "$2"
+  printf '    <dict><key>Weekday</key><integer>%s</integer><key>Hour</key><integer>%s</integer><key>Minute</key><integer>%s</integer></dict>\n' "$1" "$2" "${3:-0}"
 }
 
 unload_agent() {
@@ -76,10 +76,11 @@ mkdir -p "$AGENTS_DIR" "$REPO/logs"
 
 for job in "${jobs[@]}"; do
   case "$job" in
-    morning-brief)  # 08:00 Mon–Fri
+    morning-brief)  # 08:05 Mon–Fri — staggered off the hour so the brief's
+      # op/keychain reads never race the top-of-the-hour granola sync
       intervals=""
       for wd in 1 2 3 4 5; do
-        intervals+="$(interval_entry "$wd" 8)"$'\n'
+        intervals+="$(interval_entry "$wd" 8 5)"$'\n'
       done
       render_plist "${PREFIX}.${job}" "morning_brief" "${intervals%$'\n'}" \
         > "${AGENTS_DIR}/${PREFIX}.${job}.plist"

@@ -63,16 +63,27 @@ def op_read(ref: str, *, context: str = "") -> str:
         capture_output=True,
         text=True,
     )
-    proc = subprocess.run(
-        ["op", "read", ref],
-        capture_output=True,
-        text=True,
-        timeout=30,
-        env={
-            "OP_SERVICE_ACCOUNT_TOKEN": keychain.stdout.strip(),
-            "PATH": "/opt/homebrew/bin:/usr/bin:/bin",
-        },
-    )
+    token = keychain.stdout.strip()
+    if not token:
+        raise ConfigError(
+            f"{context}: keychain item 'op-service-account' unreadable "
+            f"(locked keychain or missing item) — cannot authenticate op"
+        )
+    # Inherit the full environment: op needs HOME etc., and stripping it made
+    # op hang under launchd (crashed the 2026-07-21 07:00 brief).
+    env = dict(os.environ)
+    env["OP_SERVICE_ACCOUNT_TOKEN"] = token
+    env["PATH"] = env.get("PATH", "") + ":/opt/homebrew/bin:/usr/bin:/bin"
+    try:
+        proc = subprocess.run(
+            ["op", "read", ref],
+            capture_output=True,
+            text=True,
+            timeout=90,
+            env=env,
+        )
+    except subprocess.TimeoutExpired as err:
+        raise ConfigError(f"{context}: op read {ref} timed out after 90s") from err
     if proc.returncode != 0:
         raise ConfigError(f"{context}: op read {ref} failed: {proc.stderr.strip()}")
     return proc.stdout.strip()
