@@ -1,5 +1,9 @@
 # Secrets — never committed
 .env
+*.local.*
+
+# Scratch planning notes — not for the repo
+todo/
 
 # Private wiki symlink — points outside the repo
 academy
