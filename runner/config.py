@@ -52,41 +52,70 @@ def load_env() -> dict[str, str]:
     return dict(os.environ)
 
 
-def op_read(ref: str, *, context: str = "") -> str:
-    """Resolve an op:// secret reference via the 1Password CLI.
-
-    Uses the service-account token from the macOS Keychain
-    (item: op-service-account) so it works headless under launchd.
-    """
-    keychain = subprocess.run(
-        ["security", "find-generic-password", "-s", "op-service-account", "-w"],
+def _keychain_get(service: str) -> str | None:
+    proc = subprocess.run(
+        ["security", "find-generic-password", "-s", service, "-w"],
         capture_output=True,
         text=True,
     )
-    token = keychain.stdout.strip()
-    if not token:
-        raise ConfigError(
-            f"{context}: keychain item 'op-service-account' unreadable "
-            f"(locked keychain or missing item) — cannot authenticate op"
-        )
-    # Inherit the full environment: op needs HOME etc., and stripping it made
-    # op hang under launchd (crashed the 2026-07-21 07:00 brief).
-    env = dict(os.environ)
-    env["OP_SERVICE_ACCOUNT_TOKEN"] = token
-    env["PATH"] = env.get("PATH", "") + ":/opt/homebrew/bin:/usr/bin:/bin"
-    try:
-        proc = subprocess.run(
-            ["op", "read", ref],
-            capture_output=True,
-            text=True,
-            timeout=90,
-            env=env,
-        )
-    except subprocess.TimeoutExpired as err:
-        raise ConfigError(f"{context}: op read {ref} timed out after 90s") from err
-    if proc.returncode != 0:
-        raise ConfigError(f"{context}: op read {ref} failed: {proc.stderr.strip()}")
-    return proc.stdout.strip()
+    return proc.stdout.strip() or None if proc.returncode == 0 else None
+
+
+def _keychain_set(service: str, secret: str) -> None:
+    subprocess.run(
+        [
+            "security",
+            "add-generic-password",
+            "-U",
+            "-s",
+            service,
+            "-a",
+            "agent-jobs",
+            "-w",
+            secret,
+        ],
+        capture_output=True,
+        text=True,
+    )
+
+
+def op_read(ref: str, *, context: str = "") -> str:
+    """Resolve an op:// secret reference via the 1Password CLI.
+
+    1Password is the source of truth, but `op` is flaky under launchd (times
+    out even with a full env — 2026-07-21), so every successful read is
+    cached in the macOS Keychain and the cache is the fallback. Keychain
+    reads are reliable under launchd (the op-service-account item proves it).
+    """
+    cache_service = f"agent-jobs-op-cache:{ref}"
+    token = _keychain_get("op-service-account")
+    if token and not os.environ.get("AGENT_JOBS_FORCE_OP_CACHE"):
+        # Inherit the full environment: op needs HOME etc.
+        env = dict(os.environ)
+        env["OP_SERVICE_ACCOUNT_TOKEN"] = token
+        env["PATH"] = env.get("PATH", "") + ":/opt/homebrew/bin:/usr/bin:/bin"
+        try:
+            proc = subprocess.run(
+                ["op", "read", ref],
+                capture_output=True,
+                text=True,
+                timeout=90,
+                env=env,
+            )
+            if proc.returncode == 0 and proc.stdout.strip():
+                value = proc.stdout.strip()
+                _keychain_set(cache_service, value)
+                return value
+        except subprocess.TimeoutExpired:
+            pass
+    cached = _keychain_get(cache_service)
+    if cached:
+        return cached
+    raise ConfigError(
+        f"{context}: op read {ref} failed and no keychain cache exists — "
+        f"run any job (or `python -m runner.preflight <job>`) interactively "
+        f"once to seed the cache"
+    )
 
 
 def resolve(text: str, env: dict[str, str], *, context: str) -> str:

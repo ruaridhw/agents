@@ -47,28 +47,15 @@ OP_ITEM = "op://Duvo/GoogleOAuth"
 
 
 def _op_read(field: str) -> str | None:
-    keychain = subprocess.run(
-        ["security", "find-generic-password", "-s", "op-service-account", "-w"],
-        capture_output=True,
-        text=True,
-    )
-    if not keychain.stdout.strip():
-        return None
-    # Inherit the full environment — op hangs without HOME under launchd.
-    env = dict(os.environ)
-    env["OP_SERVICE_ACCOUNT_TOKEN"] = keychain.stdout.strip()
-    env["PATH"] = env.get("PATH", "") + ":/opt/homebrew/bin:/usr/bin:/bin"
+    # Reuse the runner's op_read: 1Password source of truth with a keychain
+    # cache fallback (op itself is flaky under launchd).
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    from runner.config import ConfigError, op_read
+
     try:
-        proc = subprocess.run(
-            ["op", "read", f"{OP_ITEM}/{field}"],
-            capture_output=True,
-            text=True,
-            timeout=90,
-            env=env,
-        )
-    except subprocess.TimeoutExpired:
+        return op_read(f"{OP_ITEM}/{field}", context="google-oauth")
+    except ConfigError:
         return None
-    return proc.stdout.strip() if proc.returncode == 0 else None
 
 
 def load_client() -> dict:
