@@ -52,77 +52,14 @@ def load_env() -> dict[str, str]:
     return dict(os.environ)
 
 
-def _keychain_get(service: str) -> str | None:
-    proc = subprocess.run(
-        ["security", "find-generic-password", "-s", service, "-w"],
-        capture_output=True,
-        text=True,
-    )
-    return proc.stdout.strip() or None if proc.returncode == 0 else None
-
-
-def _keychain_set(service: str, secret: str) -> None:
-    subprocess.run(
-        [
-            "security",
-            "add-generic-password",
-            "-U",
-            "-s",
-            service,
-            "-a",
-            "agent-jobs",
-            "-w",
-            secret,
-        ],
-        capture_output=True,
-        text=True,
-    )
-
-
-def op_read(ref: str, *, context: str = "") -> str:
-    """Resolve an op:// secret reference via the 1Password CLI.
-
-    1Password is the source of truth, but `op` is flaky under launchd (times
-    out even with a full env — 2026-07-21), so every successful read is
-    cached in the macOS Keychain and the cache is the fallback. Keychain
-    reads are reliable under launchd (the op-service-account item proves it).
-    """
-    cache_service = f"agent-jobs-op-cache:{ref}"
-    token = _keychain_get("op-service-account")
-    if token and not os.environ.get("AGENT_JOBS_FORCE_OP_CACHE"):
-        # Inherit the full environment: op needs HOME etc.
-        env = dict(os.environ)
-        env["OP_SERVICE_ACCOUNT_TOKEN"] = token
-        env["PATH"] = env.get("PATH", "") + ":/opt/homebrew/bin:/usr/bin:/bin"
-        try:
-            proc = subprocess.run(
-                ["op", "read", ref],
-                capture_output=True,
-                text=True,
-                timeout=90,
-                env=env,
-            )
-            if proc.returncode == 0 and proc.stdout.strip():
-                value = proc.stdout.strip()
-                _keychain_set(cache_service, value)
-                return value
-        except subprocess.TimeoutExpired:
-            pass
-    cached = _keychain_get(cache_service)
-    if cached:
-        return cached
-    raise ConfigError(
-        f"{context}: op read {ref} failed and no keychain cache exists — "
-        f"run any job (or `python -m runner.preflight <job>`) interactively "
-        f"once to seed the cache"
-    )
-
-
 def resolve(text: str, env: dict[str, str], *, context: str) -> str:
     """Replace ${VAR} placeholders; a missing variable is a hard error.
 
-    A value that is itself an op:// reference is resolved through the
-    1Password CLI — lazily, so a job only touches the secrets it uses.
+    No secret ever gets resolved from 1Password at run time — `op` calls
+    hung under launchd (unconfirmed root cause; see git log 2026-07-21).
+    Static secrets live as plain values in .env, kept current by
+    scripts/sync-secrets-from-1password.sh; only genuinely short-lived
+    tokens (COMPUTED_VARS) are minted per run, without calling `op`.
     """
 
     def _sub(match: re.Match) -> str:
@@ -144,10 +81,6 @@ def resolve(text: str, env: dict[str, str], *, context: str) -> str:
             raise ConfigError(
                 f"{context}: ${{{name}}} is not set — add it to .env (see .env.example)"
             )
-        # Vars named *_OP_REF are pass-by-reference on purpose (the agent
-        # op-reads them itself at run time) — never dereference those here.
-        if env[name].startswith("op://") and not name.endswith("_OP_REF"):
-            env[name] = op_read(env[name], context=f"{context}: ${{{name}}}")
         return env[name]
 
     return _PLACEHOLDER.sub(_sub, text)

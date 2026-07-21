@@ -21,7 +21,7 @@ JOB = JobSpec(
         "mcp__granola",
         "mcp__notion",
         # For the chained notion-todoist-tasks fast pass: Todoist REST goes
-        # through the wrapper, which resolves the token internally.
+        # through the wrapper, which takes the token from its own env.
         "Bash(scripts/todoist-api.sh:*)",
         "Bash(./scripts/todoist-api.sh:*)",
         "Bash(python3:*)",
@@ -33,7 +33,7 @@ JOB = JobSpec(
         # Chained task sync
         "NOTION_TASKS_DATA_SOURCE_ID",
         "TODOIST_PROJECT_ID",
-        "TODOIST_TOKEN_OP_REF",
+        "TODOIST_TOKEN",
         "USER_FULL_NAME",
     ],
     required_paths=["academy/wiki"],

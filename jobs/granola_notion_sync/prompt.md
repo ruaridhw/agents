@@ -18,8 +18,9 @@ Its operational parameters:
 
 - Notion Tasks data source ID: ${NOTION_TASKS_DATA_SOURCE_ID}
 - Todoist project ID: ${TODOIST_PROJECT_ID}
-- Todoist token 1Password reference: ${TODOIST_TOKEN_OP_REF}
 - The user's full name (assignee matching): ${USER_FULL_NAME}
+- Todoist auth is handled entirely by `scripts/todoist-api.sh` — call it, do
+  not look for or ask about a Todoist token yourself.
 
 This is an unattended scheduled run: apply the skill's automated-sweep scope
 (only my own meetings, last 7 days), create-only + skip-if-present, and never

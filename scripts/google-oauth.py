@@ -11,8 +11,12 @@ your own OAuth *desktop* client instead (stdlib only):
   token       prints a valid access token (cached; silently refreshed) —
               runner/config.py calls this to fill ${GOOGLE_MCP_ACCESS_TOKEN}
 
-Client JSON path comes from $GOOGLE_OAUTH_CREDENTIALS
-(default ~/.config/google/oauth-client.json). Scopes are read-only: the
+Client id/secret come from GOOGLE_OAUTH_CLIENT_ID / GOOGLE_OAUTH_CLIENT_SECRET
+in .env (kept current by scripts/sync-secrets-from-1password.sh — never read
+from 1Password at run time; op calls hung under launchd, see git log
+2026-07-21). Falls back to a downloaded client JSON
+($GOOGLE_OAUTH_CREDENTIALS, default ~/.config/google/oauth-client.json) for
+first-time setup before the sync script has run. Scopes are read-only: the
 morning brief only reads mail and calendar.
 """
 
@@ -43,35 +47,25 @@ CLIENT_JSON = Path(
 TOKEN_FILE = Path.home() / ".config" / "google" / "mcp-token.json"
 
 
-OP_ITEM = "op://Duvo/GoogleOAuth"
-
-
-def _op_read(field: str) -> str | None:
-    # Reuse the runner's op_read: 1Password source of truth with a keychain
-    # cache fallback (op itself is flaky under launchd).
-    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-    from runner.config import ConfigError, op_read
-
-    try:
-        return op_read(f"{OP_ITEM}/{field}", context="google-oauth")
-    except ConfigError:
-        return None
-
-
 def load_client() -> dict:
-    # Prefer 1Password (item: Duvo/GoogleOAuth, fields client_id/client_secret);
-    # fall back to the downloaded client JSON for first-time setup.
-    client_id = _op_read("client_id")
+    # Prefer plain env vars (set by scripts/sync-secrets-from-1password.sh);
+    # load .env directly too, for standalone invocation outside run_job.py.
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    from runner.config import load_env
+
+    env = load_env()
+    client_id = env.get("GOOGLE_OAUTH_CLIENT_ID")
     if client_id:
         return {
             "client_id": client_id,
-            "client_secret": _op_read("client_secret"),
+            "client_secret": env.get("GOOGLE_OAUTH_CLIENT_SECRET"),
             "token_uri": "https://oauth2.googleapis.com/token",
         }
     if not CLIENT_JSON.exists():
         sys.exit(
-            f"no Google OAuth client found: neither {OP_ITEM} in 1Password nor "
-            f"a JSON file at {CLIENT_JSON} (override with GOOGLE_OAUTH_CREDENTIALS)"
+            "no Google OAuth client found: set GOOGLE_OAUTH_CLIENT_ID/SECRET "
+            f"in .env (run scripts/sync-secrets-from-1password.sh) or place a "
+            f"client JSON at {CLIENT_JSON}"
         )
     data = json.loads(CLIENT_JSON.read_text())
     return (

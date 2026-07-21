@@ -18,8 +18,8 @@ JOB = JobSpec(
         "Read",
         "Grep",
         "Glob",
-        # Todoist has no MCP: all calls go through the wrapper, which resolves
-        # the token internally (Keychain -> op) so it never hits a command line.
+        # Todoist has no MCP: all calls go through the wrapper, which takes
+        # the token from its own env so it never hits a command line.
         "Bash(scripts/todoist-api.sh:*)",
         "Bash(./scripts/todoist-api.sh:*)",
         "Bash(python3:*)",  # Sync Key sha1 hashing
@@ -30,7 +30,7 @@ JOB = JobSpec(
         "NOTION_MEETINGS_DATA_SOURCE_ID",
         "NOTION_TASKS_DATA_SOURCE_ID",
         "TODOIST_PROJECT_ID",
-        "TODOIST_TOKEN_OP_REF",
+        "TODOIST_TOKEN",
         "USER_FULL_NAME",
     ],
     dry_run_disallowed=[
