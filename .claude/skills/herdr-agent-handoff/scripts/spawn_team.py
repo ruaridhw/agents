@@ -67,9 +67,20 @@ def write_roster(path: Path, agents: list[dict]) -> None:
     path.write_text("\n".join(lines))
 
 
-def spawn(agent: dict, cwd: Path, direction: str) -> None:
-    split = ok(run(["herdr", "pane", "split", "--current", "--direction", direction, "--cwd", str(cwd), "--no-focus"]), "pane split")
-    pid = pane_id(split)
+def create_tab(cwd: Path, label: str) -> str:
+    created = ok(run(["herdr", "tab", "create", "--cwd", str(cwd), "--label", label, "--no-focus"]), "tab create")
+    return pane_id(created)
+
+
+def spawn(agent: dict, cwd: Path, root_pane: str, direction: str, *, first: bool = False) -> None:
+    if first:
+        pid = root_pane
+    else:
+        split = ok(
+            run(["herdr", "pane", "split", "--pane", root_pane, "--direction", direction, "--cwd", str(cwd), "--no-focus"]),
+            "pane split",
+        )
+        pid = pane_id(split)
     ok(run(["herdr", "agent", "start", agent["name"], "--kind", agent["kind"], "--pane", pid]), f"agent start {agent['name']}")
 
     prompt = f"""ROLE: {agent['role']}
@@ -96,9 +107,10 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--team-file", type=Path, required=True, help="JSON file with optional coordinator and workers[].")
     parser.add_argument("--kind", default="pi", help="Default Herdr agent kind.")
-    parser.add_argument("--direction", default="right", choices=["right", "left", "up", "down"])
+    parser.add_argument("--direction", default="right", choices=["right", "down"])
     parser.add_argument("--timeout", default="1200000", help="per-agent wait timeout in ms.")
     parser.add_argument("--handoff-dir", type=Path, help="Defaults to .herdr-handoffs/team-<timestamp>.")
+    parser.add_argument("--tab-label", help="Label for the new Herdr tab. Defaults to team name, coordinator name, or first worker.")
     args = parser.parse_args()
 
     if os.environ.get("HERDR_ENV") != "1":
@@ -124,9 +136,12 @@ def main() -> int:
         a["roster"] = str(roster)
     write_roster(roster, agents)
 
-    for a in agents:
-        spawn(a, Path.cwd(), args.direction)
+    tab_label = args.tab_label or spec.get("name") or f"team-{agents[0]['name']}"
+    root_pane = create_tab(Path.cwd(), tab_label)
+    for index, a in enumerate(agents):
+        spawn(a, Path.cwd(), root_pane, args.direction, first=index == 0)
 
+    print(f"TAB_LABEL={tab_label}")
     print(f"ROSTER={roster}")
     for a in agents:
         wait = run(["herdr", "agent", "wait", a["name"], "--timeout", args.timeout])

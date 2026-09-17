@@ -19,21 +19,23 @@ Delegate work without importing worker transcripts. Every agent writes a concise
 test "${HERDR_ENV:-}" = 1
 herdr --help
 herdr agent
+herdr tab
 herdr pane
 ```
 
-If `HERDR_ENV` is not `1`, say this needs a Herdr-managed pane and stop. The installed `herdr` binary is the syntax authority. Prefer `--current`, explicit pane IDs, and parsed JSON.
+If `HERDR_ENV` is not `1`, say this needs a Herdr-managed pane and stop. The installed `herdr` binary is the syntax authority. Prefer one named tab per handoff invocation, explicit pane IDs, and parsed JSON.
 
 ## Single worker
 
 ```bash
 python3 /home/ruaridh/.agents/skills/herdr-agent-handoff/scripts/spawn_worker.py \
   --name worker-1 \
+  --tab-label refactor-api \
   --kind pi \
   --task "Refactor the FastAPI endpoints."
 ```
 
-The helper splits a sibling pane in the current cwd, starts a Pi agent, sends the two-file prompt, waits, and prints the summary.
+The helper creates one new Herdr tab in the current cwd, labels it with `--tab-label` (or `--name`), starts a Pi agent, sends the two-file prompt, waits, and prints the summary.
 
 ## Team with coordinator
 
@@ -55,18 +57,18 @@ Run:
 python3 /home/ruaridh/.agents/skills/herdr-agent-handoff/scripts/spawn_team.py --team-file team.json
 ```
 
-The helper writes `.herdr-handoffs/team-*/roster.md`, prompts all agents with that roster, tells the coordinator to integrate worker summaries, waits, and prints summaries.
+The helper creates one new Herdr tab for the invocation, starts every team member in panes inside that tab, writes `.herdr-handoffs/team-*/roster.md`, prompts all agents with that roster, tells the coordinator to integrate worker summaries, waits, and prints summaries. Use top-level `"name"` in `team.json` or `--tab-label` to name the tab; otherwise it defaults to `team-<first-agent>`.
 
 ## Manual contract
 
-Default topology is a sibling pane in the current tab/cwd; use child tabs/worktrees only when requested.
+Default topology is one named tab per skill invocation. For multiple subagents in one invocation, create the tab once, start the first agent in the tab's initial pane, then split additional panes from that initial pane so they stay in the same tab.
 
 ```bash
 mkdir -p .herdr-handoffs
 summary="$(pwd)/.herdr-handoffs/worker-1-summary.md"
 raw="$(pwd)/.herdr-handoffs/worker-1-raw.md"
-herdr pane split --current --direction right --cwd "$PWD" --no-focus
-herdr agent start worker-1 --kind pi --pane <pane-id>
+herdr tab create --cwd "$PWD" --label refactor-api --no-focus
+herdr agent start worker-1 --kind pi --pane <initial-pane-id>
 herdr agent prompt worker-1 "TASK: <task>
 
 Output contract:
@@ -82,7 +84,7 @@ Read raw logs only when the summary says blocked/uncertain or exact evidence is 
 ## Coordination rules
 
 - Use absolute summary/raw paths so cwd drift cannot lose handoffs.
-- Do not rely on focused pane; use `--current`, explicit pane IDs, or unique agent names.
-- For multiple workers, assign non-overlapping tasks and separate handoff paths.
+- Do not rely on focused pane; create a named tab, keep its initial pane ID, and use explicit pane IDs plus unique agent names.
+- For multiple workers, assign non-overlapping tasks and separate handoff paths; keep them in panes within the invocation's tab.
 - If `agent prompt` returns `blocked`, inspect `herdr agent get <name>` and `herdr agent read <name> --source recent-unwrapped --lines 120` before sending input.
 - Do not close panes/workspaces you did not create unless asked.

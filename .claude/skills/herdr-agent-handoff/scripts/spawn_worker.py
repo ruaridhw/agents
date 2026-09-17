@@ -33,8 +33,9 @@ def parse_json(stdout: str, label: str) -> dict:
 
 
 def find_pane_id(payload: dict) -> str:
-    # Current Herdr shape: .result.pane.pane_id. Keep a small recursive fallback
-    # so minor envelope changes do not break the helper.
+    # Current Herdr shapes include .result.pane.pane_id for both tab create
+    # and pane split. Keep a small recursive fallback so minor envelope changes
+    # do not break the helper.
     try:
         return payload["result"]["pane"]["pane_id"]
     except Exception:
@@ -67,7 +68,7 @@ def main() -> int:
     parser.add_argument("--task-file", type=Path, help="File containing the task to delegate.")
     parser.add_argument("--name", type=valid_agent_name, default=f"worker-{int(time.time()) % 100000}")
     parser.add_argument("--kind", default="pi", help="Herdr agent kind, e.g. pi, claude, or codex.")
-    parser.add_argument("--direction", default="right", choices=["right", "left", "up", "down"])
+    parser.add_argument("--tab-label", help="Label for the new Herdr tab. Defaults to --name.")
     parser.add_argument("--timeout", default="1200000", help="agent prompt wait timeout in ms.")
     parser.add_argument("--summary", type=Path, help="Summary file path. Defaults under .herdr-handoffs/.")
     parser.add_argument("--raw", type=Path, help="Raw log file path. Defaults under .herdr-handoffs/.")
@@ -90,11 +91,12 @@ def main() -> int:
     summary.parent.mkdir(parents=True, exist_ok=True)
     raw.parent.mkdir(parents=True, exist_ok=True)
 
-    split = require_ok(
-        run(["herdr", "pane", "split", "--current", "--direction", args.direction, "--cwd", str(cwd), "--no-focus"]),
-        "pane split",
+    tab_label = args.tab_label or args.name
+    tab = require_ok(
+        run(["herdr", "tab", "create", "--cwd", str(cwd), "--label", tab_label, "--no-focus"]),
+        "tab create",
     )
-    pane_id = find_pane_id(parse_json(split, "pane split"))
+    pane_id = find_pane_id(parse_json(tab, "tab create"))
 
     require_ok(
         run(["herdr", "agent", "start", args.name, "--kind", args.kind, "--pane", pane_id]),
