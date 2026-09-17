@@ -61,14 +61,15 @@ The helper creates one new Herdr tab for the invocation, starts every team membe
 
 ## Manual contract
 
-Default topology is one named tab per skill invocation. For multiple subagents in one invocation, create the tab once, start the first agent in the tab's initial pane, then split additional panes from that initial pane so they stay in the same tab.
+Default topology is one named tab per skill invocation. Create the tab once, keep its root pane ID, then split one pane per subagent from that root pane so every subagent stays in the same tab.
 
 ```bash
 mkdir -p .herdr-handoffs
 summary="$(pwd)/.herdr-handoffs/worker-1-summary.md"
 raw="$(pwd)/.herdr-handoffs/worker-1-raw.md"
 herdr tab create --cwd "$PWD" --label refactor-api --no-focus
-herdr agent start worker-1 --kind pi --pane <initial-pane-id>
+herdr pane split --pane <root-pane-id> --direction right --cwd "$PWD" --no-focus
+herdr agent start worker-1 --kind pi --pane <split-pane-id>
 herdr agent prompt worker-1 "TASK: <task>
 
 Output contract:
@@ -84,7 +85,7 @@ Read raw logs only when the summary says blocked/uncertain or exact evidence is 
 ## Coordination rules
 
 - Use absolute summary/raw paths so cwd drift cannot lose handoffs.
-- Do not rely on focused pane; create a named tab, keep its initial pane ID, and use explicit pane IDs plus unique agent names.
+- Do not rely on focused pane; create a named tab, keep its root pane ID, split subagent panes from it, and use explicit pane IDs plus unique agent names.
 - For multiple workers, assign non-overlapping tasks and separate handoff paths; keep them in panes within the invocation's tab.
 - If `agent prompt` returns `blocked`, inspect `herdr agent get <name>` and `herdr agent read <name> --source recent-unwrapped --lines 120` before sending input.
 - Do not close panes/workspaces you did not create unless asked.

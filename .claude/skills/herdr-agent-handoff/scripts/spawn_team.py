@@ -67,21 +67,31 @@ def write_roster(path: Path, agents: list[dict]) -> None:
     path.write_text("\n".join(lines))
 
 
+def start_agent(name: str, kind: str, pid: str) -> None:
+    cmd = ["herdr", "agent", "start", name, "--kind", kind, "--pane", pid]
+    for attempt in range(6):
+        proc = run(cmd)
+        if proc.returncode == 0:
+            return
+        if "agent_pane_busy" not in proc.stderr and "not an available shell" not in proc.stderr:
+            ok(proc, f"agent start {name}")
+        if attempt == 5:
+            ok(proc, f"agent start {name}")
+        time.sleep(1)
+
+
 def create_tab(cwd: Path, label: str) -> str:
     created = ok(run(["herdr", "tab", "create", "--cwd", str(cwd), "--label", label, "--no-focus"]), "tab create")
     return pane_id(created)
 
 
-def spawn(agent: dict, cwd: Path, root_pane: str, direction: str, *, first: bool = False) -> None:
-    if first:
-        pid = root_pane
-    else:
-        split = ok(
-            run(["herdr", "pane", "split", "--pane", root_pane, "--direction", direction, "--cwd", str(cwd), "--no-focus"]),
-            "pane split",
-        )
-        pid = pane_id(split)
-    ok(run(["herdr", "agent", "start", agent["name"], "--kind", agent["kind"], "--pane", pid]), f"agent start {agent['name']}")
+def spawn(agent: dict, cwd: Path, root_pane: str, direction: str) -> None:
+    split = ok(
+        run(["herdr", "pane", "split", "--pane", root_pane, "--direction", direction, "--cwd", str(cwd), "--no-focus"]),
+        "pane split",
+    )
+    pid = pane_id(split)
+    start_agent(agent["name"], agent["kind"], pid)
 
     prompt = f"""ROLE: {agent['role']}
 TASK:
@@ -138,8 +148,8 @@ def main() -> int:
 
     tab_label = args.tab_label or spec.get("name") or f"team-{agents[0]['name']}"
     root_pane = create_tab(Path.cwd(), tab_label)
-    for index, a in enumerate(agents):
-        spawn(a, Path.cwd(), root_pane, args.direction, first=index == 0)
+    for a in agents:
+        spawn(a, Path.cwd(), root_pane, args.direction)
 
     print(f"TAB_LABEL={tab_label}")
     print(f"ROSTER={roster}")

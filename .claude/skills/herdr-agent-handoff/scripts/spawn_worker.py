@@ -62,6 +62,19 @@ def valid_agent_name(name: str) -> str:
     return name
 
 
+def start_agent(name: str, kind: str, pane_id: str) -> None:
+    cmd = ["herdr", "agent", "start", name, "--kind", kind, "--pane", pane_id]
+    for attempt in range(6):
+        proc = run(cmd)
+        if proc.returncode == 0:
+            return
+        if "agent_pane_busy" not in proc.stderr and "not an available shell" not in proc.stderr:
+            require_ok(proc, "agent start")
+        if attempt == 5:
+            require_ok(proc, "agent start")
+        time.sleep(1)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--task", help="Task to delegate. Use --task-file for long prompts.")
@@ -96,12 +109,14 @@ def main() -> int:
         run(["herdr", "tab", "create", "--cwd", str(cwd), "--label", tab_label, "--no-focus"]),
         "tab create",
     )
-    pane_id = find_pane_id(parse_json(tab, "tab create"))
-
-    require_ok(
-        run(["herdr", "agent", "start", args.name, "--kind", args.kind, "--pane", pane_id]),
-        "agent start",
+    root_pane_id = find_pane_id(parse_json(tab, "tab create"))
+    split = require_ok(
+        run(["herdr", "pane", "split", "--pane", root_pane_id, "--direction", "right", "--cwd", str(cwd), "--no-focus"]),
+        "pane split",
     )
+    pane_id = find_pane_id(parse_json(split, "pane split"))
+
+    start_agent(args.name, args.kind, pane_id)
 
     prompt = f"""TASK:
 {task}
