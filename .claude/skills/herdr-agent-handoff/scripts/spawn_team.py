@@ -45,9 +45,14 @@ def validate_agent(agent: dict, default_kind: str) -> dict:
     name = agent["name"]
     if not NAME_RE.fullmatch(name):
         raise SystemExit(f"Invalid agent name {name!r}; must match {NAME_RE.pattern}")
+    agent_args = list(agent.get("agent_args", []))
+    if agent.get("model"):
+        agent_args = ["--model", agent["model"], *agent_args]
     return {
         "name": name,
         "kind": agent.get("kind", default_kind),
+        "model": agent.get("model"),
+        "agent_args": agent_args,
         "role": agent.get("role", name),
         "task": agent["task"],
     }
@@ -59,6 +64,7 @@ def write_roster(path: Path, agents: list[dict]) -> None:
         lines.extend([
             f"## {a['name']} — {a['role']}",
             f"- Kind: {a['kind']}",
+            f"- Model: {a['model'] or '(default)'}",
             f"- Summary: {a['summary']}",
             f"- Raw: {a['raw']}",
             f"- Task: {a['task']}",
@@ -67,8 +73,10 @@ def write_roster(path: Path, agents: list[dict]) -> None:
     path.write_text("\n".join(lines))
 
 
-def start_agent(name: str, kind: str, pid: str) -> None:
+def start_agent(name: str, kind: str, pid: str, agent_args: list[str] | None = None) -> None:
     cmd = ["herdr", "agent", "start", name, "--kind", kind, "--pane", pid]
+    if agent_args:
+        cmd.extend(["--", *agent_args])
     for attempt in range(6):
         proc = run(cmd)
         if proc.returncode == 0:
@@ -80,18 +88,20 @@ def start_agent(name: str, kind: str, pid: str) -> None:
         time.sleep(1)
 
 
-def create_tab(cwd: Path, label: str) -> str:
-    created = ok(run(["herdr", "tab", "create", "--cwd", str(cwd), "--label", label, "--no-focus"]), "tab create")
+def create_tab(cwd: Path, label: str, workspace_id: str) -> str:
+    created = ok(run(["herdr", "tab", "create", "--workspace", workspace_id, "--cwd", str(cwd), "--label", label, "--no-focus"]), "tab create")
     return pane_id(created)
 
 
-def spawn(agent: dict, cwd: Path, root_pane: str, direction: str) -> None:
-    split = ok(
-        run(["herdr", "pane", "split", "--pane", root_pane, "--direction", direction, "--cwd", str(cwd), "--no-focus"]),
-        "pane split",
-    )
-    pid = pane_id(split)
-    start_agent(agent["name"], agent["kind"], pid)
+def spawn(agent: dict, cwd: Path, root_pane: str, direction: str, pane: str | None = None) -> None:
+    pid = pane
+    if pid is None:
+        split = ok(
+            run(["herdr", "pane", "split", "--pane", root_pane, "--direction", direction, "--cwd", str(cwd), "--no-focus"]),
+            "pane split",
+        )
+        pid = pane_id(split)
+    start_agent(agent["name"], agent["kind"], pid, agent["agent_args"])
 
     prompt = f"""ROLE: {agent['role']}
 TASK:
@@ -126,6 +136,10 @@ def main() -> int:
     if os.environ.get("HERDR_ENV") != "1":
         sys.stderr.write("Not running inside a Herdr-managed pane (HERDR_ENV=1 missing).\n")
         return 2
+    workspace_id = os.environ.get("HERDR_WORKSPACE_ID")
+    if not workspace_id:
+        sys.stderr.write("Not running with Herdr workspace context (HERDR_WORKSPACE_ID missing).\n")
+        return 2
 
     spec = json.loads(args.team_file.read_text())
     agents = []
@@ -147,9 +161,9 @@ def main() -> int:
     write_roster(roster, agents)
 
     tab_label = args.tab_label or spec.get("name") or f"team-{agents[0]['name']}"
-    root_pane = create_tab(Path.cwd(), tab_label)
-    for a in agents:
-        spawn(a, Path.cwd(), root_pane, args.direction)
+    root_pane = create_tab(Path.cwd(), tab_label, workspace_id)
+    for index, a in enumerate(agents):
+        spawn(a, Path.cwd(), root_pane, args.direction, pane=root_pane if index == 0 else None)
 
     print(f"TAB_LABEL={tab_label}")
     print(f"ROSTER={roster}")

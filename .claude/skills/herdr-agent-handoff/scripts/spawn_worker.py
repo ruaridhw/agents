@@ -62,8 +62,10 @@ def valid_agent_name(name: str) -> str:
     return name
 
 
-def start_agent(name: str, kind: str, pane_id: str) -> None:
+def start_agent(name: str, kind: str, pane_id: str, agent_args: list[str] | None = None) -> None:
     cmd = ["herdr", "agent", "start", name, "--kind", kind, "--pane", pane_id]
+    if agent_args:
+        cmd.extend(["--", *agent_args])
     for attempt in range(6):
         proc = run(cmd)
         if proc.returncode == 0:
@@ -81,6 +83,8 @@ def main() -> int:
     parser.add_argument("--task-file", type=Path, help="File containing the task to delegate.")
     parser.add_argument("--name", type=valid_agent_name, default=f"worker-{int(time.time()) % 100000}")
     parser.add_argument("--kind", default="pi", help="Herdr agent kind, e.g. pi, claude, or codex.")
+    parser.add_argument("--model", help="Pi model to pass as --model after Herdr's -- agent-arg separator.")
+    parser.add_argument("--agent-arg", action="append", default=[], help="Extra native agent argument. Repeat once per argument.")
     parser.add_argument("--tab-label", help="Label for the new Herdr tab. Defaults to --name.")
     parser.add_argument("--timeout", default="1200000", help="agent prompt wait timeout in ms.")
     parser.add_argument("--summary", type=Path, help="Summary file path. Defaults under .herdr-handoffs/.")
@@ -89,6 +93,10 @@ def main() -> int:
 
     if os.environ.get("HERDR_ENV") != "1":
         sys.stderr.write("Not running inside a Herdr-managed pane (HERDR_ENV=1 missing).\n")
+        return 2
+    workspace_id = os.environ.get("HERDR_WORKSPACE_ID")
+    if not workspace_id:
+        sys.stderr.write("Not running with Herdr workspace context (HERDR_WORKSPACE_ID missing).\n")
         return 2
 
     if bool(args.task) == bool(args.task_file):
@@ -106,17 +114,16 @@ def main() -> int:
 
     tab_label = args.tab_label or args.name
     tab = require_ok(
-        run(["herdr", "tab", "create", "--cwd", str(cwd), "--label", tab_label, "--no-focus"]),
+        run(["herdr", "tab", "create", "--workspace", workspace_id, "--cwd", str(cwd), "--label", tab_label, "--no-focus"]),
         "tab create",
     )
-    root_pane_id = find_pane_id(parse_json(tab, "tab create"))
-    split = require_ok(
-        run(["herdr", "pane", "split", "--pane", root_pane_id, "--direction", "right", "--cwd", str(cwd), "--no-focus"]),
-        "pane split",
-    )
-    pane_id = find_pane_id(parse_json(split, "pane split"))
+    pane_id = find_pane_id(parse_json(tab, "tab create"))
 
-    start_agent(args.name, args.kind, pane_id)
+    agent_args = []
+    if args.model:
+        agent_args.extend(["--model", args.model])
+    agent_args.extend(args.agent_arg)
+    start_agent(args.name, args.kind, pane_id, agent_args)
 
     prompt = f"""TASK:
 {task}

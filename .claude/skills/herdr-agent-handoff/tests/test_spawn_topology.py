@@ -65,14 +65,14 @@ class SpawnTopologyTest(unittest.TestCase):
     def test_single_worker_creates_named_tab_for_invocation(self):
         mod = load_script("spawn_worker")
         fake = FakeHerdr(busy_starts={"api": 1})
-        with tempfile.TemporaryDirectory() as tmp, patch.dict(os.environ, {"HERDR_ENV": "1"}), patch.object(sys, "argv", ["spawn_worker.py", "--name", "api", "--task", "check api"]), patch.object(mod.subprocess, "run", fake.run), patch.object(mod.time, "sleep"), patch("os.getcwd", return_value=tmp):
+        with tempfile.TemporaryDirectory() as tmp, patch.dict(os.environ, {"HERDR_ENV": "1", "HERDR_WORKSPACE_ID": "w-test"}), patch.object(sys, "argv", ["spawn_worker.py", "--name", "api", "--task", "check api", "--model", "fireworks/accounts/fireworks/routers/kimi-latest"]), patch.object(mod.subprocess, "run", fake.run), patch.object(mod.time, "sleep"), patch("os.getcwd", return_value=tmp):
             cwd = os.getcwd()
             with patch.object(Path, "cwd", return_value=Path(cwd)):
                 self.assertEqual(mod.main(), 0)
 
-        self.assertIn(["herdr", "tab", "create", "--cwd", cwd, "--label", "api", "--no-focus"], fake.commands)
-        self.assertIn(["herdr", "pane", "split", "--pane", "root-pane", "--direction", "right", "--cwd", cwd, "--no-focus"], fake.commands)
-        self.assertEqual(fake.commands.count(["herdr", "agent", "start", "api", "--kind", "pi", "--pane", "pane-2"]), 2)
+        self.assertIn(["herdr", "tab", "create", "--workspace", "w-test", "--cwd", cwd, "--label", "api", "--no-focus"], fake.commands)
+        self.assertNotIn(["herdr", "pane", "split", "--pane", "root-pane", "--direction", "right", "--cwd", cwd, "--no-focus"], fake.commands)
+        self.assertEqual(fake.commands.count(["herdr", "agent", "start", "api", "--kind", "pi", "--pane", "root-pane", "--", "--model", "fireworks/accounts/fireworks/routers/kimi-latest"]), 2)
 
     def test_team_creates_one_named_tab_and_splits_remaining_agents_inside_it(self):
         mod = load_script("spawn_team")
@@ -84,7 +84,7 @@ class SpawnTopologyTest(unittest.TestCase):
                 {"name": "db", "task": "db"},
             ],
         }
-        with tempfile.TemporaryDirectory() as tmp, patch.dict(os.environ, {"HERDR_ENV": "1"}), patch.object(mod.subprocess, "run", fake.run):
+        with tempfile.TemporaryDirectory() as tmp, patch.dict(os.environ, {"HERDR_ENV": "1", "HERDR_WORKSPACE_ID": "w-test"}), patch.object(mod.subprocess, "run", fake.run):
             cwd = Path(tmp)
             team_file = cwd / "team.json"
             team_file.write_text(json.dumps(team))
@@ -93,13 +93,41 @@ class SpawnTopologyTest(unittest.TestCase):
                 self.assertEqual(mod.main(), 0)
 
         tab_creates = [cmd for cmd in fake.commands if cmd[:3] == ["herdr", "tab", "create"]]
-        self.assertEqual(tab_creates, [["herdr", "tab", "create", "--cwd", str(cwd), "--label", "team-coord", "--no-focus"]])
+        self.assertEqual(tab_creates, [["herdr", "tab", "create", "--workspace", "w-test", "--cwd", str(cwd), "--label", "team-coord", "--no-focus"]])
         splits = [cmd for cmd in fake.commands if cmd[:3] == ["herdr", "pane", "split"]]
-        self.assertEqual(len(splits), 3)
+        self.assertEqual(len(splits), 2)
         for cmd in splits:
             self.assertIn("--pane", cmd)
             self.assertIn("root-pane", cmd)
-        self.assertIn(["herdr", "agent", "start", "coord", "--kind", "pi", "--pane", "pane-2"], fake.commands)
+        self.assertIn(["herdr", "agent", "start", "coord", "--kind", "pi", "--pane", "root-pane"], fake.commands)
+
+    def test_worker_requires_workspace_context(self):
+        mod = load_script("spawn_worker")
+        fake = FakeHerdr()
+        with tempfile.TemporaryDirectory() as tmp, patch.dict(os.environ, {"HERDR_ENV": "1"}, clear=True), patch.object(sys, "argv", ["spawn_worker.py", "--name", "api", "--task", "check api"]), patch.object(mod.subprocess, "run", fake.run), patch.object(Path, "cwd", return_value=Path(tmp)):
+            self.assertEqual(mod.main(), 2)
+
+        self.assertEqual(fake.commands, [])
+
+    def test_team_passes_per_agent_model_args(self):
+        mod = load_script("spawn_team")
+        fake = FakeHerdr()
+        team = {
+            "workers": [
+                {"name": "reader", "task": "read", "model": "fireworks/accounts/fireworks/routers/glm-fast-latest"},
+                {"name": "coder", "task": "code", "model": "openai-codex/gpt-5.6-sol", "agent_args": ["--thinking", "high"]},
+            ],
+        }
+        with tempfile.TemporaryDirectory() as tmp, patch.dict(os.environ, {"HERDR_ENV": "1", "HERDR_WORKSPACE_ID": "w-test"}), patch.object(mod.subprocess, "run", fake.run):
+            cwd = Path(tmp)
+            team_file = cwd / "team.json"
+            team_file.write_text(json.dumps(team))
+            argv = ["spawn_team.py", "--team-file", str(team_file), "--handoff-dir", str(cwd / "handoffs")]
+            with patch.object(sys, "argv", argv), patch.object(Path, "cwd", return_value=cwd):
+                self.assertEqual(mod.main(), 0)
+
+        self.assertIn(["herdr", "agent", "start", "reader", "--kind", "pi", "--pane", "root-pane", "--", "--model", "fireworks/accounts/fireworks/routers/glm-fast-latest"], fake.commands)
+        self.assertIn(["herdr", "agent", "start", "coder", "--kind", "pi", "--pane", "pane-4", "--", "--model", "openai-codex/gpt-5.6-sol", "--thinking", "high"], fake.commands)
 
 
 if __name__ == "__main__":
