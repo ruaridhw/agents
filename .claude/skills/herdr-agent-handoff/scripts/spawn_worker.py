@@ -84,6 +84,7 @@ def main() -> int:
     parser.add_argument("--name", type=valid_agent_name, default=f"worker-{int(time.time()) % 100000}")
     parser.add_argument("--kind", default="pi", help="Herdr agent kind, e.g. pi, claude, or codex.")
     parser.add_argument("--model", help="Pi model to pass as --model after Herdr's -- agent-arg separator.")
+    parser.add_argument("--lean", action="store_true", help="Pi only: start with --no-skills --no-extensions --no-prompt-templates (~14.3k -> ~3.8k first-turn baseline). Keeps the AGENTS.md chain; the task text must cite any needed skill files by exact path.")
     parser.add_argument("--agent-arg", action="append", default=[], help="Extra native agent argument. Repeat once per argument.")
     parser.add_argument("--tab-label", help="Label for the new Herdr tab. Defaults to --name.")
     parser.add_argument("--timeout", default="1200000", help="agent prompt wait timeout in ms.")
@@ -122,11 +123,18 @@ def main() -> int:
     agent_args = []
     if args.model:
         agent_args.extend(["--model", args.model])
+    if args.lean and args.kind == "pi":
+        agent_args.extend(["--no-skills", "--no-extensions", "--no-prompt-templates"])
     agent_args.extend(args.agent_arg)
     start_agent(args.name, args.kind, pane_id, agent_args)
 
     prompt = f"""TASK:
 {task}
+
+Shell discipline:
+- Batch independent probes into one bash call (e.g. git status && git log && rg -n ...); one pipeline answers what would otherwise take several tool calls.
+- Locate with rg first, then read with offset/limit around the hits.
+- Read each file once; note the line ranges in your raw log so later steps work from those notes.
 
 Output contract:
 - Write detailed reasoning, commands, diffs, errors, and evidence to: {raw}

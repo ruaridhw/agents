@@ -38,6 +38,12 @@ python3 /home/ruaridh/.agents/skills/herdr-agent-handoff/scripts/spawn_worker.py
 
 The helper creates one new Herdr tab in the caller's workspace and current cwd, labels it with `--tab-label` (or `--name`), starts the worker in the tab's root pane so there is no unused empty pane, sends the two-file prompt, waits, and prints the summary.
 
+## Lean workers
+
+Pass `--lean` to `spawn_worker.py` for pi workers doing focused implementation or fix rounds. It starts pi with `--no-skills --no-extensions --no-prompt-templates`, cutting the measured first-turn baseline from ~14.3k to ~3.8k tokens — a saving repeated on every turn of the worker's session. The AGENTS.md chain stays loaded, so project safety rules still apply.
+
+When writing a task or brief, cite any skill file the worker needs by exact path (e.g. "Read /path/to/SKILL.md first"). With `--lean` there is no skills index for the worker to discover skills from; exact paths are the only way they get found.
+
 ## Team with coordinator
 
 Use when work should be divided or workers should know about each other. Write `team.json`:
@@ -88,6 +94,11 @@ raw="$(pwd)/.herdr-handoffs/worker-1-raw.md"
 herdr tab create --workspace "$HERDR_WORKSPACE_ID" --cwd "$PWD" --label refactor-api --no-focus
 herdr agent start worker-1 --kind pi --pane <root-pane-id> -- --model fireworks/accounts/fireworks/routers/kimi-latest
 herdr agent prompt worker-1 "TASK: <task>
+
+Shell discipline:
+- Batch independent probes into one bash call; one pipeline answers what would otherwise take several tool calls.
+- Locate with rg first, then read with offset/limit around the hits.
+- Read each file once; note the line ranges in your raw log so later steps work from those notes.
 
 Output contract:
 - Write detailed reasoning, commands, diffs, errors, and evidence to: $raw
