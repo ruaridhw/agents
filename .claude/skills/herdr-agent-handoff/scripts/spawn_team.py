@@ -117,8 +117,9 @@ Output contract:
 - Write detailed reasoning, commands, diffs, errors, and evidence to: {agent['raw']}
 - Write a concise high-level summary to: {agent['summary']}
 - The summary must include: outcome, files changed, verification run, blockers, and whether the raw log is needed.
+- After both files are written, echo the full summary text in your final chat response.
 - Do not paste the raw log in chat.
-- Final chat response only: HANDOFF_WRITTEN {agent['summary']} {agent['raw']}
+- Final chat response: the summary, then HANDOFF_WRITTEN {agent['summary']} {agent['raw']}
 """
     ok(run(["herdr", "agent", "prompt", agent["name"], prompt]), f"agent prompt {agent['name']}")
 

@@ -104,7 +104,8 @@ Output contract:
 - Write detailed reasoning, commands, diffs, errors, and evidence to: $raw
 - Write a concise high-level summary to: $summary
 - Summary includes: outcome, files changed, verification run, blockers, and whether raw log is needed.
-- Do not paste raw log in chat. Final chat only: HANDOFF_WRITTEN $summary $raw" --wait --timeout 1200000
+- After both files are written, echo the full summary text in your final chat response.
+- Do not paste raw log in chat. Final chat: the summary, then HANDOFF_WRITTEN $summary $raw" --wait --timeout 1200000
 python3 -c 'from pathlib import Path; import sys; print(Path(sys.argv[1]).read_text())' "$summary"
 ```
 
