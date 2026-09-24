@@ -115,7 +115,7 @@ class SpawnTopologyTest(unittest.TestCase):
         team = {
             "workers": [
                 {"name": "reader", "task": "read", "model": "fireworks/accounts/fireworks/routers/glm-fast-latest"},
-                {"name": "coder", "task": "code", "model": "openai-codex/gpt-5.6-sol", "agent_args": ["--thinking", "high"]},
+                {"name": "coder", "task": "code", "model": "openai-codex/gpt-6-sol", "agent_args": ["--thinking", "high"]},
             ],
         }
         with tempfile.TemporaryDirectory() as tmp, patch.dict(os.environ, {"HERDR_ENV": "1", "HERDR_WORKSPACE_ID": "w-test"}), patch.object(mod.subprocess, "run", fake.run):
@@ -127,7 +127,7 @@ class SpawnTopologyTest(unittest.TestCase):
                 self.assertEqual(mod.main(), 0)
 
         self.assertIn(["herdr", "agent", "start", "reader", "--kind", "pi", "--pane", "root-pane", "--", "--model", "fireworks/accounts/fireworks/routers/glm-fast-latest"], fake.commands)
-        self.assertIn(["herdr", "agent", "start", "coder", "--kind", "pi", "--pane", "pane-4", "--", "--model", "openai-codex/gpt-5.6-sol", "--thinking", "high"], fake.commands)
+        self.assertIn(["herdr", "agent", "start", "coder", "--kind", "pi", "--pane", "pane-4", "--", "--model", "openai-codex/gpt-6-sol", "--thinking", "high"], fake.commands)
 
 
 if __name__ == "__main__":

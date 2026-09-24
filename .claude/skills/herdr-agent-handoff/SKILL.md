@@ -50,7 +50,7 @@ Use when work should be divided or workers should know about each other. Write `
 
 ```json
 {
-  "coordinator": {"name": "coord", "model": "openai-codex/gpt-5.6-sol", "task": "Wait for worker summaries, integrate them, and report final outcome."},
+  "coordinator": {"name": "coord", "model": "openai-codex/gpt-6-sol", "task": "Wait for worker summaries, integrate them, and report final outcome."},
   "workers": [
     {"name": "api", "role": "API investigator", "model": "fireworks/accounts/fireworks/routers/kimi-latest", "task": "Inspect FastAPI endpoints only."},
     {"name": "db", "role": "DB investigator", "model": "fireworks/accounts/fireworks/routers/glm-fast-latest", "task": "Inspect SQLAlchemy models only."}
@@ -72,16 +72,16 @@ Choose the worker model by task; do not blindly clone the caller's model. Use ex
 
 | Use case | First choice | Second choice |
 | --- | --- | --- |
-| Complex repo editing / high-stakes coding | `openai-codex/gpt-5.6-sol` | `openai-codex/gpt-5.6-terra` |
-| Focused implementation / deterministic patching | `fireworks/accounts/fireworks/routers/deepseek-flash-latest` | `openai-codex/gpt-5.6-sol` |
+| Complex repo editing / high-stakes coding | `openai-codex/gpt-6-sol` | `openai-codex/gpt-6-astra` |
+| Focused implementation / deterministic patching | `fireworks/accounts/fireworks/routers/deepseek-flash-latest` | `openai-codex/gpt-6-luna` |
 | Large-context reading / synthesis | `fireworks/accounts/fireworks/routers/kimi-latest` | `fireworks/accounts/fireworks/routers/glm-latest` |
 | Fast search / summarization / inventory | `fireworks/accounts/fireworks/routers/glm-flash-latest` | `fireworks/accounts/fireworks/routers/kimi-fast-latest` |
-| Debugging with tricky reasoning | `openai-codex/gpt-5.6-sol` | `fireworks/accounts/fireworks/routers/deepseek-pro-latest` |
+| Debugging with tricky reasoning | `openai-codex/gpt-6-sol` | `fireworks/accounts/fireworks/routers/deepseek-pro-latest` |
 | Parallel worker when caller is already sol | `fireworks/accounts/fireworks/routers/kimi-latest` | `fireworks/accounts/fireworks/routers/glm-fast-latest` |
 | Cheap broad exploration before handoff | `fireworks/accounts/fireworks/routers/glm-flash-latest` | `fireworks/accounts/fireworks/routers/deepseek-flash-latest` |
-| Coordinator / integration role | `openai-codex/gpt-5.6-sol` | `openai-codex/gpt-5.6-terra` |
+| Coordinator / integration role | `openai-codex/gpt-6-sol` | `openai-codex/gpt-6-astra` |
 
-Re-check names with `pi --list-models` before spawning if model catalogs may have changed.
+For an independent Claude reviewer needing more deliberation, `--kind claude --model opus` uses Claude Code's current Opus alias. It is **not** a verified Opus 5.5 pin: this machine currently rejects `--model opus-5.5`. Pin 5.5 only after the installed Claude Code catalog accepts its exact model ID. Re-check Pi choices with `pi --list-models` before spawning.
 
 ## Manual contract
 
