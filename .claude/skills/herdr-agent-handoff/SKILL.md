@@ -50,7 +50,7 @@ Use when work should be divided or workers should know about each other. Write `
 
 ```json
 {
-  "coordinator": {"name": "coord", "model": "openai-codex/gpt-6-sol", "task": "Wait for worker summaries, integrate them, and report final outcome."},
+  "coordinator": {"name": "coord", "model": "fireworks/accounts/fireworks/routers/deepseek-pro-latest", "task": "Wait for worker summaries, integrate them, and report final outcome."},
   "workers": [
     {"name": "api", "role": "API investigator", "model": "fireworks/accounts/fireworks/routers/kimi-latest", "task": "Inspect FastAPI endpoints only."},
     {"name": "db", "role": "DB investigator", "model": "fireworks/accounts/fireworks/routers/glm-fast-latest", "task": "Inspect SQLAlchemy models only."}
@@ -68,20 +68,20 @@ The helper creates one new Herdr tab in the caller's workspace for the invocatio
 
 ## Model choice
 
-Choose the worker model by task; do not blindly clone the caller's model. Use explicit `model` fields in `team.json` or `--model` for single workers. Two good choices per common use case:
+Choose the worker model by task; do not blindly clone the caller's model. Before spawning a Pi worker, inspect `pi --list-models` for an available model suited to the task, then pass its **exact** ID in `team.json` or `--model`. Do not assume a higher version is a better substitute. Current catalog examples below use provider-maintained `-latest` aliases; for a Codex worker, select a suitable reasoning, coding, or fast variant from the live catalog rather than keeping a release pin in this skill.
 
-| Use case | First choice | Second choice |
+| Use case | Available alias to consider | Alternative |
 | --- | --- | --- |
-| Complex repo editing / high-stakes coding | `openai-codex/gpt-6-sol` | `openai-codex/gpt-6-astra` |
-| Focused implementation / deterministic patching | `fireworks/accounts/fireworks/routers/deepseek-flash-latest` | `openai-codex/gpt-6-luna` |
+| Complex repo editing / high-stakes coding | `fireworks/accounts/fireworks/routers/deepseek-pro-latest` | current Codex reasoning/coding variant |
+| Focused implementation / deterministic patching | `fireworks/accounts/fireworks/routers/deepseek-flash-latest` | current Codex fast/coding variant |
 | Large-context reading / synthesis | `fireworks/accounts/fireworks/routers/kimi-latest` | `fireworks/accounts/fireworks/routers/glm-latest` |
 | Fast search / summarization / inventory | `fireworks/accounts/fireworks/routers/glm-flash-latest` | `fireworks/accounts/fireworks/routers/kimi-fast-latest` |
-| Debugging with tricky reasoning | `openai-codex/gpt-6-sol` | `fireworks/accounts/fireworks/routers/deepseek-pro-latest` |
-| Parallel worker when caller is already sol | `fireworks/accounts/fireworks/routers/kimi-latest` | `fireworks/accounts/fireworks/routers/glm-fast-latest` |
+| Debugging with tricky reasoning | current Codex reasoning variant | `fireworks/accounts/fireworks/routers/deepseek-pro-latest` |
+| Parallel worker when caller already uses the strongest model | `fireworks/accounts/fireworks/routers/kimi-latest` | `fireworks/accounts/fireworks/routers/glm-fast-latest` |
 | Cheap broad exploration before handoff | `fireworks/accounts/fireworks/routers/glm-flash-latest` | `fireworks/accounts/fireworks/routers/deepseek-flash-latest` |
-| Coordinator / integration role | `openai-codex/gpt-6-sol` | `openai-codex/gpt-6-astra` |
+| Coordinator / integration role | current Codex reasoning variant | `fireworks/accounts/fireworks/routers/deepseek-pro-latest` |
 
-For an independent Claude reviewer needing more deliberation, `--kind claude --model opus` uses Claude Code's current Opus alias. It is **not** a verified Opus 5.5 pin: this machine currently rejects `--model opus-5.5`. Pin 5.5 only after the installed Claude Code catalog accepts its exact model ID. Re-check Pi choices with `pi --list-models` before spawning.
+For an independent Claude reviewer needing more deliberation, `--kind claude --model opus` uses Claude Code's current Opus family alias. Check model availability before spawning; if no suitable model is available, stop rather than silently switching to a weaker role.
 
 ## Manual contract
 
