@@ -93,11 +93,11 @@ class JobSpec:
     mcp_servers: list[str] = field(default_factory=list)
     allowed_tools: list[str] = field(default_factory=list)
     permission_mode: PermissionMode = "default"
-    # SDK model override (e.g. "claude-sonnet-5"); None = subscription default.
+    # Claude Code model alias (e.g. "sonnet"); None = subscription default.
     model: str | None = None
     max_turns: int | None = None
     # Model for the cheap pre-check probe (jobs/<name>/precheck.md, if present).
-    precheck_model: str = "claude-haiku-4-5-20251001"
+    precheck_model: str = "haiku"
     precheck_max_turns: int = 8
     required_env: list[str] = field(default_factory=list)
     required_paths: list[str] = field(default_factory=list)
