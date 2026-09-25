@@ -50,7 +50,7 @@ Use when work should be divided or workers should know about each other. Write `
 
 ```json
 {
-  "coordinator": {"name": "coord", "model": "fireworks/accounts/fireworks/routers/deepseek-pro-latest", "task": "Wait for worker summaries, integrate them, and report final outcome."},
+  "coordinator": {"name": "coord", "model": "<verified-openai-codex-sol-model>", "task": "Wait for worker summaries, integrate them, and report final outcome."},
   "workers": [
     {"name": "api", "role": "API investigator", "model": "fireworks/accounts/fireworks/routers/kimi-latest", "task": "Inspect FastAPI endpoints only."},
     {"name": "db", "role": "DB investigator", "model": "fireworks/accounts/fireworks/routers/glm-fast-latest", "task": "Inspect SQLAlchemy models only."}
@@ -68,18 +68,18 @@ The helper creates one new Herdr tab in the caller's workspace for the invocatio
 
 ## Model choice
 
-Choose the worker model by task; do not blindly clone the caller's model. Before spawning a Pi worker, inspect `pi --list-models` for an available model suited to the task, then pass its **exact** ID in `team.json` or `--model`. Do not assume a higher version is a better substitute. Current catalog examples below use provider-maintained `-latest` aliases; for a Codex worker, select a suitable reasoning, coding, or fast variant from the live catalog rather than keeping a release pin in this skill.
+Choose the worker model by task; do not blindly clone the caller's model. Before spawning a Pi worker, inspect `pi --list-models openai-codex` and select an available Codex **Sol** variant for high-stakes coding, tricky reasoning, and coordination. Pass its **exact** ID in `team.json` or `--model`; if Sol is unavailable, choose another capable Codex variant rather than silently changing providers. Do not assume a higher version is automatically a better substitute. In the team example above, replace the placeholder with that exact ID before running `spawn_team.py`.
 
-| Use case | Available alias to consider | Alternative |
+| Use case | First choice | Second choice |
 | --- | --- | --- |
-| Complex repo editing / high-stakes coding | `fireworks/accounts/fireworks/routers/deepseek-pro-latest` | current Codex reasoning/coding variant |
+| Complex repo editing / high-stakes coding | available Codex Sol variant | alternative Codex reasoning/coding variant |
 | Focused implementation / deterministic patching | `fireworks/accounts/fireworks/routers/deepseek-flash-latest` | current Codex fast/coding variant |
 | Large-context reading / synthesis | `fireworks/accounts/fireworks/routers/kimi-latest` | `fireworks/accounts/fireworks/routers/glm-latest` |
 | Fast search / summarization / inventory | `fireworks/accounts/fireworks/routers/glm-flash-latest` | `fireworks/accounts/fireworks/routers/kimi-fast-latest` |
-| Debugging with tricky reasoning | current Codex reasoning variant | `fireworks/accounts/fireworks/routers/deepseek-pro-latest` |
+| Debugging with tricky reasoning | available Codex Sol variant | `fireworks/accounts/fireworks/routers/deepseek-pro-latest` |
 | Parallel worker when caller already uses the strongest model | `fireworks/accounts/fireworks/routers/kimi-latest` | `fireworks/accounts/fireworks/routers/glm-fast-latest` |
 | Cheap broad exploration before handoff | `fireworks/accounts/fireworks/routers/glm-flash-latest` | `fireworks/accounts/fireworks/routers/deepseek-flash-latest` |
-| Coordinator / integration role | current Codex reasoning variant | `fireworks/accounts/fireworks/routers/deepseek-pro-latest` |
+| Coordinator / integration role | available Codex Sol variant | alternative Codex reasoning/coding variant |
 
 For an independent Claude reviewer needing more deliberation, `--kind claude --model opus` uses Claude Code's current Opus family alias. Check model availability before spawning; if no suitable model is available, stop rather than silently switching to a weaker role.
 
