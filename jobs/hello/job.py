@@ -8,7 +8,7 @@ from runner.config import JobSpec
 
 JOB = JobSpec(
     name="hello",
-    model="claude-sonnet-5",
+    model="sonnet",
     description="Trivial SDK round-trip to verify auth and scheduling",
     mcp_servers=[],
     allowed_tools=[],
