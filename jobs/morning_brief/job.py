@@ -14,7 +14,7 @@ JOB = JobSpec(
     "chat and tracker connectors",
     # Opus deliberately: this is the showcase output. The JSON+template
     # pipeline keeps its output tokens (and so its latency) in check.
-    model="claude-opus-4-8",
+    model="opus",
     mcp_servers=["gcal", "gmail", "slack", "linear", "notion", "granola"],
     allowed_tools=[
         "Skill",
