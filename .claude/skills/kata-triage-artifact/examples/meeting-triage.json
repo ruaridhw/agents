@@ -1,0 +1,104 @@
+{
+  "title": "Meeting review — three fixes before the next run",
+  "eyebrow": "Mock triage · fictional records and dialogue · nothing published",
+  "intro": "A realistic meeting-to-ticket review with anonymised defect patterns. Compare each proposed fix with its spec, source note and ruling before approving the wave.",
+  "tickets": [
+    {
+      "key": "ROW-QUANTITY",
+      "rank": 3,
+      "priority": 1,
+      "due": "2030-01-04",
+      "title": "Keep quantities at the individual order-line level",
+      "body": "## What\nWrite each variant's own quantity, not the order total, to its tracker row.\n\n## Why now\nThe mock order has two variants. Copying the total to both rows doubles the reported quantity.\n\n## Done when\n- The two mock rows show 24 and 18, not 42 and 42.\n- A single-line order still accepts its order total.",
+      "action": "update demo-qty",
+      "related": ["demo-reader"],
+      "spec": {
+        "label": "Spec §3 — quantities",
+        "markdown": "## Row ownership\nA multi-line order's quantity is settled from the commercial-document line naming both the order and the variant.\n\n| Mock record | Written quantity |\n| --- | --- |\n| ORD-103 · red | 24 |\n| ORD-103 · blue | 18 |\n\nUse an order total only when the order has one tracker row."
+      },
+      "sources": [
+        {
+          "ref": "M3",
+          "from": "Fictional meeting note · issue 3",
+          "class": "bug",
+          "point": "An order total appeared on every variant row.",
+          "quote": "Mock dialogue: We need the quantity for this variant, not the full order.",
+          "conflicts": "The previous order-total fallback."
+        }
+      ],
+      "rulings": "- Keep the single-line fallback; remove it for multi-line orders."
+    },
+    {
+      "key": "REFERENCE",
+      "rank": 1,
+      "priority": 0,
+      "due": "2030-01-02",
+      "title": "Preserve complete references under the correct label",
+      "body": "## What\nKeep the complete reference when extracted text contains only a prefix of the OCR value under the same label.\n\n## Why now\nThe mock reader truncated a line-wrapped reference and then compared a value from a different label.\n\n## Done when\n- A prefix never replaces the complete same-label value.\n- A secondary reference remains separate.\n- A regression fixture proves both cases.",
+      "action": "create",
+      "related": ["demo-reader"],
+      "spec": {
+        "label": "Spec §1 — reference reconciliation",
+        "markdown": "## Match like with like\nCompare extracted values only when they share the printed label.\n\n| Mock input | Retained value |\n| --- | --- |\n| Text: REF-204 | REF-204-001 |\n| OCR: REF-204-001 | REF-204-001 |\n\nKeep a differently labelled secondary reference in its own field."
+      },
+      "sources": [
+        {
+          "ref": "M1",
+          "from": "Fictional meeting note · issue 1",
+          "class": "bug",
+          "point": "The complete value was visible, but the reader kept a truncated prefix.",
+          "quote": "Mock dialogue: The references agree once the wrapped line is read in full.",
+          "conflicts": "The previous extracted-text-first rule."
+        }
+      ],
+      "rulings": "- Same label first; complete value second. Never merge values from different labels."
+    },
+    {
+      "key": "READ-BEFORE-SKIP",
+      "rank": 2,
+      "priority": 0,
+      "due": "2030-01-02",
+      "title": "Read spreadsheet evidence before caching a skip decision",
+      "body": "## What\nRequire a real read before a spreadsheet is classified as irrelevant evidence.\n\n## Why now\nTwo mock files were skipped without being opened. The cached skip then made later reviews report missing evidence.\n\n## Done when\n- A skip without a read/triage marker is refused.\n- The two mock workbooks are read again.\n- Their relevant sheets reach the comparison step.",
+      "action": "create",
+      "related": ["demo-cache"],
+      "spec": {
+        "label": "Spec §2 — evidence admission",
+        "markdown": "## Read before disposition\nAn unread file is pending, not irrelevant.\n\n1. Read the workbook.\n2. Record the inspected sheets and read marker.\n3. Classify its contents.\n4. Cache only the evidenced disposition."
+      },
+      "sources": [
+        {
+          "ref": "M2",
+          "from": "Fictional meeting note · issue 2",
+          "class": "bug",
+          "point": "A cached classification hid real spreadsheet evidence.",
+          "quote": "Mock dialogue: Those sheets were present; the review skipped them before reading them.",
+          "conflicts": "The old extension-based skip shortcut."
+        }
+      ],
+      "rulings": "- Clear only the mock files' stale skip entries, then prove the guard with a negative fixture."
+    }
+  ],
+  "other_actions": [
+    {
+      "ref": "demo-old",
+      "action": "close as superseded",
+      "markdown": "The reference question is answered by Spec §1; relate its replacement before closing."
+    },
+    {
+      "ref": "demo-cache",
+      "action": "comment",
+      "markdown": "Attach the read-before-skip investigation and the new guard evidence."
+    }
+  ],
+  "panels": [
+    {
+      "title": "Review gate and rollout",
+      "markdown": "1. Approve the proposed wave.\n2. Test the reference and workbook fixes together on a copy.\n3. Verify the mock row quantities before writing to production.\n4. Record deployment evidence separately from merged code."
+    },
+    {
+      "title": "No ticket — meeting recap",
+      "markdown": "The optional dashboard redesign is parked. Send a brief recap of the three correctness fixes first."
+    }
+  ]
+}
