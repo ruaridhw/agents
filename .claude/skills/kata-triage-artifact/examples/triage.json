@@ -1,0 +1,67 @@
+{
+  "title": "Reference handling — draft ticket wave",
+  "eyebrow": "Operator review · nothing published",
+  "intro": "One sheet per proposed ticket, in rank order. Compare the exact ticket body with its spec and source evidence. Annotate any span before publication.",
+  "tickets": [
+    {
+      "key": "CHECKLIST",
+      "rank": 2,
+      "priority": 2,
+      "due": null,
+      "title": "Align the checklist with reference handling",
+      "body": "## What\nUpdate the review checklist to include the reference label.\n\n## Why now\nThe old checklist mentions only the value.\n\n## Done when\nThe checklist and the reference rule agree.",
+      "action": "update ex01",
+      "related": [
+        "ex02"
+      ],
+      "spec": {
+        "label": "Spec §2 — checklist",
+        "markdown": "The checklist names both the label and value. Keep one authoritative rule and link to it."
+      },
+      "sources": [],
+      "rulings": ""
+    },
+    {
+      "key": "REFERENCE",
+      "rank": 1,
+      "priority": 1,
+      "due": "2030-01-02",
+      "title": "Preserve reference labels alongside values",
+      "body": "## What\nKeep both parts of a printed reference:\n- the label\n  - retain its original spelling\n- the value\n\n## Why now\nA value without its label is ambiguous.\n\n## Done when\nA fixture proves both parts survive extraction.",
+      "action": "create",
+      "related": [],
+      "spec": {
+        "label": "Spec §1 — references",
+        "markdown": "## Rule\nRetain the reference's label and value together.\n\n| Input | Result |\n| --- | --- |\n| Label + value | Both retained |"
+      },
+      "sources": [
+        {
+          "ref": "S1",
+          "from": "Example meeting · 00:15",
+          "class": "decided",
+          "point": "Reference labels are required.",
+          "quote": "Keep the label and the value together.",
+          "conflicts": "Checklist revision A"
+        }
+      ],
+      "rulings": "- Use the printed label; infer nothing."
+    }
+  ],
+  "other_actions": [
+    {
+      "ref": "ex03",
+      "action": "comment",
+      "markdown": "Record that the label-only question is answered by Spec §1."
+    }
+  ],
+  "panels": [
+    {
+      "title": "Deploy gate and rollout",
+      "markdown": "1. Prove the change on a test copy.\n2. Obtain authorization before production writes.\n3. Record the actual deployed revision separately from merge evidence."
+    },
+    {
+      "title": "No ticket — recap",
+      "markdown": "Send the reviewed reference rule to the operator."
+    }
+  ]
+}
