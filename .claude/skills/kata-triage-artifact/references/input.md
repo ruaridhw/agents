@@ -20,19 +20,19 @@ Optional arrays default to empty:
 
 Every ticket requires:
 
-| Field | Value |
-| --- | --- |
-| `key` | Nonempty string, unique in the wave; stable annotation identity |
-| `rank` | Unique nonnegative integer; sheets and index sort ascending |
-| `priority` | Integer 0–3, displayed as P0–P3; passed through, not remapped |
-| `due` | ISO date string, or `null` displayed as an em dash |
-| `title` | Plain string |
-| `body` | Exact proposed Kata body, as Markdown |
-| `action` | `create` or `update <ref>` |
-| `related` | Array of reference strings, possibly empty |
-| `spec` | Object with plain `label` and `markdown` containing the implementing section |
-| `sources` | Array of source objects, possibly empty |
-| `rulings` | Markdown string, empty when there are no operator rulings |
+| Field      | Value                                                                        |
+| ---------- | ---------------------------------------------------------------------------- |
+| `key`      | Nonempty string, unique in the wave; stable annotation identity              |
+| `rank`     | Unique nonnegative integer; sheets and index sort ascending                  |
+| `priority` | Integer 0–3, displayed as P0–P3; passed through, not remapped                |
+| `due`      | ISO date string, or `null` displayed as an em dash                           |
+| `title`    | Plain string                                                                 |
+| `body`     | Exact proposed Kata body, as Markdown                                        |
+| `action`   | `create` or `update <ref>`                                                   |
+| `related`  | Array of reference strings, possibly empty                                   |
+| `spec`     | Object with plain `label` and `markdown` containing the implementing section |
+| `sources`  | Array of source objects, possibly empty                                      |
+| `rulings`  | Markdown string, empty when there are no operator rulings                    |
 
 Source fields are strings: `ref`, `from`, `class`, `point`, `quote`, `conflicts`.
 `ref`, `from` and `class` are plain text; the rest support Markdown. Put timestamps
@@ -53,7 +53,12 @@ not active URLs or fetched images. Other Markdown syntax remains literal text;
 convert it into the supported subset in both canonical data and specs before
 review if it obscures meaning. Inspect the rendered page before presenting it.
 
-Fonts use local Cambria/Georgia, Helvetica/Arial and Liberation Mono/Menlo stacks.
-The skill ships no font binaries: this avoids redistributing font files with
-unverified licensing and keeps the skill lightweight. Offline layout and
-serif/label/monospace roles survive; exact glyph metrics vary by machine.
+The page embeds bundled WOFF2 fonts: Inter Display headings, Lato body and Inter
+labels. Their copyright/licence notices travel with the HTML; see
+[font licences](../assets/fonts/README.md) for sources. No font network requests
+or font-conversion packages are needed at runtime. Monospace text uses local
+Liberation Mono/Menlo fallbacks.
+
+The design uses blue accents, a white light-theme page and neutral dark theme,
+bordered sheets with a blue top highlight, and wider side gutters to clear
+Plannotator's annotation toolbar.

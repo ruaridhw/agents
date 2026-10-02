@@ -2,12 +2,14 @@
 """Render a draft ticket wave as one offline, annotatable HTML document (stdlib only)."""
 
 import argparse
+import base64
 import datetime
 import html
 import json
 import re
 import sys
 from pathlib import Path
+from string import Template
 from urllib.parse import quote
 
 LIST = re.compile(r"^( *)([-*+] |\d+\. )(.*)$")
@@ -270,12 +272,39 @@ def ticket_html(ticket):
 </section>"""
 
 
+def font_assets(assets):
+    faces = (
+        ("inter-display-semibold.woff2", "Inter Display", 600),
+        ("inter-semibold.woff2", "Inter", 600),
+        ("lato-regular.woff2", "Lato", 400),
+    )
+    styles = []
+    for filename, family, weight in faces:
+        encoded = base64.b64encode((assets / "fonts" / filename).read_bytes()).decode()
+        styles.append(
+            "@font-face {\n"
+            f'  font-family: "{family}";\n'
+            "  font-style: normal;\n"
+            f"  font-weight: {weight};\n"
+            "  font-display: swap;\n"
+            f'  src: url("data:font/woff2;base64,{encoded}") format("woff2");\n'
+            "}\n"
+        )
+    notices = "\n\n".join(
+        (assets / "fonts" / filename).read_text(encoding="utf-8")
+        for filename in ("LICENSE-Inter.txt", "LICENSE-Lato.txt")
+    )
+    return "\n".join(styles), "<!-- Bundled font licences:\n" + notices.replace(
+        "--", "—"
+    ) + "\n-->"
+
+
 def render(data):
     validate(data)
     tickets = sorted(data["tickets"], key=lambda ticket: ticket["rank"])
-    css = (Path(__file__).resolve().parent.parent / "assets/triage.css").read_text(
-        encoding="utf-8"
-    )
+    assets = Path(__file__).resolve().parent.parent / "assets"
+    css = (assets / "triage.css").read_text(encoding="utf-8")
+    fonts, notices = font_assets(assets)
     # IDs are encoded keys; fragments need another encoding for the browser's decoding pass.
     nav = "".join(
         f'<li><a href="#t-{quote(quote(t["key"], safe=""), safe="")}">'
@@ -297,26 +326,25 @@ def render(data):
         f'<li><a href="#panel-{i}">{html.escape(p["title"])}</a></li>'
         for i, p in enumerate(data.get("panels", []))
     )
-    return f"""<!doctype html>
-<html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy"
-content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'">
-<title>{html.escape(data["title"])}</title><style>{css}</style></head>
-<body><div class="layout"><header class="top">
-<p class="lbl">{html.escape(data["eyebrow"])}</p><h1>{html.escape(data["title"])}</h1>
-<div class="intro">{md(data["intro"])}</div>
-<button class="toggle" type="button" id="theme">Toggle light / dark</button></header>
-<nav aria-label="Tickets by rank"><p class="lbl">By rank</p><ol>{nav}
-<li><a href="#other">Other kata actions</a></li>{panel_nav}</ol></nav>
-<main>{"".join(ticket_html(t) for t in tickets)}
-<section class="panel" id="other" aria-labelledby="h-other"><h2 id="h-other">Other kata actions</h2>
-<div class="table-scroll"><table><thead><tr><th>Ticket</th><th>Action</th><th>Message</th></tr></thead>
-<tbody>{rows}</tbody></table></div></section>{panels}</main></div>
-<script>(function(){{var b=document.getElementById('theme'),r=document.documentElement;
-b.addEventListener('click',function(){{var dark=r.dataset.theme?r.dataset.theme==='dark':
-matchMedia('(prefers-color-scheme: dark)').matches;r.dataset.theme=dark?'light':'dark';}});}})();</script>
-</body></html>"""
+    markup = (assets / "page.html").read_text(encoding="utf-8")
+    # Commented slots let HTML/CSS/JS formatters parse the source template normally.
+    markup = re.sub(r"<!-- (\$[a-z_]+) -->", r"\1", markup)
+    markup = markup.replace("/* $styles */", "$styles").replace(
+        "/* $theme_script */", "$theme_script"
+    )
+    return Template(markup).substitute(
+        page_title=html.escape(data["title"]),
+        eyebrow=html.escape(data["eyebrow"]),
+        intro=md(data["intro"]),
+        styles=fonts + css,
+        font_licenses=notices,
+        theme_script=(assets / "theme.js").read_text(encoding="utf-8"),
+        ticket_nav=nav,
+        panel_nav=panel_nav,
+        tickets="\n".join(ticket_html(t) for t in tickets),
+        action_rows=rows,
+        panels=panels,
+    )
 
 
 def main():

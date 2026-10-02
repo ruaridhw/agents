@@ -1,7 +1,9 @@
 """Exercise the standalone renderer with Python stdlib unittest."""
 
+import base64
 import copy
 import json
+import re
 import runpy
 import subprocess
 import sys
@@ -255,7 +257,17 @@ class RenderTriageTest(unittest.TestCase):
             )
             == 2
         )
-        assert "prefers-color-scheme:dark" in out.read_text()
+        assert re.search(r"prefers-color-scheme:\s*dark", out.read_text())
+
+    def test_output_embeds_licensed_fonts_without_network_access(self):
+        page = self.renderer["render"](self.draft)
+        fonts = re.findall(r"data:font/woff2;base64,([A-Za-z0-9+/=]+)", page)
+        self.assertEqual(len(fonts), 3)
+        for font in fonts:
+            self.assertEqual(base64.b64decode(font)[:4], b"wOF2")
+        self.assertIn("font-src data:", page)
+        self.assertIn("SIL OPEN FONT LICENSE", page)
+        self.assertLess(len(page.encode("utf-8")), 2_000_000)
 
     def test_cli_invalid_input_preserves_existing_output(self):
         tmp_path = self.tmp_path

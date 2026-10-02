@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; font-src data:; style-src 'unsafe-inline'; script-src 'unsafe-inline'"
+    />
+    <title>$page_title</title>
+    <style>
+      /* $styles */
+    </style>
+    <!-- $font_licenses -->
+  </head>
+  <body>
+    <div class="layout">
+      <header class="top">
+        <p class="lbl">$eyebrow</p>
+        <h1>$page_title</h1>
+        <div class="intro">$intro</div>
+        <button class="toggle" type="button" id="theme">
+          Toggle light / dark
+        </button>
+      </header>
+      <nav aria-label="Tickets by rank">
+        <p class="lbl">By rank</p>
+        <ol>
+          <!-- $ticket_nav -->
+          <li><a href="#other">Other kata actions</a></li>
+          <!-- $panel_nav -->
+        </ol>
+      </nav>
+      <main>
+        <!-- $tickets -->
+        <section class="panel" id="other" aria-labelledby="h-other">
+          <h2 id="h-other">Other kata actions</h2>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Ticket</th>
+                  <th scope="col">Action</th>
+                  <th scope="col">Message</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- $action_rows -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+        <!-- $panels -->
+      </main>
+    </div>
+    <script>
+      /* $theme_script */
+    </script>
+  </body>
+</html>

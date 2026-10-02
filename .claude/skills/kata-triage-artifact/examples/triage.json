@@ -11,9 +11,7 @@
       "title": "Align the checklist with reference handling",
       "body": "## What\nUpdate the review checklist to include the reference label.\n\n## Why now\nThe old checklist mentions only the value.\n\n## Done when\nThe checklist and the reference rule agree.",
       "action": "update ex01",
-      "related": [
-        "ex02"
-      ],
+      "related": ["ex02"],
       "spec": {
         "label": "Spec §2 — checklist",
         "markdown": "The checklist names both the label and value. Keep one authoritative rule and link to it."
