@@ -93,6 +93,58 @@ def create_tab(cwd: Path, label: str, workspace_id: str) -> str:
     return pane_id(created)
 
 
+def equal_axis_resize_steps(layout: dict, axis: str) -> list[tuple[str, float]]:
+    if axis not in {"width", "height"}:
+        raise ValueError(f"Unsupported axis: {axis}")
+    direction = "right" if axis == "width" else "down"
+    position_key = "x" if axis == "width" else "y"
+
+    panes = sorted(layout.get("panes", []), key=lambda p: p["rect"][position_key])
+    matching_splits = [s for s in layout.get("splits", []) if s.get("direction") == direction]
+    if len(panes) < 3 or not matching_splits:
+        return []
+
+    steps: list[tuple[str, float]] = []
+    for split in sorted(matching_splits, key=lambda s: s["rect"][axis], reverse=True):
+        rect = split["rect"]
+        current_ratio = float(split["ratio"])
+        split_start = rect[position_key]
+        split_size = rect[axis]
+        current_boundary = split_start + round(split_size * current_ratio)
+        left_pane = next(
+            (
+                pane
+                for pane in panes
+                if pane["rect"][position_key] < current_boundary
+                and pane["rect"][position_key] + pane["rect"][axis] >= current_boundary - 1
+            ),
+            None,
+        )
+        if not left_pane:
+            continue
+
+        panes_inside = [
+            pane
+            for pane in panes
+            if pane["rect"][position_key] >= split_start and pane["rect"][position_key] + pane["rect"][axis] <= split_start + split_size
+        ]
+        panes_left = [pane for pane in panes_inside if pane["rect"][position_key] < current_boundary]
+        target_ratio = len(panes_left) / len(panes_inside)
+        amount = target_ratio - current_ratio
+        if abs(amount) > 0.001:
+            steps.append((left_pane["pane_id"], amount))
+    return steps
+
+
+def equalize_spawned_panes(root_pane: str, direction: str) -> None:
+    axis = "width" if direction == "right" else "height"
+    resize_direction = "right" if direction == "right" else "down"
+    layout_stdout = ok(run(["herdr", "pane", "layout", "--pane", root_pane]), "pane layout")
+    layout = json.loads(layout_stdout)["result"]["layout"]
+    for pid, amount in equal_axis_resize_steps(layout, axis):
+        ok(run(["herdr", "pane", "resize", "--pane", pid, "--direction", resize_direction, "--amount", f"{amount:.6f}"]), "pane resize")
+
+
 def spawn(agent: dict, cwd: Path, root_pane: str, direction: str, pane: str | None = None) -> None:
     pid = pane
     if pid is None:
@@ -165,6 +217,7 @@ def main() -> int:
     root_pane = create_tab(Path.cwd(), tab_label, workspace_id)
     for index, a in enumerate(agents):
         spawn(a, Path.cwd(), root_pane, args.direction, pane=root_pane if index == 0 else None)
+    equalize_spawned_panes(root_pane, args.direction)
 
     print(f"TAB_LABEL={tab_label}")
     print(f"ROSTER={roster}")

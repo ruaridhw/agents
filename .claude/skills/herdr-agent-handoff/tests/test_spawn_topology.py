@@ -43,6 +43,10 @@ class FakeHerdr:
             return Completed(cmd, json.dumps({"result": {"tab": {"tab_id": "tab-1"}, "root_pane": {"pane_id": "root-pane"}}}))
         if cmd[:3] == ["herdr", "pane", "split"]:
             return Completed(cmd, json.dumps({"result": {"pane": {"pane_id": f"pane-{len(self.commands)}"}}}))
+        if cmd[:3] == ["herdr", "pane", "layout"]:
+            return Completed(cmd, json.dumps({"result": {"layout": {"area": {"height": 80, "width": 120, "x": 0, "y": 0}, "panes": [], "splits": []}}}))
+        if cmd[:3] == ["herdr", "pane", "resize"]:
+            return Completed(cmd)
         if cmd[:3] == ["herdr", "agent", "start"]:
             name = cmd[3]
             if self.busy_starts.get(name, 0) > 0:
@@ -108,6 +112,32 @@ class SpawnTopologyTest(unittest.TestCase):
             self.assertEqual(mod.main(), 2)
 
         self.assertEqual(fake.commands, [])
+
+    def test_equal_width_resize_steps_balance_repeated_right_splits(self):
+        mod = load_script("spawn_team")
+        layout = {
+            "area": {"height": 79, "width": 453, "x": 0, "y": 0},
+            "panes": [
+                {"pane_id": "pA", "rect": {"height": 79, "width": 29, "x": 0, "y": 0}},
+                {"pane_id": "pE", "rect": {"height": 79, "width": 28, "x": 29, "y": 0}},
+                {"pane_id": "pD", "rect": {"height": 79, "width": 57, "x": 57, "y": 0}},
+                {"pane_id": "pC", "rect": {"height": 79, "width": 113, "x": 114, "y": 0}},
+                {"pane_id": "pB", "rect": {"height": 79, "width": 226, "x": 227, "y": 0}},
+            ],
+            "splits": [
+                {"direction": "right", "ratio": 0.5, "rect": {"height": 79, "width": 453, "x": 0, "y": 0}},
+                {"direction": "right", "ratio": 0.5, "rect": {"height": 79, "width": 227, "x": 0, "y": 0}},
+                {"direction": "right", "ratio": 0.5, "rect": {"height": 79, "width": 114, "x": 0, "y": 0}},
+                {"direction": "right", "ratio": 0.5, "rect": {"height": 79, "width": 57, "x": 0, "y": 0}},
+            ],
+        }
+
+        steps = mod.equal_axis_resize_steps(layout, axis="width")
+
+        self.assertEqual([step[0] for step in steps], ["pC", "pD", "pE"])
+        self.assertAlmostEqual(steps[0][1], 0.3)
+        self.assertAlmostEqual(steps[1][1], 0.25)
+        self.assertAlmostEqual(steps[2][1], 1 / 6)
 
     def test_team_passes_per_agent_model_args(self):
         mod = load_script("spawn_team")
