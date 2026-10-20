@@ -1,0 +1,11 @@
+{
+  "title": "Cost per image, each phase on top of the last",
+  "unit": "$",
+  "decimals": 3,
+  "note": "From 4.1. We charge $0.010 per billed image; unchanged images are not billed.",
+  "rows": [
+    {"key": "Today", "label": "T0: render everything", "value": 0.042, "aside": "$3,528/wk", "anchor": "s1"},
+    {"key": "A", "label": "Skip unchanged images", "value": 0.013, "aside": "$1,092/wk", "anchor": "s4"},
+    {"key": "B", "label": "Cheaper resize class", "value": 0.008, "aside": "$672/wk"}
+  ]
+}
