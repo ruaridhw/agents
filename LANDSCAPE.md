@@ -144,3 +144,14 @@ Decision made while building: the design-review gate stays an open item (Ruaridh
 | pstack `opening-a-pr` | One-minute briefing body; Why / What changed / Scope / Verification sections; open ready never draft; narrow PRs; stacks as base-branch chains; don't babysit on open; keep shas and genealogy out of the body | Conventional Commits titles (gitmoji instead); amend-into-previous-commit; deslop/no-comments/technical-writing hooks; Origin and built-in PR tools |
 | superpowers `finishing-a-development-branch` | Tests green before anything; confirm the base; keep-as-is and local-merge options; discard only on explicit request | The fixed three-option menu as the default (PR is the default here) |
 | own rule sources (stacked-PR memories, home AGENTS.md) | The merge recipe: async endpoint, `.details.uuid`, `merge_method=merge`, base first, retargeted children re-run checks, adopt remote heads, never `--onto` with a local parent sha, hand-built chains are not stacks, retarget before deleting a base | Repo names and dates |
+
+## handoff
+
+**Opinion.** Pause: triggered by "stop", near-spent context or a session ending with work in flight; `wip:` commit, summary file in `.herdr-handoffs/`, panes closed through `herdr` with their sessions recorded, ticket comment and `work.attention`. Pickup: triggered by intake finding a summary or `work.branch`; rebuild from the trail, name the resume point, verify only what the next step depends on, resume recorded panes. Owns the summary and raw-log shapes every worker writes.
+
+| Feed | Taken | Dropped |
+| --- | --- | --- |
+| mattpocock `handoff` | Reference other artifacts by path instead of duplicating; redact secrets; tailor to what the next session is for | Writing to `$TMPDIR` (`.herdr-handoffs/` in the repo instead); "suggested skills" section (intake routes) |
+| pstack `pause-safely` | Explicit-only pause, never on "keep going"; safe boundary; nothing irreversible; one `wip:` commit with broken-tree note; resume note sections (intent, progress, state, next step, key files, gotchas); pause reply shape | `/tmp` resume note; Cursor restart trigger |
+| pstack `session-pickup` | Trail is authoritative; rebuild operational state; diff done vs pending; name the resume point; verify inherited claims on the real artifact; route the rest to the owning skill | Cursor transcript paths and cloud-agent URLs (AgentsView instead) |
+| self `herdr-agent-handoff` | Two-file contract (summary for ingestion, raw log for audit), absolute paths, summary fields, `HANDOFF_WRITTEN` line, read raw only when blocked or uncertain | Spawn mechanics (`herdr`) and briefs (`implement`) |
