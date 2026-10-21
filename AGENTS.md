@@ -20,7 +20,14 @@ jobs/<name>/precheck.md   optional cheap probe (Haiku, read-only): last line NO_
 runner/config.py          .env loading, ${VAR} resolution, JobSpec, MCP subsetting
 runner/preflight.py       loud pre-run checks: auth, env, paths, MCP reachability
 runner/run_job.py         entrypoint; --dry-run blocks each job's write tools
-.claude/skills/<name>/    skill definitions
+.claude/skills/<name>/    skill definitions (scheduled-job skills and the curated skill set)
+LANDSCAPE.md              curated skills: opinion and, per upstream feed, what was taken and dropped
+UPSTREAMS.json            upstream skill repos and their audited shas; clones live in upstream/ (gitignored)
+conventions/              tracker profiles that setup-project copies into a repo's .agents/tracker.md
+hooks/session-start       Claude Code SessionStart hook injecting ruaridh-mode
+package.json, .pi/        pi package: the ruaridh-mode extension
+linked-skills.txt         curated names linked into ~/.claude/skills and registered with pi
+bin/                      skill-upstream, link-skills, check-public
 mcp/servers.template.json all MCP servers, ${ENV_VAR} placeholders — single source
 scripts/                  launchd installer (per-job), mcp renderer
 .pre-commit-config.yaml   git hooks: ruff format/check, ty, uv-lock, gitleaks
@@ -62,6 +69,21 @@ logs/<job>/*.jsonl        full run streams + history.jsonl summaries (gitignored
    its `StartCalendarInterval` entries, then
    `./scripts/install-launchd.sh <job-name>`. Verify with
    `launchctl kickstart gui/$(id -u)/com.ruaridh.agent-jobs.<job-name>`.
+
+## Curated skills
+
+The curated skill set (`ruaridh-mode` and the chain it routes to) is written from upstream skill
+repos and stamped against them. `LANDSCAPE.md` is the record; read a skill's section before editing it.
+
+- Frontmatter: `name` (= directory), `description`, `upstream:` stamps (repo key from
+  `UPSTREAMS.json`, path, sha), `disable-model-invocation: true` only on sub-skills.
+- Add or move a feed with `bin/skill-upstream stamp --add <skill> --repo <r> --path <p>`; check
+  with `bin/skill-upstream check`; see drift with `status` and `diff`. The `update-skills` skill
+  runs the full ingest loop.
+- No repo, client, host or personal specifics in a curated skill: those go in a repo's `.agents/*.md`
+  (written by `setup-project`) or in files under `~/.config/agents/`. `bin/check-public` scans
+  for them against a denylist kept outside the repo and fails closed without it.
+- After adding a non-colliding curated skill, add it to `linked-skills.txt` and run `bin/link-skills`.
 
 ## Hygiene (public repo)
 
