@@ -133,3 +133,14 @@ Decision made while building: the design-review gate stays an open item (Ruaridh
 | pstack `orchestrate` | The brief template and its rules (a field you cannot fill means unscoped; pointers not copies; upstream reports pasted in full; collapse for tiny units); rolling window, not blocking batches; respawn fresh, never resume-chain a muddled brief; coordinator never writes code | The `orch` store and CLI, cloud workers, sub-coordinators, ledger TSVs, frontier JSON (the tracker and the herdr ledger carry this) |
 | self `orchestrating-reviewed-build` | One workstream, worktree and branch per builder; shared contracts first, risky switch last; reviewer on the integrated phase with findings to the coordinator; done only when evidence matches, not merge state | Its isolated-QA, acceptance-file and production-gate steps (wave 2 `verify` and `ship`, and repo `prove-landed.md` / `deploy.md`) |
 | self `herdr-agent-handoff` | Brief and roster conventions for delegated work | Model tables (roles in `models.toml`); pane mechanics (`herdr`); file shapes (`handoff`) |
+
+## pr
+
+**Opinion.** One PR per ticket on the previous ticket's branch; gitmoji imperative title; the wave 0 body (Why / What changed / Scope / Evidence before → after / Merge danger: door and blast radius / Verification, then `Ticket:` and `Stack:`); no `Closes #N` because merged is not done; merge only with Ruaridh's yes, by the async recipe, base first, then adopt remote heads.
+
+| Feed | Taken | Dropped |
+| --- | --- | --- |
+| mattpocock `pr` | Smallest-visual summary (diff-sketches, trees, mermaid, pseudocode); before/after evidence ranking; one-way/two-way door and blast radius | GLOSSARY wording (wave 2 `domain`); the exact heading order (wave 0 body instead) |
+| pstack `opening-a-pr` | One-minute briefing body; Why / What changed / Scope / Verification sections; open ready never draft; narrow PRs; stacks as base-branch chains; don't babysit on open; keep shas and genealogy out of the body | Conventional Commits titles (gitmoji instead); amend-into-previous-commit; deslop/no-comments/technical-writing hooks; Origin and built-in PR tools |
+| superpowers `finishing-a-development-branch` | Tests green before anything; confirm the base; keep-as-is and local-merge options; discard only on explicit request | The fixed three-option menu as the default (PR is the default here) |
+| own rule sources (stacked-PR memories, home AGENTS.md) | The merge recipe: async endpoint, `.details.uuid`, `merge_method=merge`, base first, retargeted children re-run checks, adopt remote heads, never `--onto` with a local parent sha, hand-built chains are not stacks, retarget before deleting a base | Repo names and dates |
