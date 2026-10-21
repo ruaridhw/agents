@@ -64,3 +64,16 @@ Decision made while building: the visual companion is single-file HTML mocks in 
 | superpowers `brainstorming` | Ground to cover (goals / non-goals / anti-goals, prior art, how-it-gets-made ownership); guess-to-correct questions; spike instead of asking, spikes stay throwaway; playback with guesses marked; the size table; several projects → one at a time; red flags | One question per message; the written design and builder check (`to-spec`); the hard gate wording; `docs/superpowers/specs` location |
 | superpowers `brainstorming/visual-companion.md` | When to offer (its own message, once, just in time) and what belongs visually | The local companion server and its scripts |
 | pstack `sharpen` | Ask what he is really after and whether the task is over- or under-specified before shaping it | Silent self-framing with no interview |
+
+## to-spec
+
+**Opinion.** No interview. Reconcile the sources, write `.scratch/specs/<date>-<slug>.md` in the wave 0 shape, builder check by a fresh Herdr worker (answered / my call / his; only "his" asked, once), Plannotator gate, offer `spec-review`, then publish the spec issue from the possibly amended file and hand to `to-tickets`. Acceptance is decided here. Replaces own `writing-build-spec`, which is now a pointer file for one release.
+
+Decision made while building: the design-review gate stays an open item (Ruaridh's choice); `to-spec` fills the Design section and follows `.agents/design-review.md` where a repo has one, otherwise flags the Design section in the gate message.
+
+| Feed | Taken | Dropped |
+| --- | --- | --- |
+| superpowers `brainstorming` | Written-design contents (intent, goals / non-goals / anti-goals, constraints, decided how, left to the builder); the three-pile builder check and one round of questions; "tell him which calls were yours" | Committing specs under `docs/superpowers/specs`; the conversation phase (`grill`) |
+| superpowers `brainstorming/builder-check-prompt.md` | The brief nearly verbatim, as `references/builder-check.md`, run in a Herdr pane | Agent-tool dispatch |
+| self `writing-build-spec` | Source reconciliation with dispositions; correction-beats-note authority order with superseded decisions recorded; decided vs undecided with owned open items; per-workstream case + expected result, owned proof gaps; tracker dispositions recorded not mutated; the pre-handoff audit | Its free-form layout (replaced by the template); the explicit pointer to the old review skill |
+| mattpocock `to-spec` | No interview, synthesis only; highest-seam testing decision; prototype-snippet exception; publish to the tracker | User-story lists; `ready-for-agent` on the spec; Problem/Solution headings |
