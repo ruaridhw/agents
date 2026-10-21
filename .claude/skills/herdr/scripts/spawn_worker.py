@@ -18,6 +18,11 @@ WORKER = "worker"
 SESSION_ID_KINDS = {"pi", "claude"}
 
 
+MODE_EXTENSION = (
+    Path(__file__).resolve().parents[4] / ".pi" / "extensions" / "ruaridh-mode.ts"
+)
+
+
 def run(
     cmd: list[str], *, input_text: str | None = None
 ) -> subprocess.CompletedProcess[str]:
@@ -263,6 +268,8 @@ def main() -> int:
         agent_args.extend(["--model", args.model])
     if args.lean and args.kind == "pi":
         agent_args.extend(["--no-skills", "--no-extensions", "--no-prompt-templates"])
+        if args.mode == "worker" and MODE_EXTENSION.exists():
+            agent_args.extend(["-e", str(MODE_EXTENSION)])
     session_id = str(uuid.uuid4())
     agent_args.extend(session_args(args.kind, session_id))
     agent_args.extend(args.agent_arg)

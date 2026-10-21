@@ -332,6 +332,50 @@ class SpawnTopologyTest(unittest.TestCase):
             {"agent": "claude", "kind": "id", "source": "spawn", "value": start[10]},
         )
 
+    def lean_start_args(self, mode):
+        mod = load_script("spawn_worker")
+        fake = FakeHerdr()
+        with (
+            tempfile.TemporaryDirectory() as tmp,
+            patch.dict(
+                os.environ,
+                {
+                    "HERDR_ENV": "1",
+                    "HERDR_WORKSPACE_ID": "w-test",
+                    "HERDR_PANE_ID": MINE,
+                },
+            ),
+            patch.object(
+                sys,
+                "argv",
+                [
+                    "spawn_worker.py",
+                    "--name",
+                    "lean",
+                    "--lean",
+                    "--mode",
+                    mode,
+                    "--task",
+                    "build",
+                ],
+            ),
+            patch.object(mod.subprocess, "run", fake.run),
+            patch.object(mod.time, "sleep"),
+            patch.object(Path, "cwd", return_value=Path(tmp)),
+        ):
+            self.assertEqual(mod.main(), 0)
+        return mod, start_commands(fake, "lean")[0]
+
+    def test_lean_worker_loads_the_mode_extension_explicitly(self):
+        mod, start = self.lean_start_args("worker")
+        self.assertIn("--no-extensions", start)
+        self.assertIn(str(mod.MODE_EXTENSION), start)
+        self.assertEqual(start[start.index(str(mod.MODE_EXTENSION)) - 1], "-e")
+
+    def test_lean_interactive_agent_gets_no_mode_extension(self):
+        mod, start = self.lean_start_args("interactive")
+        self.assertNotIn(str(mod.MODE_EXTENSION), start)
+
     def test_worker_no_wait_skips_wait_and_prints_json(self):
         mod = load_script("spawn_worker")
         fake = FakeHerdr()
