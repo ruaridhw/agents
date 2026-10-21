@@ -106,3 +106,13 @@ Decision made while building: the design-review gate stays an open item (Ruaridh
 | mattpocock `triage/AGENT-BRIEF.md` | Durable, behavioural briefs with checkable criteria and out-of-scope; the template, condensed, plus a Verified line | The long worked examples |
 | mattpocock `triage/OUT-OF-SCOPE.md` | One file per concept, durable reasons, prior requests, concept matching, never for already-implemented | The long example file |
 | self `kata-triage-artifact` | All of it: wave JSON contract, renderer, fonts and theme, tests, the background Plannotator gate with a fresh decision file, annotation mapping and re-gating | The kata-only wording (any tracker now) |
+
+## to-plan
+
+**Opinion.** Ephemeral `.scratch/plans/<date>-<slug>.md`, one task per ticket in dependency order, steps from `.agents/build-loop.md`, acceptance cited from the spec and never invented (a missing case goes back onto the spec issue). Not gated. Ends by proposing inline or delegated (with the split) and waiting for the pick. `--map` charts work bigger than a session as decision tickets.
+
+| Feed | Taken | Dropped |
+| --- | --- | --- |
+| superpowers `writing-plans` | Write only the decisions the builder cannot make; file map first; task right-sizing; step granularity and what a step contains; Global constraints and Review focus sections; Interfaces consumes/produces; self-review (coverage, step scan, type consistency, proportion); propose an execution method with one-sentence reason and wait | `docs/superpowers/plans` location; superpowers sub-skill handoffs; checkbox-tracking instruction for agentic workers |
+| pstack `multi-phase-plan` playbook | Skip the plan when the change is obvious; settle forks by prototype before writing; explore in subagents returning pointers not dumps; one section per PR with its own evidence; hand back and stop until the explicit go | Ten-lane swarm verification, perf gates, cloud VMs, check-plan script, Cursor control skills (the verification lane per PR waits for `verify` in wave 2) |
+| mattpocock `wayfinder` | Map mode: destination, map as an index issue, decision tickets as children with native edges, claim-first, frontier, fog of war, out of scope, refer by name, hand off to the spec | Its tracker-operations doc and `wayfinder:` labels (tracker kinds instead); 100K-token sizing language |
