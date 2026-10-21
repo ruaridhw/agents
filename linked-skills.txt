@@ -1,0 +1,9 @@
+# Curated skills linked into ~/.claude/skills and registered with pi. Names that collide with a plugin skill are added at wave 3.
+ruaridh-mode
+clarify
+herdr
+spec-review
+to-plan
+setup-project
+update-skills
+rare-skills
