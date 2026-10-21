@@ -40,3 +40,13 @@ Decisions made while building:
 | mattpocock `ask-matt` | Main flow plus on-ramps as the chain shape; "triage only issues you didn't create"; skip planning when tickets are small | Context-hygiene and phase-boundary advice (`handoff` owns pausing); `grill-with-docs` glossary statefulness (moves to `domain`, wave 2) |
 | mattpocock `chief-of-staff` | Coordinator stance: DRI, two tracks (tactical, strategic), all work in subagents, sparse communication through context pointers, propose schedules, relentless environment fixes | The wiki-as-memory (the tracker and `.scratch/` are the record; history comes from AgentsView) |
 | own rule sources (home and project AGENTS.md files, the constitution, general memories) | The twelve non-negotiables; `tooling.md` (git, stacked PRs, Herdr, pi, Plannotator, AgentsView) | Host names, collector URLs, token paths, tailnet recipes (moved to the private local tooling file) |
+
+## clarify
+
+**Opinion.** One round, at most five questions that would each change what gets built, each with a recommended answer worded so "yes" accepts it. A one-sentence restatement of the goal first. No tree, no sizing, no playback: when the task needs those it is a `grill`. Runs by default before non-trivial work that did not come through `grill`; Inbox question blocks when Ruaridh is away.
+
+| Feed | Taken | Dropped |
+| --- | --- | --- |
+| superpowers `brainstorming` | "What do you actually know?" first check (quick task → just do it); single-sentence questions with no example lists; look before asking (recon) | The conversation loop, open describing questions, playback chunks, sizing, the written design, the visual companion and the hard gate (all `grill` or `to-spec`) |
+| pstack `in-your-own-words` | Restate the user's goal and problem in your own words before acting | Restating as the whole skill |
+| mattpocock `grilling` | Recommended answer per question; "yes accepts the recommendation" wording; facts are the agent's job | Rounds and the frontier (`grill`) |
