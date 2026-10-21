@@ -85,8 +85,12 @@ def mode_env(mode: str) -> list[str]:
     return ["--env", f"RUARIDH_MODE={mode}"] if mode == WORKER else []
 
 
+AIMSG = "(aimsg) "  # every message one agent sends another pane starts with this
+
+
 def mode_prefix(mode: str) -> str:
-    return f"ruaridh-mode: {mode}\n\n" if mode == WORKER else ""
+    marker = f"ruaridh-mode: {mode}\n\n" if mode == WORKER else ""
+    return f"{AIMSG}{marker}"
 
 
 def session_args(kind: str, session_id: str) -> list[str]:

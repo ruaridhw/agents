@@ -349,7 +349,7 @@ def cmd_resume(args: argparse.Namespace) -> int:
     tab_id = find_id(payload, "tab_id")
     start_agent(args.name, kind, pane_id, resume_argv(row, session))
     if args.prompt:
-        prompt = (
+        prompt = "(aimsg) " + (
             f"ruaridh-mode: {WORKER}\n\n{args.prompt}"
             if mode == WORKER
             else args.prompt

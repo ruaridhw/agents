@@ -40,7 +40,7 @@ python3 scripts/spawn_worker.py --name <agent> --tab-label <label> \
 python3 scripts/spawn_team.py --team-file team.json [--no-wait]
 ```
 
-- **Worker mode is the default**: the pane gets `RUARIDH_MODE=worker` and the prompt starts with `ruaridh-mode: worker`, so the worker loads the slim mode body. Pass `--mode interactive` only for an agent Ruaridh will drive himself.
+- **Worker mode is the default**: the pane gets `RUARIDH_MODE=worker` and the prompt's first line is `(aimsg) ruaridh-mode: worker`, so the worker loads the slim mode body. Pass `--mode interactive` only for an agent Ruaridh will drive himself.
 - **Models by role**: read `~/.config/agents/models.toml` (builder, reviewer, cheap, spec-reviewer) and pass the exact id. Never clone your own model by habit; if the role's model is unavailable (`pi --list-models`), stop rather than silently switching to a weaker one.
 - **`--lean`** (pi only) starts without skills, extensions or prompt templates (worker mode still loads the ruaridh-mode extension explicitly), which cuts the per-turn baseline by about three quarters. A lean worker cannot discover skills, so cite every file it needs by absolute path in the brief.
 - **`--no-wait`** returns at once with one JSON line per agent; without it the script blocks until the summary is written, so run it in the background when you have other work.
@@ -74,6 +74,7 @@ python3 scripts/panes.py resume <name> [--prompt "<text>"]
 
 ## Talking to an existing pane
 
+- **Every message from one agent to another pane starts with `(aimsg) `** on its first line: spawn prompts, replies, resumes, nudges. The scripts add it; add it yourself on any `herdr agent prompt` you type. A line without it is Ruaridh's, so a pane can tell the two apart and never treats an agent's message as his.
 - A quoted agent or tab name ("the investigation agent") is that existing pane: `herdr agent list`, then `herdr agent prompt <name> "<text>"`. Spawn a new one only when no such pane exists.
 - When a pane asks you something, answer it there with `herdr agent prompt`; do not ask Ruaridh to relay.
 - If `agent prompt` returns `blocked`, read before sending input: `herdr agent get <name>` and `herdr agent read <name> --source recent-unwrapped --lines 120`.

@@ -578,7 +578,7 @@ class PanesTest(unittest.TestCase):
                     "agent",
                     "prompt",
                     "agent-c",
-                    "ruaridh-mode: worker\n\nSay READY2",
+                    "(aimsg) ruaridh-mode: worker\n\nSay READY2",
                 ]
             ],
         )

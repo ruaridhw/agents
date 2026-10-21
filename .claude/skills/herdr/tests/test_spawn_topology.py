@@ -211,7 +211,7 @@ class SpawnTopologyTest(unittest.TestCase):
         self.assertEqual(starts[0][-2], "--session-id")
         self.assertEqual(str(uuid.UUID(session_id)), session_id)
         prompt = prompt_command(fake, "api")
-        self.assertEqual(prompt[4].splitlines()[0], "ruaridh-mode: worker")
+        self.assertEqual(prompt[4].splitlines()[0], "(aimsg) ruaridh-mode: worker")
         self.assertEqual(prompt[-3:], ["--wait", "--timeout", "1200000"])
 
         self.assertEqual(len(rows), 1)
@@ -275,7 +275,7 @@ class SpawnTopologyTest(unittest.TestCase):
         )
         self.assertNotIn("--env", tab_create)
         prompt = prompt_command(fake, "api")
-        self.assertEqual(prompt[4].splitlines()[0], "TASK:")
+        self.assertEqual(prompt[4].splitlines()[0], "(aimsg) TASK:")
         self.assertEqual(rows[0]["mode"], "interactive")
 
     def test_worker_passes_a_session_id_to_claude_too(self):
@@ -422,7 +422,7 @@ class SpawnTopologyTest(unittest.TestCase):
                 "raw": str(Path(tmp) / ".herdr-handoffs" / "api-raw.md"),
             },
         )
-        self.assertEqual(prompt[4].splitlines()[0], "ruaridh-mode: worker")
+        self.assertEqual(prompt[4].splitlines()[0], "(aimsg) ruaridh-mode: worker")
 
     def test_team_creates_one_named_tab_and_splits_remaining_agents_inside_it(self):
         mod = load_script("spawn_team")
@@ -499,7 +499,8 @@ class SpawnTopologyTest(unittest.TestCase):
         self.assertEqual(coord_start[10], rows[0]["session"]["value"])
         for name in ("coord", "api", "db"):
             self.assertEqual(
-                prompt_command(fake, name)[4].splitlines()[0], "ruaridh-mode: worker"
+                prompt_command(fake, name)[4].splitlines()[0],
+                "(aimsg) ruaridh-mode: worker",
             )
 
         self.assertEqual([row["name"] for row in rows], ["coord", "api", "db"])

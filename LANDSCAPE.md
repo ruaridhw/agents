@@ -180,6 +180,8 @@ Decision made while building: the design-review gate stays an open item (Ruaridh
 
 ## herdr
 
+- **`(aimsg) ` prefix** (Ruaridh, 2026-10-22): every message one agent sends another pane starts with `(aimsg) ` so a pane can tell agent messages from Ruaridh's; the spawn, team and resume scripts add it, and the skill tells agents to add it by hand.
+
 **Opinion.** Pane primitives only: spawn a child, sibling or team (worker mode by default: `RUARIDH_MODE=worker` on the pane and a `ruaridh-mode: worker` first prompt line), a ledger of panes this session created with a spawner-generated session id, and `panes.py list | read | close | resume`; close only what you created; talking to an existing named pane; listing sibling sessions through AgentsView. Workflow prose lives in the skills that delegate. Replaces own `herdr-agent-handoff` (its scripts and tests moved here; the brief and roster went to `implement`, the file shapes to `handoff`) and `find-sibling-agents` (now `references/siblings.md`); both are pointer files for one release.
 
 Decisions made while building: lean pi workers run without extensions, so Herdr cannot report their session; the spawners now generate the session id (`--session-id`, which pi and Claude both accept) and record it, which makes resume deterministic. Model choice moved from an inline table to roles in `~/.config/agents/models.toml`.
