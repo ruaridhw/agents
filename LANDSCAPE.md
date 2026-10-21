@@ -163,3 +163,12 @@ Decision made while building: the design-review gate stays an open item (Ruaridh
 | Feed | Taken | Dropped |
 | --- | --- | --- |
 | mattpocock `setup-matt-pocock-skills` | Explore → present findings → one section at a time with the recommended answer first → show drafts → write; edit the existing AGENTS.md/CLAUDE.md block in place, never create the other; create missing labels; re-run only to switch | `docs/agents/` location (`.agents/` instead); GitLab and local-markdown trackers; triage-label overrides (fixed in the profiles); monorepo glossary map (wave 2 `domain`) |
+
+## update-skills
+
+**Opinion.** The ingest loop over `bin/skill-upstream`: sync, drift per curated skill, per feed read the upstream diff against this file, classify hunks adopted / dropped / new, propose landscape rows for new upstream skills, draft the merge as a patch for Plannotator approval, apply only what is approved, restamp what was reviewed. Manual cadence.
+
+| Feed | Taken | Dropped |
+| --- | --- | --- |
+| self `bin/skill_upstream.py` | The command set the loop drives (`sync`, `status`, `diff`, `stamp`, `check`) | — |
+| pstack `reflect` | Approve-before-edit: present the full accepted / rejected / backlog list and wait; route each item to the highest level that works (structure before prose); trivial vs substantive edits | Transcript mining and the three-lens reviewer panel (wave 2 `retro`); Cursor model rules |
