@@ -176,3 +176,15 @@ Decision made while building: the design-review gate stays an open item (Ruaridh
 ## rare-skills
 
 **Opinion.** One router whose description lists the domains, over `~/.agents/rare/<name>/` (AWS, Cloudflare and web-performance skills moved out of `~/.claude/skills` on 2026-10-21). Read the skill's file and follow it; `setup-project` links the ones a repo uses so they auto-invoke there. No upstream feeds (`upstream: []`).
+
+## herdr
+
+**Opinion.** Pane primitives only: spawn a child, sibling or team (worker mode by default: `RUARIDH_MODE=worker` on the pane and a `ruaridh-mode: worker` first prompt line), a ledger of panes this session created with a spawner-generated session id, and `panes.py list | read | close | resume`; close only what you created; talking to an existing named pane; listing sibling sessions through AgentsView. Workflow prose lives in the skills that delegate. Replaces own `herdr-agent-handoff` (its scripts and tests moved here; the brief and roster went to `implement`, the file shapes to `handoff`) and `find-sibling-agents` (now `references/siblings.md`); both are pointer files for one release.
+
+Decisions made while building: lean pi workers run without extensions, so Herdr cannot report their session; the spawners now generate the session id (`--session-id`, which pi and Claude both accept) and record it, which makes resume deterministic. Model choice moved from an inline table to roles in `~/.config/agents/models.toml`.
+
+| Feed | Taken | Dropped |
+| --- | --- | --- |
+| self `herdr-agent-handoff` | Preconditions; one named tab per invocation in the caller's workspace, first agent in the root pane; `--lean` and exact skill paths in briefs; team roster; read `blocked` panes before sending input; never close what you did not create; the spawn scripts and their tests | The hard-coded script path; the model table; the brief text and two-file contract (moved to `implement` and `handoff`) |
+| self `find-sibling-agents` | Project = directory basename; rank by newest message, exclude yourself by id; branch is supporting evidence only; a listing is a read, the decision is the user's; the flags table | The CLI-vs-MCP argument; the rationalization table (condensed) |
+| own rule sources (named-agent, relayed-authorization, input-box memories) | A quoted agent name is the existing pane; reply to panes directly; input-box text is not Ruaridh's; authorization does not travel | Dates and incident detail |

@@ -10,9 +10,13 @@ import re
 import subprocess
 import sys
 import time
+import uuid
+from datetime import UTC, datetime
 from pathlib import Path
 
 NAME_RE = re.compile(r"[a-z][a-z0-9_-]{0,31}")
+WORKER = "worker"
+SESSION_ID_KINDS = {"pi", "claude"}
 
 
 def run(cmd: list[str]) -> subprocess.CompletedProcess[str]:
@@ -21,7 +25,9 @@ def run(cmd: list[str]) -> subprocess.CompletedProcess[str]:
 
 def ok(proc: subprocess.CompletedProcess[str], label: str) -> str:
     if proc.returncode != 0:
-        sys.stderr.write(f"{label} failed\nCOMMAND: {' '.join(proc.args)}\nSTDOUT:\n{proc.stdout}\nSTDERR:\n{proc.stderr}\n")
+        sys.stderr.write(
+            f"{label} failed\nCOMMAND: {' '.join(proc.args)}\nSTDOUT:\n{proc.stdout}\nSTDERR:\n{proc.stderr}\n"
+        )
         raise SystemExit(proc.returncode)
     return proc.stdout
 
@@ -39,6 +45,56 @@ def pane_id(stdout: str) -> str:
         elif isinstance(node, list):
             stack.extend(node)
     raise SystemExit(f"No pane_id in response: {stdout}")
+
+
+def mode_env(mode: str) -> list[str]:
+    return ["--env", f"RUARIDH_MODE={mode}"] if mode == WORKER else []
+
+
+def mode_prefix(mode: str) -> str:
+    return f"ruaridh-mode: {mode}\n\n" if mode == WORKER else ""
+
+
+def session_args(kind: str, session_id: str) -> list[str]:
+    return ["--session-id", session_id] if kind in SESSION_ID_KINDS else []
+
+
+def session_record(kind: str, session_id: str) -> dict:
+    return {"agent": kind, "kind": "id", "source": "spawn", "value": session_id}
+
+
+def ledger_row(
+    *,
+    agent: dict,
+    mode: str,
+    tab_id: str | None,
+    pane_id: str,
+    tab_created: bool,
+    cwd: Path,
+    session: dict,
+) -> dict:
+    return {
+        "name": agent["name"],
+        "kind": agent["kind"],
+        "model": agent["model"],
+        "mode": mode,
+        "tab_id": tab_id,
+        "pane_id": pane_id,
+        "tab_created": tab_created,
+        "cwd": str(cwd),
+        "summary": agent["summary"],
+        "raw": agent["raw"],
+        "session": session,
+        "created": datetime.now(UTC).isoformat(timespec="seconds"),
+        "creator_pane": os.environ.get("HERDR_PANE_ID"),
+        "status": "open",
+    }
+
+
+def append_ledger(path: Path, row: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(row, sort_keys=True) + "\n")
 
 
 def validate_agent(agent: dict, default_kind: str) -> dict:
@@ -59,21 +115,30 @@ def validate_agent(agent: dict, default_kind: str) -> dict:
 
 
 def write_roster(path: Path, agents: list[dict]) -> None:
-    lines = ["# Herdr team roster", "", "Each agent has a concise summary file and detailed raw log. Read summaries first.", ""]
+    lines = [
+        "# Herdr team roster",
+        "",
+        "Each agent has a concise summary file and detailed raw log. Read summaries first.",
+        "",
+    ]
     for a in agents:
-        lines.extend([
-            f"## {a['name']} — {a['role']}",
-            f"- Kind: {a['kind']}",
-            f"- Model: {a['model'] or '(default)'}",
-            f"- Summary: {a['summary']}",
-            f"- Raw: {a['raw']}",
-            f"- Task: {a['task']}",
-            "",
-        ])
+        lines.extend(
+            [
+                f"## {a['name']} — {a['role']}",
+                f"- Kind: {a['kind']}",
+                f"- Model: {a['model'] or '(default)'}",
+                f"- Summary: {a['summary']}",
+                f"- Raw: {a['raw']}",
+                f"- Task: {a['task']}",
+                "",
+            ]
+        )
     path.write_text("\n".join(lines))
 
 
-def start_agent(name: str, kind: str, pid: str, agent_args: list[str] | None = None) -> None:
+def start_agent(
+    name: str, kind: str, pid: str, agent_args: list[str] | None = None
+) -> None:
     cmd = ["herdr", "agent", "start", name, "--kind", kind, "--pane", pid]
     if agent_args:
         cmd.extend(["--", *agent_args])
@@ -81,16 +146,40 @@ def start_agent(name: str, kind: str, pid: str, agent_args: list[str] | None = N
         proc = run(cmd)
         if proc.returncode == 0:
             return
-        if "agent_pane_busy" not in proc.stderr and "not an available shell" not in proc.stderr:
+        if (
+            "agent_pane_busy" not in proc.stderr
+            and "not an available shell" not in proc.stderr
+        ):
             ok(proc, f"agent start {name}")
         if attempt == 5:
             ok(proc, f"agent start {name}")
         time.sleep(1)
 
 
-def create_tab(cwd: Path, label: str, workspace_id: str) -> str:
-    created = ok(run(["herdr", "tab", "create", "--workspace", workspace_id, "--cwd", str(cwd), "--label", label, "--no-focus"]), "tab create")
-    return pane_id(created)
+def create_tab(
+    cwd: Path, label: str, workspace_id: str, mode: str
+) -> tuple[str, str | None]:
+    created = ok(
+        run(
+            [
+                "herdr",
+                "tab",
+                "create",
+                "--workspace",
+                workspace_id,
+                "--cwd",
+                str(cwd),
+                "--label",
+                label,
+                "--no-focus",
+                *mode_env(mode),
+            ]
+        ),
+        "tab create",
+    )
+    payload = json.loads(created)
+    tab_id = payload.get("result", {}).get("tab", {}).get("tab_id")
+    return pane_id(created), tab_id
 
 
 def equal_axis_resize_steps(layout: dict, axis: str) -> list[tuple[str, float]]:
@@ -100,7 +189,9 @@ def equal_axis_resize_steps(layout: dict, axis: str) -> list[tuple[str, float]]:
     position_key = "x" if axis == "width" else "y"
 
     panes = sorted(layout.get("panes", []), key=lambda p: p["rect"][position_key])
-    matching_splits = [s for s in layout.get("splits", []) if s.get("direction") == direction]
+    matching_splits = [
+        s for s in layout.get("splits", []) if s.get("direction") == direction
+    ]
     if len(panes) < 3 or not matching_splits:
         return []
 
@@ -116,7 +207,8 @@ def equal_axis_resize_steps(layout: dict, axis: str) -> list[tuple[str, float]]:
                 pane
                 for pane in panes
                 if pane["rect"][position_key] < current_boundary
-                and pane["rect"][position_key] + pane["rect"][axis] >= current_boundary - 1
+                and pane["rect"][position_key] + pane["rect"][axis]
+                >= current_boundary - 1
             ),
             None,
         )
@@ -126,9 +218,15 @@ def equal_axis_resize_steps(layout: dict, axis: str) -> list[tuple[str, float]]:
         panes_inside = [
             pane
             for pane in panes
-            if pane["rect"][position_key] >= split_start and pane["rect"][position_key] + pane["rect"][axis] <= split_start + split_size
+            if pane["rect"][position_key] >= split_start
+            and pane["rect"][position_key] + pane["rect"][axis]
+            <= split_start + split_size
         ]
-        panes_left = [pane for pane in panes_inside if pane["rect"][position_key] < current_boundary]
+        panes_left = [
+            pane
+            for pane in panes_inside
+            if pane["rect"][position_key] < current_boundary
+        ]
         target_ratio = len(panes_left) / len(panes_inside)
         amount = target_ratio - current_ratio
         if abs(amount) > 0.001:
@@ -139,59 +237,149 @@ def equal_axis_resize_steps(layout: dict, axis: str) -> list[tuple[str, float]]:
 def equalize_spawned_panes(root_pane: str, direction: str) -> None:
     axis = "width" if direction == "right" else "height"
     resize_direction = "right" if direction == "right" else "down"
-    layout_stdout = ok(run(["herdr", "pane", "layout", "--pane", root_pane]), "pane layout")
+    layout_stdout = ok(
+        run(["herdr", "pane", "layout", "--pane", root_pane]), "pane layout"
+    )
     layout = json.loads(layout_stdout)["result"]["layout"]
     for pid, amount in equal_axis_resize_steps(layout, axis):
-        ok(run(["herdr", "pane", "resize", "--pane", pid, "--direction", resize_direction, "--amount", f"{amount:.6f}"]), "pane resize")
+        ok(
+            run(
+                [
+                    "herdr",
+                    "pane",
+                    "resize",
+                    "--pane",
+                    pid,
+                    "--direction",
+                    resize_direction,
+                    "--amount",
+                    f"{amount:.6f}",
+                ]
+            ),
+            "pane resize",
+        )
 
 
-def spawn(agent: dict, cwd: Path, root_pane: str, direction: str, pane: str | None = None) -> None:
+def spawn(
+    agent: dict,
+    cwd: Path,
+    root_pane: str,
+    direction: str,
+    mode: str,
+    tab_id: str | None,
+    ledger: Path,
+    pane: str | None = None,
+) -> dict:
     pid = pane
     if pid is None:
         split = ok(
-            run(["herdr", "pane", "split", "--pane", root_pane, "--direction", direction, "--cwd", str(cwd), "--no-focus"]),
+            run(
+                [
+                    "herdr",
+                    "pane",
+                    "split",
+                    "--pane",
+                    root_pane,
+                    "--direction",
+                    direction,
+                    "--cwd",
+                    str(cwd),
+                    "--no-focus",
+                    *mode_env(mode),
+                ]
+            ),
             "pane split",
         )
         pid = pane_id(split)
-    start_agent(agent["name"], agent["kind"], pid, agent["agent_args"])
+    session_id = str(uuid.uuid4())
+    start_agent(
+        agent["name"],
+        agent["kind"],
+        pid,
+        [*agent["agent_args"], *session_args(agent["kind"], session_id)],
+    )
+    row = ledger_row(
+        agent=agent,
+        mode=mode,
+        tab_id=tab_id,
+        pane_id=pid,
+        tab_created=True,
+        cwd=cwd,
+        session=session_record(agent["kind"], session_id),
+    )
+    append_ledger(ledger, row)
 
-    prompt = f"""ROLE: {agent['role']}
+    prompt = f"""{mode_prefix(mode)}ROLE: {agent["role"]}
 TASK:
-{agent['task']}
+{agent["task"]}
 
 Team context:
-- Roster: {agent['roster']}
+- Roster: {agent["roster"]}
 - Know the other agents by reading the roster.
 - Stay in your role; avoid editing files outside your assigned scope unless the task explicitly requires it.
 - If you are the coordinator, wait for worker summary files named in the roster, then integrate summaries; read raw logs only for blockers or missing evidence.
 
 Output contract:
-- Write detailed reasoning, commands, diffs, errors, and evidence to: {agent['raw']}
-- Write a concise high-level summary to: {agent['summary']}
+- Write detailed reasoning, commands, diffs, errors, and evidence to: {agent["raw"]}
+- Write a concise high-level summary to: {agent["summary"]}
 - The summary must include: outcome, files changed, verification run, blockers, and whether the raw log is needed.
 - After both files are written, echo the full summary text in your final chat response.
 - Do not paste the raw log in chat.
-- Final chat response: the summary, then HANDOFF_WRITTEN {agent['summary']} {agent['raw']}
+- Final chat response: the summary, then HANDOFF_WRITTEN {agent["summary"]} {agent["raw"]}
 """
-    ok(run(["herdr", "agent", "prompt", agent["name"], prompt]), f"agent prompt {agent['name']}")
+    ok(
+        run(["herdr", "agent", "prompt", agent["name"], prompt]),
+        f"agent prompt {agent['name']}",
+    )
+    return row
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--team-file", type=Path, required=True, help="JSON file with optional coordinator and workers[].")
+    parser.add_argument(
+        "--team-file",
+        type=Path,
+        required=True,
+        help="JSON file with optional coordinator and workers[].",
+    )
     parser.add_argument("--kind", default="pi", help="Default Herdr agent kind.")
     parser.add_argument("--direction", default="right", choices=["right", "down"])
-    parser.add_argument("--timeout", default="1200000", help="per-agent wait timeout in ms.")
-    parser.add_argument("--handoff-dir", type=Path, help="Defaults to .herdr-handoffs/team-<timestamp>.")
-    parser.add_argument("--tab-label", help="Label for the new Herdr tab. Defaults to team name, coordinator name, or first worker.")
+    parser.add_argument(
+        "--timeout", default="1200000", help="per-agent wait timeout in ms."
+    )
+    parser.add_argument(
+        "--mode",
+        choices=["worker", "interactive"],
+        default="worker",
+        help="Worker marks every pane and prompt for the slim mode body; interactive leaves both alone.",
+    )
+    parser.add_argument(
+        "--no-wait",
+        action="store_true",
+        help="Start and prompt every agent, print one JSON line per agent, and exit.",
+    )
+    parser.add_argument(
+        "--handoff-dir", type=Path, help="Defaults to .herdr-handoffs/team-<timestamp>."
+    )
+    parser.add_argument(
+        "--ledger", type=Path, help="Ledger path. Defaults under .herdr-handoffs/."
+    )
+    parser.add_argument(
+        "--tab-label",
+        help="Label for the new Herdr tab. Defaults to team name, coordinator name, or first worker.",
+    )
     args = parser.parse_args()
 
     if os.environ.get("HERDR_ENV") != "1":
-        sys.stderr.write("Not running inside a Herdr-managed pane (HERDR_ENV=1 missing).\n")
+        sys.stderr.write(
+            "Not running inside a Herdr-managed pane (HERDR_ENV=1 missing).\n"
+        )
         return 2
     workspace_id = os.environ.get("HERDR_WORKSPACE_ID")
     if not workspace_id:
-        sys.stderr.write("Not running with Herdr workspace context (HERDR_WORKSPACE_ID missing).\n")
+        sys.stderr.write(
+            "Not running with Herdr workspace context (HERDR_WORKSPACE_ID missing).\n"
+        )
         return 2
 
     spec = json.loads(args.team_file.read_text())
@@ -204,7 +392,9 @@ def main() -> int:
     if not agents:
         raise SystemExit("Team file must define coordinator and/or workers.")
 
-    root = (args.handoff_dir or Path.cwd() / ".herdr-handoffs" / f"team-{int(time.time())}").resolve()
+    root = (
+        args.handoff_dir or Path.cwd() / ".herdr-handoffs" / f"team-{int(time.time())}"
+    ).resolve()
     root.mkdir(parents=True, exist_ok=True)
     roster = root / "roster.md"
     for a in agents:
@@ -214,17 +404,44 @@ def main() -> int:
     write_roster(roster, agents)
 
     tab_label = args.tab_label or spec.get("name") or f"team-{agents[0]['name']}"
-    root_pane = create_tab(Path.cwd(), tab_label, workspace_id)
+    ledger = (args.ledger or Path.cwd() / ".herdr-handoffs" / "panes.jsonl").resolve()
+    root_pane, tab_id = create_tab(Path.cwd(), tab_label, workspace_id, args.mode)
+    rows = []
     for index, a in enumerate(agents):
-        spawn(a, Path.cwd(), root_pane, args.direction, pane=root_pane if index == 0 else None)
+        rows.append(
+            spawn(
+                a,
+                Path.cwd(),
+                root_pane,
+                args.direction,
+                args.mode,
+                tab_id,
+                ledger,
+                pane=root_pane if index == 0 else None,
+            )
+        )
     equalize_spawned_panes(root_pane, args.direction)
+
+    if args.no_wait:
+        for row in rows:
+            print(
+                json.dumps(
+                    {
+                        key: row[key]
+                        for key in ("name", "pane_id", "tab_id", "summary", "raw")
+                    }
+                )
+            )
+        return 0
 
     print(f"TAB_LABEL={tab_label}")
     print(f"ROSTER={roster}")
     for a in agents:
         wait = run(["herdr", "agent", "wait", a["name"], "--timeout", args.timeout])
         if wait.returncode != 0:
-            sys.stderr.write(f"Wait failed for {a['name']}. Inspect: herdr agent read {a['name']} --source recent-unwrapped --lines 120\n")
+            sys.stderr.write(
+                f"Wait failed for {a['name']}. Inspect: herdr agent read {a['name']} --source recent-unwrapped --lines 120\n"
+            )
             sys.stderr.write(wait.stderr)
         summary = Path(a["summary"])
         print(f"\n--- {a['name']} summary ({summary}) ---")
