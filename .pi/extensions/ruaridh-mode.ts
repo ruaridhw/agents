@@ -98,7 +98,7 @@ function getBootstrapContent(): string | null {
 	const bootstrap = `${EXTREMELY_IMPORTANT_MARKER}
 ${BOOTSTRAP_MARKER}
 
-The ruaridh-mode skill is already loaded below; follow it and do not load it again. Its references are under ${referencesDir}.
+The ruaridh-mode skill is already loaded below; follow it and do not load it again. Its references are under ${referencesDir}. Curated skills directory: ${skillsDir}.
 
 ${body}
 

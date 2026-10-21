@@ -61,7 +61,7 @@ escape_for_json() {
 session_context="<EXTREMELY_IMPORTANT>
 ruaridh-mode bootstrap
 
-The ruaridh-mode skill is already loaded below; follow it and do not load it again. Its references are under ${REFERENCES_DIR}.
+The ruaridh-mode skill is already loaded below; follow it and do not load it again. Its references are under ${REFERENCES_DIR}. Curated skills directory: ${SKILLS_DIR}.
 
 ${body}
 </EXTREMELY_IMPORTANT>"
