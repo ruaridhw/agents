@@ -42,7 +42,7 @@ python3 scripts/spawn_team.py --team-file team.json [--no-wait]
 
 - **Worker mode is the default**: the pane gets `RUARIDH_MODE=worker` and the prompt starts with `ruaridh-mode: worker`, so the worker loads the slim mode body. Pass `--mode interactive` only for an agent Ruaridh will drive himself.
 - **Models by role**: read `~/.config/agents/models.toml` (builder, reviewer, cheap, spec-reviewer) and pass the exact id. Never clone your own model by habit; if the role's model is unavailable (`pi --list-models`), stop rather than silently switching to a weaker one.
-- **`--lean`** (pi only) starts without skills, extensions or prompt templates, which cuts the per-turn baseline by about three quarters. A lean worker cannot discover skills, so cite every file it needs by absolute path in the brief.
+- **`--lean`** (pi only) starts without skills, extensions or prompt templates (worker mode still loads the ruaridh-mode extension explicitly), which cuts the per-turn baseline by about three quarters. A lean worker cannot discover skills, so cite every file it needs by absolute path in the brief.
 - **`--no-wait`** returns at once with one JSON line per agent; without it the script blocks until the summary is written, so run it in the background when you have other work.
 - Use `--task-file` for anything longer than a sentence. Summaries and raw logs default to `.herdr-handoffs/<name>-summary.md` / `-raw.md`; paths are absolute.
 
