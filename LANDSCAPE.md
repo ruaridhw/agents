@@ -155,3 +155,11 @@ Decision made while building: the design-review gate stays an open item (Ruaridh
 | pstack `pause-safely` | Explicit-only pause, never on "keep going"; safe boundary; nothing irreversible; one `wip:` commit with broken-tree note; resume note sections (intent, progress, state, next step, key files, gotchas); pause reply shape | `/tmp` resume note; Cursor restart trigger |
 | pstack `session-pickup` | Trail is authoritative; rebuild operational state; diff done vs pending; name the resume point; verify inherited claims on the real artifact; route the rest to the owning skill | Cursor transcript paths and cloud-agent URLs (AgentsView instead) |
 | self `herdr-agent-handoff` | Two-file contract (summary for ingestion, raw log for audit), absolute paths, summary fields, `HANDOFF_WRITTEN` line, read raw only when blocked or uncertain | Spawn mechanics (`herdr`) and briefs (`implement`) |
+
+## setup-project
+
+**Opinion.** Writes the `.agents/*.md` convention files by exploring and asking which profiles apply (tracker from `conventions/`, build loop, proof of landing, deploy, design review, domain), migrates an older tracker doc, adds a pointer block to the repo's AGENTS.md, creates GitHub labels, links the rare skills the repo uses, and commits through a PR. Re-run only to switch.
+
+| Feed | Taken | Dropped |
+| --- | --- | --- |
+| mattpocock `setup-matt-pocock-skills` | Explore → present findings → one section at a time with the recommended answer first → show drafts → write; edit the existing AGENTS.md/CLAUDE.md block in place, never create the other; create missing labels; re-run only to switch | `docs/agents/` location (`.agents/` instead); GitLab and local-markdown trackers; triage-label overrides (fixed in the profiles); monorepo glossary map (wave 2 `domain`) |
