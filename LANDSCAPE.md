@@ -50,3 +50,17 @@ Decisions made while building:
 | superpowers `brainstorming` | "What do you actually know?" first check (quick task → just do it); single-sentence questions with no example lists; look before asking (recon) | The conversation loop, open describing questions, playback chunks, sizing, the written design, the visual companion and the hard gate (all `grill` or `to-spec`) |
 | pstack `in-your-own-words` | Restate the user's goal and problem in your own words before acting | Restating as the whole skill |
 | mattpocock `grilling` | Recommended answer per question; "yes accepts the recommendation" wording; facts are the agent's job | Rounds and the frontier (`grill`) |
+
+## grill
+
+**Opinion.** mattpocock's rounds-with-a-frontier interview, with superpowers' ground to cover, playback with guesses marked, and the size call at the end; ends by naming the route, never by building. Visual companion offered once, at the start, when seeing would help. Usable standalone. Inbox question blocks per round when Ruaridh is away.
+
+Decision made while building: the visual companion is single-file HTML mocks in `.scratch/mocks/` opened with `plannotator annotate`, not superpowers' companion server, so it survives the plugin being disabled and the annotations come back as answers.
+
+| Feed | Taken | Dropped |
+| --- | --- | --- |
+| mattpocock `grilling` | Design tree, frontier, whole-frontier rounds, numbered questions with a recommended answer, "yes accepts", facts are the agent's job via non-blocking lookups, done when the frontier is empty and confirmed | Its exact emoji format (kept, slightly condensed) |
+| mattpocock `grill-me`, `grill-with-docs` | One entry point instead of two wrappers | The glossary and ADR side (`domain`, wave 2, called when a term is contested) |
+| superpowers `brainstorming` | Ground to cover (goals / non-goals / anti-goals, prior art, how-it-gets-made ownership); guess-to-correct questions; spike instead of asking, spikes stay throwaway; playback with guesses marked; the size table; several projects → one at a time; red flags | One question per message; the written design and builder check (`to-spec`); the hard gate wording; `docs/superpowers/specs` location |
+| superpowers `brainstorming/visual-companion.md` | When to offer (its own message, once, just in time) and what belongs visually | The local companion server and its scripts |
+| pstack `sharpen` | Ask what he is really after and whether the task is over- or under-specified before shaping it | Silent self-framing with no interview |
