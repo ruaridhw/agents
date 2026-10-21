@@ -695,7 +695,9 @@ class PanesTest(unittest.TestCase):
         prompts = [
             cmd for cmd in fake.commands if cmd[:3] == ["herdr", "agent", "prompt"]
         ]
-        self.assertEqual(prompts, [["herdr", "agent", "prompt", "agent-i", "hello"]])
+        self.assertEqual(
+            prompts, [["herdr", "agent", "prompt", "agent-i", "(aimsg) hello"]]
+        )
 
     def test_resume_errors_without_a_recorded_session(self):
         mod = load_panes()
