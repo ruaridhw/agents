@@ -20,3 +20,10 @@ repos:
     rev: v8.30.1
     hooks:
       - id: gitleaks
+  - repo: local
+    hooks:
+      - id: check-public
+        name: check-public (denylist outside the repo)
+        entry: bin/check-public
+        language: system
+        files: ^(\.claude/skills/|conventions/|hooks/|\.pi/|bin/|LANDSCAPE\.md$|FEEDS\.md$|UPSTREAMS\.json$|linked-skills\.txt$|package\.json$)
