@@ -47,7 +47,9 @@ def load_rules(path: Path) -> list[re.Pattern[str]]:
         except re.error as exc:
             raise SystemExit(f"check-public: bad rule at {path}:{number}: {exc}")
     if not rules:
-        raise SystemExit(f"check-public: rules file has no rules: {path} (failing closed)")
+        raise SystemExit(
+            f"check-public: rules file has no rules: {path} (failing closed)"
+        )
     return rules
 
 

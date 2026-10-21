@@ -13,6 +13,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 SPEC = importlib.util.spec_from_file_location(
     "skill_upstream", REPO_ROOT / "bin" / "skill_upstream.py"
 )
+assert SPEC is not None and SPEC.loader is not None
 skill_upstream = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(skill_upstream)
 

@@ -26,6 +26,7 @@ EXPECTED_SKILLS = [
 def load_link_skills():
     loader = SourceFileLoader("link_skills", str(SCRIPT))
     spec = importlib.util.spec_from_loader("link_skills", loader)
+    assert spec is not None
     module = importlib.util.module_from_spec(spec)
     loader.exec_module(module)
     return module
