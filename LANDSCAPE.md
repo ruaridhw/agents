@@ -77,3 +77,11 @@ Decision made while building: the design-review gate stays an open item (Ruaridh
 | superpowers `brainstorming/builder-check-prompt.md` | The brief nearly verbatim, as `references/builder-check.md`, run in a Herdr pane | Agent-tool dispatch |
 | self `writing-build-spec` | Source reconciliation with dispositions; correction-beats-note authority order with superseded decisions recorded; decided vs undecided with owned open items; per-workstream case + expected result, owned proof gaps; tracker dispositions recorded not mutated; the pre-handoff audit | Its free-form layout (replaced by the template); the explicit pointer to the old review skill |
 | mattpocock `to-spec` | No interview, synthesis only; highest-seam testing decision; prototype-snippet exception; publish to the tracker | User-story lists; `ready-for-agent` on the spec; Problem/Solution headings |
+
+## spec-review
+
+**Opinion.** The spec-reviewer role (Fable by default) in a sibling Herdr pane, read-only by class with one write destination: a sibling review file in `.scratch/specs/`. The author answers each question from the decision history (amend, reject with source, escalate); escalations become Open items; passes repeat until every disposition is inspected. The spec issue is created after this step, from the amended file. Replaces own `adversarial-spec-review` (pointer file for one release).
+
+| Feed | Taken | Dropped |
+| --- | --- | --- |
+| self `adversarial-spec-review` | Nearly all of it: authority order, access by class not allowlist, evidence-cited questions that could change a build choice, grouped defects, amend / reject / escalate, no round limit, complete vs incomplete verdict | The generic "independent agent" fallback (Herdr is the mechanism; a self-review is labelled); review-folder wording (one sibling file) |
