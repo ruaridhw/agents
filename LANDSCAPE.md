@@ -172,3 +172,7 @@ Decision made while building: the design-review gate stays an open item (Ruaridh
 | --- | --- | --- |
 | self `bin/skill_upstream.py` | The command set the loop drives (`sync`, `status`, `diff`, `stamp`, `check`) | — |
 | pstack `reflect` | Approve-before-edit: present the full accepted / rejected / backlog list and wait; route each item to the highest level that works (structure before prose); trivial vs substantive edits | Transcript mining and the three-lens reviewer panel (wave 2 `retro`); Cursor model rules |
+
+## rare-skills
+
+**Opinion.** One router whose description lists the domains, over `~/.agents/rare/<name>/` (AWS, Cloudflare and web-performance skills moved out of `~/.claude/skills` on 2026-10-21). Read the skill's file and follow it; `setup-project` links the ones a repo uses so they auto-invoke there. No upstream feeds (`upstream: []`).
