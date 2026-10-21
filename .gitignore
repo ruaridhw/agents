@@ -28,3 +28,9 @@ dashboard/dist/
 
 # macOS
 .DS_Store
+.worktrees/
+
+# Skills curation: upstream clones, agent working files, handoffs
+upstream/
+.scratch/
+.herdr-handoffs/
