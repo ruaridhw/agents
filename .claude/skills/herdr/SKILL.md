@@ -44,6 +44,7 @@ python3 scripts/spawn_team.py --team-file team.json [--no-wait]
 - **Models by role**: read `~/.config/agents/models.toml` (builder, reviewer, cheap, spec-reviewer) and pass the exact id. Never clone your own model by habit; if the role's model is unavailable (`pi --list-models`), stop rather than silently switching to a weaker one.
 - **`--lean`** (pi only) starts without skills, extensions or prompt templates (worker mode still loads the ruaridh-mode extension explicitly), which cuts the per-turn baseline by about three quarters. A lean worker cannot discover skills, so cite every file it needs by absolute path in the brief.
 - **`--no-wait`** returns at once with one JSON line per agent; without it the script blocks until the summary is written, so run it in the background when you have other work.
+- A Claude agent started in a directory Claude has never trusted stops at the folder-trust prompt and the spawn fails with `agent_not_ready`. Spawn it from an already trusted directory (the brief carries absolute paths), or ask Ruaridh to accept the prompt; never answer a trust prompt for him.
 - Use `--task-file` for anything longer than a sentence. Summaries and raw logs default to `.herdr-handoffs/<name>-summary.md` / `-raw.md`; paths are absolute.
 
 `team.json`:
