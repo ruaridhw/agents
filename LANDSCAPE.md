@@ -85,3 +85,13 @@ Decision made while building: the design-review gate stays an open item (Ruaridh
 | Feed | Taken | Dropped |
 | --- | --- | --- |
 | self `adversarial-spec-review` | Nearly all of it: authority order, access by class not allowlist, evidence-cited questions that could change a build choice, grouped defects, amend / reject / escalate, no round limit, complete vs incomplete verdict | The generic "independent agent" fallback (Herdr is the mechanism; a self-review is labelled); review-folder wording (one sibling file) |
+
+## to-tickets
+
+**Opinion.** Tracer-bullet tickets sized to one session, `## Done when` copied from the spec's Acceptance (a missing case goes back onto the spec issue, never invented), parent = the spec issue, `blocked-by` only for real prerequisites, labels and priority from `.agents/tracker.md`, idempotency key `<spec-ref>/<slug>`. Writes the wave file, hands it to `triage` for the gate, then publishes in dependency order (kata `--parent`, GitHub sub-issues). Re-running is a no-op. Also turns evidenced bugs into fix tickets.
+
+| Feed | Taken | Dropped |
+| --- | --- | --- |
+| mattpocock `to-tickets` | Vertical tracer-bullet slices; prefactor first; expand–migrate–contract for wide refactors; blocking edges; publish blockers first so edges reference real ids; sub-issues of the parent (the 2026-10-06 change); `ready-for-agent`; no file paths; never close the parent | The in-chat "quiz the user" loop (replaced by the triage gate); local `.scratch/<feature>/issues/` files; GitLab/Linear branches |
+| kit `new-ticket` | Search first, stable idempotency key, `## What / ## Why now / ## Done when`, priority 1–3, Done-when as one observable not a design, stopping short = `needs-review` + comment | Employer-specific labels and run metadata; the close-at-merge rule (replaced by `open → merged → done`, see the kit feedback report) |
+| kit `new-fix` | Fix shape (Symptom / Evidence verbatim / Why it happens / Fix); evidence required for a fix; name every observed case; don't generalise past the evidence; tell lookalike symptoms apart | Run-id specifics and `source_runs` metadata; client-blocker kind (kept only in the kata profile) |
