@@ -95,3 +95,14 @@ Decision made while building: the design-review gate stays an open item (Ruaridh
 | mattpocock `to-tickets` | Vertical tracer-bullet slices; prefactor first; expand–migrate–contract for wide refactors; blocking edges; publish blockers first so edges reference real ids; sub-issues of the parent (the 2026-10-06 change); `ready-for-agent`; no file paths; never close the parent | The in-chat "quiz the user" loop (replaced by the triage gate); local `.scratch/<feature>/issues/` files; GitLab/Linear branches |
 | kit `new-ticket` | Search first, stable idempotency key, `## What / ## Why now / ## Done when`, priority 1–3, Done-when as one observable not a design, stopping short = `needs-review` + comment | Employer-specific labels and run metadata; the close-at-merge rule (replaced by `open → merged → done`, see the kit feedback report) |
 | kit `new-fix` | Fix shape (Symptom / Evidence verbatim / Why it happens / Fix); evidence required for a fix; name every observed case; don't generalise past the evidence; tell lookalike symptoms apart | Run-id specifics and `source_runs` metadata; client-blocker kind (kept only in the kata profile) |
+
+## triage
+
+**Opinion.** Two inputs. Inbound issues: mattpocock's two categories and five states, verify-before-grilling, agent briefs, triage notes, `.out-of-scope/`; state labels from `.agents/tracker.md`; `needs-info` goes to the Inbox when the reporter is Ruaridh; `ready-for-human` notifies (`kata notify` on kata); never `wontfix` without his yes. Proposed waves from `to-tickets`: rendered as the self-contained HTML page and gated in Plannotator; publishing stays with `to-tickets`. Absorbs own `kata-triage-artifact` (renderer, assets, tests now under `triage/`; the old name is a pointer file for one release).
+
+| Feed | Taken | Dropped |
+| --- | --- | --- |
+| mattpocock `triage` | Roles and transitions; the three attention buckets; gather → recommend → verify → grill → apply; redundancy and prior-rejection checks; AI disclaimer on comments; trusted quick overrides; resume from triage notes | External-PR discovery rules; `domain-modeling` call (wave 2 `domain`); GitHub-only label wording |
+| mattpocock `triage/AGENT-BRIEF.md` | Durable, behavioural briefs with checkable criteria and out-of-scope; the template, condensed, plus a Verified line | The long worked examples |
+| mattpocock `triage/OUT-OF-SCOPE.md` | One file per concept, durable reasons, prior requests, concept matching, never for already-implemented | The long example file |
+| self `kata-triage-artifact` | All of it: wave JSON contract, renderer, fonts and theme, tests, the background Plannotator gate with a fresh decision file, annotation mapping and re-gating | The kata-only wording (any tracker now) |

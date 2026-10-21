@@ -27,7 +27,7 @@ Every ticket requires:
 | `priority` | Integer 0–3, displayed as P0–P3; passed through, not remapped                |
 | `due`      | ISO date string, or `null` displayed as an em dash                           |
 | `title`    | Plain string                                                                 |
-| `body`     | Exact proposed Kata body, as Markdown                                        |
+| `body`     | Exact proposed ticket body, as Markdown                                      |
 | `action`   | `create` or `update <ref>`                                                   |
 | `related`  | Array of reference strings, possibly empty                                   |
 | `spec`     | Object with plain `label` and `markdown` containing the implementing section |
