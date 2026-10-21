@@ -17,8 +17,11 @@ A ticket ref is `#N` in this repo or `owner/repo#N`. Show with
 
 Search open and closed issues first; never create a duplicate. GitHub has no
 idempotency header, so the key goes in the body as a last line
-`<!-- key: <spec-ref>/<slug> -->` and is searched before every create
-(`gh issue list --search "<spec-ref>/<slug> in:body" --state all`).
+`<!-- key: <spec-ref>/<slug> -->` and is looked up before every create by listing
+issues and matching that exact line
+(`gh issue list --state all --limit 1000 --json number,body`). Do not rely on
+`--search` for this: the search index lags behind creates, so a re-run right after
+publishing can miss a key and duplicate it.
 
 ```bash
 gh issue create --title "<imperative title>" --body-file <path> \
