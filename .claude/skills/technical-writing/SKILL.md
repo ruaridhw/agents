@@ -1,6 +1,6 @@
 ---
 name: technical-writing
-description: "The writing standard for client-facing documentation: Diátaxis structure, Google developer style sentences, Simplified Technical English instructions, Global English syntax, an unslop pass, and the copy-review pass last. Use when writing or reviewing documentation, a readme, a runbook, a guide, an RFC or a client-facing report, when a doc needs its structure or its sentences fixed, when asked to tighten this copy, de-AI this or make it sound human, and on any prose longer than about 100 characters that this skill writes or edits."
+description: "The writing standard for client-facing documentation: Diátaxis structure, Google developer style sentences, Simplified Technical English instructions, Global English syntax, then the unslop pass, last of all. Use when writing or reviewing documentation, a readme, a runbook, a guide, an RFC or a client-facing report, when a doc needs its structure or its sentences fixed, when asked to tighten this copy, de-AI this or make it sound human, and on the final pass over a document or a pull-request body that this skill writes."
 upstream:
   - repo: pstack
     path: pstack/skills/technical-writing/SKILL.md
@@ -16,18 +16,17 @@ Write so a tired engineer understands on the first read. Apply all four layers.
 
 This is for **client-facing documentation**: style and structure only. It does not decide what the documentation says, and it does not design the product. A doc that is accurate and badly structured fails its reader exactly as a wrong one does.
 
-Four layers, applied in order, then two passes at the end:
+Four layers, applied in order, then one pass at the end:
 
 1. **Structure**: Diátaxis. One document, one mode.
 2. **Sentences**: Google developer style. Write to the reader.
 3. **Load**: Simplified Technical English, leaned on. One thought at a time.
 4. **Ambiguity**: Global English. Leave no sentence open to two readings.
-5. **Slop**: the unslop pass.
-6. **Copy review**: the copy-review pass, last of all.
+5. **Slop**: the unslop pass, last of all.
 
 `references/style-foundations.md` goes deeper on the four layers: what each mode of documentation is for, and the reasoning behind the sentence, instruction and syntax rules. It is written for this skill, not taken from a feed, and `SKILL.md` always wins where they differ.
 
-`references/copy-review.md` is the last pass, with its scan list in `references/copy-review-word-list.md`.
+`references/unslop.md` is the last pass, one catalog of every slop pattern and the method for running it, with its scan list in `references/unslop-word-list.md`.
 
 Three rules sit above the layers:
 
@@ -111,21 +110,21 @@ Lean on this layer rather than enforcing it: STE is flat and repetitive on purpo
 - Call each thing by one name, everywhere. A doc that says "the gate", "the ratchet" and "the budget check" for one thing teaches three things. Don't churn what didn't change.
 - Skip idioms, colloquialisms, Latin abbreviations and metaphors.
 
-## The unslop pass
+## The unslop pass, last of all
 
-Apply the unslop pass in `references/unslop.md` to every doc this skill touches, after the four layers. It owns the slop-pattern catalog: AI vocabulary, filler, hedging, formatting tells, the plain-speech rules and the active-voice rule. Run it after the four layers because it removes the tells they leave behind, and run it as a pass of its own rather than as a rewrite: the meaning does not change, the surface does.
+Apply the unslop pass in `references/unslop.md` once, after the four layers. It owns the whole slop catalog: AI vocabulary, filler, hedging, formatting tells, the plain-speech rules, the active-voice rule, and the shapes that survive a vocabulary pass, such as the kicker, the invented number and the third item added for rhythm. `references/unslop-word-list.md` is its scan list, and the catalog carries its own worked example.
 
-## The copy-review pass, last of all
+The pass has a method of its own: quote the line, name the tell, cut or rewrite, then re-read the rewrites, because a fix commonly plants a fresh tell. Its core test is one question: does the line survive deletion? Run it as a pass of its own rather than as a rewrite, so the meaning does not change, only the surface. Its Calibration section is the guard against overcorrecting into a different artificial voice.
 
-Then run the copy-review pass in `references/copy-review.md`. It attacks the same family of AI tells from the other direction: quote the line, name the tell, cut or rewrite. Run it after unslop because unslop removes vocabulary and surface, and copy review catches what survives that: the shapes, the kickers, the invented number, the third item added for rhythm. The scan list is `references/copy-review-word-list.md`, and the pass carries its own worked example.
+**Where it runs.** On every document this skill writes. On its own, without the four layers, on a pull-request body of about 500 characters or more.
 
-This pass is not only for client documentation. Run it on its own on any prose longer than about 100 characters that this skill writes or edits, whatever the format: a Slack message, a PR body, a commit body, a reply. Short copy is where the tells show most, and the pass costs one re-read.
+**Where it does not run.** Never on chat: a Slack message, an Inbox message, a reply in a session. Never on a commit body. Those are conversation and history, not copy for a reader who is deciding something, and the pass costs a re-read that buys nothing there.
 
-The two passes are kept as two whole files rather than merged, so a rule appears in both where they overlap, and both passes run. Where a copy-review rule and an unslop rule disagree, the copy-review rule wins: it runs last, and its Calibration section is the guard against overcorrecting. The four layers above both still hold, so the Global English rule that replaces an em dash with a new sentence stays the default in documentation prose, and copy review's tolerance for em dashes does not override it.
+Nothing in this pass relaxes the four layers above: the Global English rule that replaces an em dash with a new sentence and rule 13's ban on em dashes both stand.
 
 ## Voice and repo specifics
 
-- A PR description and a commit message are writing too. Every layer except Diátaxis applies to them. A PR body is a briefing a reviewer can read in under a minute. Do not paste worker logs, sha lists or metric tables. Link them.
+- A PR description and a commit message are writing too. The four layers apply to both. A PR body also gets the unslop pass when it reaches about 500 characters; a commit body does not. A PR body is a briefing a reviewer can read in under a minute. Do not paste worker logs, sha lists or metric tables. Link them.
 - Product UI strings are not documentation. Use the product's copy guidelines for those.
 - Indent code snippets with tabs. Write real paths. Make every count or tree claim true at the commit that lands it, and include the command that regenerates it.
 - The client's own style, voice and terminology win where the client has them: a house style guide, a glossary of their terms, a required doc template. Match it, and keep the four layers underneath it. Their vocabulary beats this skill's examples.
