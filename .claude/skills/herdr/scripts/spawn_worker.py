@@ -92,6 +92,7 @@ def mode_prefix(mode: str) -> str:
     marker = f"ruaridh-mode: {mode}\n\n" if mode == WORKER else ""
     return f"{AIMSG}{marker}"
 
+
 def done_notice(name: str, summary: Path | str) -> str:
     """The brief's last line: tell the creating pane the summary is written."""
     creator = os.environ.get("HERDR_PANE_ID")

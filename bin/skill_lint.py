@@ -131,9 +131,7 @@ def words(text):
 
 def shingles(text):
     tokens = words(text)
-    return {
-        " ".join(tokens[i : i + SHINGLE]) for i in range(len(tokens) - SHINGLE + 1)
-    }
+    return {" ".join(tokens[i : i + SHINGLE]) for i in range(len(tokens) - SHINGLE + 1)}
 
 
 def private_feed_text(root, feed, entry, local):
@@ -141,10 +139,16 @@ def private_feed_text(root, feed, entry, local):
     if su.upstream_url(feed.repo, entry, local) is None:
         return None
     cwd = su.upstream_cwd(root, feed.repo, entry)
-    if not cwd.exists() or not su.git_ok(["cat-file", "-e", f"{feed.sha}:{feed.path}"], cwd):
+    if not cwd.exists() or not su.git_ok(
+        ["cat-file", "-e", f"{feed.sha}:{feed.path}"], cwd
+    ):
         return None
-    listing = su.git_out(["ls-tree", "-r", "--name-only", feed.sha, "--", feed.path], cwd)
-    return "\n".join(su.git_out(["show", f"{feed.sha}:{path}"], cwd) for path in listing.split())
+    listing = su.git_out(
+        ["ls-tree", "-r", "--name-only", feed.sha, "--", feed.path], cwd
+    )
+    return "\n".join(
+        su.git_out(["show", f"{feed.sha}:{path}"], cwd) for path in listing.split()
+    )
 
 
 def check_private_copy(root, info, registry, local, label, problems):

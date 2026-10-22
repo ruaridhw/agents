@@ -530,7 +530,9 @@ class SpawnTopologyTest(unittest.TestCase):
         for row in rows:
             last = prompt_command(fake, row["name"])[4].splitlines()[-1]
             self.assertTrue(
-                last.endswith(f'herdr agent prompt {MINE} "(aimsg) DONE {row["name"]} {row["summary"]}"'),
+                last.endswith(
+                    f'herdr agent prompt {MINE} "(aimsg) DONE {row["name"]} {row["summary"]}"'
+                ),
                 last,
             )
         self.assertEqual(rows[2]["summary"], str(cwd / "handoffs" / "db-summary.md"))

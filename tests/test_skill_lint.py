@@ -392,7 +392,9 @@ def private_upstream(repo, tmp_path, monkeypatch):
 
 def test_text_copied_from_a_private_feed_fails(repo, tmp_path, monkeypatch, capsys):
     sha = private_upstream(repo, tmp_path, monkeypatch)
-    write_skill(repo, feeds=[("demo", FEED_PATH, sha)], body="# Demo\n\n" + PRIVATE_TEXT + "\n")
+    write_skill(
+        repo, feeds=[("demo", FEED_PATH, sha)], body="# Demo\n\n" + PRIVATE_TEXT + "\n"
+    )
     assert run(repo) == 1
     assert "copied from a private feed" in capsys.readouterr().out
 
@@ -411,7 +413,9 @@ def test_public_feed_text_may_be_copied(repo, sha_of):
     clone = repo / "upstream" / "demo"
     (clone / FEED_PATH).write_text(PRIVATE_TEXT + "\n")
     sha = commit_all(clone, "public text")
-    write_skill(repo, feeds=[("demo", FEED_PATH, sha)], body="# Demo\n\n" + PRIVATE_TEXT + "\n")
+    write_skill(
+        repo, feeds=[("demo", FEED_PATH, sha)], body="# Demo\n\n" + PRIVATE_TEXT + "\n"
+    )
     assert run(repo) == 0
 
 
