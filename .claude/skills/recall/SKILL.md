@@ -10,7 +10,7 @@ upstream:
     sha: 2f8377461fd533f5af782e1fd643783b1067b847
   - repo: self
     path: .claude/skills/searching-shared-agentsview-history/SKILL.md
-    sha: 41387f8e3ada88bde9ac299cdbbe1df3e6282d03
+    sha: a5d5d8a99ef29eaeab5050e3c974cdfc340c7612
 ---
 
 # recall
