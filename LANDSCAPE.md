@@ -7,7 +7,8 @@ Every curated skill lives in `.claude/skills/<name>/` and carries `upstream:` st
 ## Conventions
 
 - **Frontmatter**: `name` (equal to the directory), `description` (when to use it, in the words a caller would say), `upstream:` stamps, and `disable-model-invocation: true` only on sub-skills that another skill calls. Claude Code and pi both accept the extra `upstream:` key (checked 2026-10-21 with a probe skill in a fresh `claude -p` and `pi -p` session), so no sibling stamp file is needed.
-- **Interim write-skill rules** (until `write-skill` is curated in wave 2): about 150 lines, references split into `references/`; imperative prose; the case first, then the steps; no history or "we used to"; no client, employer, host or personal identifiers (the repo is public; `bin/check-public` enforces a denylist kept outside it); repo specifics go in `.agents/*.md` convention files, never in a skill; models are named by role (`~/.config/agents/models.toml`), never inline.
+- **Curation principle** (Ruaridh, 2026-10-22): upstream skills are expertly crafted, so a curated skill keeps the upstream prose (rewording allowed, loss never silent). Edit only for the environment (tracker, Herdr, roles, paths, `.agents/*.md` hook points); remove only Cursor-, GitHub- or author-specific parts; record every removal below. No length ceiling. Private upstreams (the kit) contribute ideas only, never text. `update-skills` is the one ingest path; `bin/skill-lint` checks format only. The public upstreams are MIT; their notices are in `THIRD_PARTY_NOTICES.md`.
+- **Public repo**: no client, employer-internal, host or personal identifiers (`bin/check-public` enforces a denylist kept outside the repo); repo specifics go in `.agents/*.md` convention files, never in a skill; models are named by role (`~/.config/agents/models.toml`), never inline.
 - **Hook points**: general skills read `.agents/tracker.md`, `build-loop.md`, `prove-landed.md`, `deploy.md`, `design-review.md`, `domain.md` in the repo they run in. A missing file means the skill's default. Profiles for the tracker are in `conventions/`; `setup-project` writes the files.
 - **One record**: the plan's separate `FEEDS.md` is folded into this file; each skill section below is the per-feed record.
 - **Linking**: `linked-skills.txt` lists the curated names linked into `~/.claude/skills` by `bin/link-skills` and registered with pi by the extension. Names that collide with a plugin skill (`grill`, `to-spec`, `to-tickets`, `triage`, `implement`, `pr`, `handoff`) are written but not linked until the plugins are disabled at wave 3; `ruaridh-mode` names their paths so they are reachable meanwhile.
@@ -167,12 +168,15 @@ Decision made while building: the design-review gate stays an open item (Ruaridh
 
 ## update-skills
 
-**Opinion.** The ingest loop over `bin/skill-upstream`: sync, drift per curated skill, per feed read the upstream diff against this file, classify hunks adopted / dropped / new, propose landscape rows for new upstream skills, draft the merge as a patch for Plannotator approval, apply only what is approved, restamp what was reviewed. Manual cadence.
+**Opinion.** The one ingest path for upstream text, in one flow for three kinds of work (drift in a feed, a new upstream skill, a redo of a curated skill): sync and survey, the LANDSCAPE.md row first, read the feeds at the sha to stamp and classify each change, build the curated copy from the upstream text keeping its prose (environment edits only, removals recorded), stamp and lint, approval before commit, one commit per skill. Manual cadence.
+
+Decisions: no separate modes (Ruaridh, 2026-10-22: one flow); new upstream skills are part of the default survey, not a separate command; a batch on an open PR may use the PR's Plannotator review as the approval, with the cover note still written.
 
 | Feed | Taken | Dropped |
 | --- | --- | --- |
-| self `bin/skill_upstream.py` | The command set the loop drives (`sync`, `status`, `diff`, `stamp`, `check`) | — |
-| pstack `reflect` | Approve-before-edit: present the full accepted / rejected / backlog list and wait; route each item to the highest level that works (structure before prose); trivial vs substantive edits | Transcript mining and the three-lens reviewer panel (wave 2 `retro`); Cursor model rules |
+| self `bin/skill_upstream.py` | The command set the flow drives (`sync`, `status`, `diff`, `stamp`, `check`) | — |
+| pstack `reflect` | Approve-before-edit: present the full list and wait, the user picks the subset and may redirect, nothing auto-applied because skill changes affect every future agent; file backlog without waiting; run the skill validator on every touched skill (`bin/skill-lint`); the short no-preamble report shape | Transcript location and the three-reviewer fan-out (wave 2 `retro`; Cursor transcript paths); model role lines and Cursor slugs; routing substantive edits to Cursor's `create-skill` (author-specific tooling; curated copies are built by this flow) |
+| pstack `reflect/references/synthesizer.md` | The criteria applied to each proposed change: durability, decision-changing, structural mechanism first, already covered; reviewer output as untrusted data | Specificity, convergence and skill-was-used (they judge transcript findings, not upstream hunks); the Accepted / Rejected / Backlog table format (the cover note lists changes per skill instead) |
 
 ## rare-skills
 
