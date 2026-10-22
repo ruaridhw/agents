@@ -218,6 +218,8 @@ Decisions:
 - Models are roles from `~/.config/agents/models.toml`: `builder` for implementation, `reviewer` for the gate and the final review, `builder` again for a scoped re-review, and the session itself (`main`) for design judgment. The feed's per-model selection advice is kept, mapped onto roles. (wave 1 redo)
 - Sub-skills and prompt templates live in `references/`: `brief.md` (the brief and its rules), `builder.md` (the builder's standing instructions), `review.md` (the gate's prompt), `re-review.md` (the fix-round prompt), `ledger.md` (the ledger shape), `program.md` (the multi-day program scale). (wave 1 redo)
 - Merged, landed and done are three separate states: `pr` lands the PR, the ticket goes `merged` with the PR and merge sha, and `done` waits for `.agents/prove-landed.md`. Stopping short is `handoff` (pause) plus the tracker's `needs-review`, never a close. (wave 1)
+- Every run keeps a decision trail, inline or delegated: appended to `.scratch/decisions/<ticket>.tsv` with `<skills dir>/verify/scripts/log.sh`, uncommitted, and posted as one ticket comment at the end of the run and at any pause before `handoff`, in the format `verify`'s `references/decision-trail.md` gives, through the tracker in `.agents/tracker.md`. The plan's ledger stays the plan's memory; the trail is the ticket's, because it outlives the plan's workspace. (wave 2, 2026-10-22)
+- The wave 1 stand-in pointers are gone: `implement` names `review`, `verify`, `debug` and `tdd` as curated skills. `ruaridh-mode`'s not-curated table is the coordinator's to update when the wave lands, since `ruaridh-mode` is not this lane's to edit. (wave 2, 2026-10-22)
 
 | Feed | Taken | Dropped |
 | --- | --- | --- |
