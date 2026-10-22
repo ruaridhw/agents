@@ -784,7 +784,22 @@ Environment edits, not removals: `/teach` and `argument-hint` are dropped (the s
 
 ## wizard
 
-Wave 2, thinking lane: section written with the skill.
+**Opinion.** A near-copy, with its stamp. A wizard is a bash script that walks a human through the steps only a human can take: it opens each URL, says what to click and copy, captures the values, writes them to `.env` or the CI secrets, confirms before anything irreversible, and shows how many stages are left. The UX is already solved by the feed's `template.sh`, kept whole and executable beside the skill, and hand-editing the library above the `STAGES` marker is forbidden so every wizard looks the same. The skill's work is scoping the procedure and authoring its stages, then verifying statically, since the script blocks on human input and cannot be run end to end by an agent.
+
+Decisions:
+
+- **Near-copy with the stamp** (Ruaridh, 2026-10-22): the prose is kept and the environment edits are the paths.
+- **Ephemeral by default** (from the feed): a wizard is deleted when the job is done, and committed only when Ruaridh wants a repeatable setup path. In this repo the ephemeral path is `.scratch/wizards/`, and the durable one is `scripts/` with a README line.
+- **Never run it end to end** (from the feed): verification is `bash -n`, `shellcheck` where available, and a static trace that every captured value lands where the scope said and every `set_secret` name matches a `secrets.*` reference.
+- **No invented UI steps** (from the feed): an unknown path is asked about, or becomes a `pause` that tells the human what to check.
+
+Environment edits, not removals: `template.sh` is referenced from this skill's directory instead of the upstream folder; "the user" is Ruaridh; the ephemeral and durable paths are named for this repo's `.scratch/` and `scripts/`. The `agents/openai.yaml` beside the feed is dropped as everywhere: the author's harness metadata.
+
+| Feed | Taken | Dropped |
+| --- | --- | --- |
+| mattpocock `skills/engineering/wizard/SKILL.md` | Nearly all of it, prose kept: the definition and the "don't invoke it for steps the agent can perform itself" rule; the list of what a wizard does; the solved-UX paragraph naming every facility the template provides and the "never hand-edit it" rule; ephemeral by default with the commit condition; the four steps in full (scope with the files to read and the CI `secrets.*` / `vars.*` discovery, then confirm the ordered stages; map each stage's journey with its menu-path example and "never invent steps"; author from the template with every named helper, `TOTAL_STAGES`, and the bar the template sets for URL-before-value, `ask_secret`, `write_env`, `set_secret` and `confirm`, plus one focused task per stage; verify with `bash -n`, `shellcheck`, `chmod +x`, the no-end-to-end-run rule, the static trace and the CI-name match, and the hand-off) | `/wizard` and `disable-model-invocation: true`: the skill is reached by name. "Saved to a scratch or `scripts/` path": named as `.scratch/wizards/` and `scripts/` here. "The user": Ruaridh. The `[template.sh](template.sh)` relative link: `template.sh` beside this skill. `agents/openai.yaml`: the author's harness metadata |
+| mattpocock `skills/engineering/wizard/template.sh` | The whole script, kept verbatim and executable as `template.sh` beside the skill: the library above the `STAGES` marker (colour detection, `_clear`, `banner`, `stage`, `say`, `step`, `open_url`, `ask`, `ask_secret`, `write_env`, `set_secret`, `set_var`, `pause`, `confirm`, the closing summary and the written/skipped bookkeeping), the example stage below the marker | Nothing. It is a script, not prose, and the skill's rule is that the library is never edited |
+
 
 ## questionnaire
 
