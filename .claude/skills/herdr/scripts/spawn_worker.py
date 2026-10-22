@@ -92,6 +92,16 @@ def mode_prefix(mode: str) -> str:
     marker = f"ruaridh-mode: {mode}\n\n" if mode == WORKER else ""
     return f"{AIMSG}{marker}"
 
+def done_notice(name: str, summary: Path | str) -> str:
+    """The brief's last line: tell the creating pane the summary is written."""
+    creator = os.environ.get("HERDR_PANE_ID")
+    if not creator:
+        return ""
+    return (
+        "- Once both files are written, before your final chat response, notify the pane "
+        f'that created you: herdr agent prompt {creator} "{AIMSG}DONE {name} {summary}"\n'
+    )
+
 
 def session_args(kind: str, session_id: str) -> list[str]:
     return ["--session-id", session_id] if kind in SESSION_ID_KINDS else []
@@ -311,7 +321,7 @@ Output contract:
 - After both files are written, echo the full summary text in your final chat response.
 - Do not paste the raw log in chat.
 - Final chat response: the summary, then HANDOFF_WRITTEN {summary} {raw}
-"""
+{done_notice(args.name, summary)}"""
 
     if args.no_wait:
         require_ok(run(["herdr", "agent", "prompt", args.name, prompt]), "agent prompt")

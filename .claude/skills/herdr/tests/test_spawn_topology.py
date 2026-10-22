@@ -122,6 +122,17 @@ def start_commands(fake: FakeHerdr, name: str) -> list[list[str]]:
 
 
 class SpawnTopologyTest(unittest.TestCase):
+    def test_done_notice_is_omitted_without_a_creating_pane(self):
+        for script in ("spawn_worker", "spawn_team"):
+            mod = load_script(script)
+            with patch.dict(os.environ, {}, clear=True):
+                self.assertEqual(mod.done_notice("api", "/tmp/s.md"), "")
+            with patch.dict(os.environ, {"HERDR_PANE_ID": MINE}):
+                self.assertIn(
+                    f'herdr agent prompt {MINE} "(aimsg) DONE api /tmp/s.md"',
+                    mod.done_notice("api", "/tmp/s.md"),
+                )
+
     def test_single_worker_defaults_to_worker_mode_and_records_ledger(self):
         mod = load_script("spawn_worker")
         fake = FakeHerdr(busy_starts={"api": 1})
@@ -213,6 +224,12 @@ class SpawnTopologyTest(unittest.TestCase):
         prompt = prompt_command(fake, "api")
         self.assertEqual(prompt[4].splitlines()[0], "(aimsg) ruaridh-mode: worker")
         self.assertEqual(prompt[-3:], ["--wait", "--timeout", "1200000"])
+        summary_path = Path(cwd) / ".herdr-handoffs" / "api-summary.md"
+        self.assertEqual(
+            prompt[4].splitlines()[-1],
+            "- Once both files are written, before your final chat response, notify the pane "
+            f'that created you: herdr agent prompt {MINE} "(aimsg) DONE api {summary_path}"',
+        )
 
         self.assertEqual(len(rows), 1)
         row = rows[0]
@@ -510,6 +527,12 @@ class SpawnTopologyTest(unittest.TestCase):
         self.assertEqual(len({row["pane_id"] for row in rows}), 3)
         self.assertTrue(all(row["tab_created"] for row in rows))
         self.assertTrue(all(row["creator_pane"] == MINE for row in rows))
+        for row in rows:
+            last = prompt_command(fake, row["name"])[4].splitlines()[-1]
+            self.assertTrue(
+                last.endswith(f'herdr agent prompt {MINE} "(aimsg) DONE {row["name"]} {row["summary"]}"'),
+                last,
+            )
         self.assertEqual(rows[2]["summary"], str(cwd / "handoffs" / "db-summary.md"))
         for member in rows:
             self.assertEqual(
