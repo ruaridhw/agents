@@ -21,6 +21,9 @@ USE_RE = re.compile(r"\bUse (when|whenever|for|after|before|at|once|on|to|if)\b"
 SKILL_FILE = "SKILL.md"
 CHECK_PUBLIC = Path(__file__).resolve().parent / "check-public"
 CLONE_MISSING = "' clone missing: run bin/skill-upstream sync"
+# A private upstream may inform a skill but its text never enters this public repo.
+SHINGLE = 8
+PRIVATE_RUNS_ALLOWED = 5
 
 
 def top_level_flags(info):
@@ -48,6 +51,11 @@ def check_description(info, label, problems):
     description = info["description"] or ""
     if not description:
         problems.append(f"{label}: description missing from frontmatter")
+    elif description[:1] not in "\"'>|" and re.search(r"\s#", description):
+        problems.append(
+            f"{label}: description has ' #' in an unquoted scalar, which YAML"
+            " reads as a comment and truncates; quote it or reword"
+        )
     elif not USE_RE.search(description):
         problems.append(
             f"{label}: description is not phrased as when-to-use (no sentence"
@@ -117,6 +125,54 @@ def check_feeds(root, info, registry, local, label, problems, notes):
             )
 
 
+def words(text):
+    return re.findall(r"\w+", text.lower())
+
+
+def shingles(text):
+    tokens = words(text)
+    return {
+        " ".join(tokens[i : i + SHINGLE]) for i in range(len(tokens) - SHINGLE + 1)
+    }
+
+
+def private_feed_text(root, feed, entry, local):
+    """Text of a private feed at its stamp (a directory feed: every file), or None."""
+    if su.upstream_url(feed.repo, entry, local) is None:
+        return None
+    cwd = su.upstream_cwd(root, feed.repo, entry)
+    if not cwd.exists() or not su.git_ok(["cat-file", "-e", f"{feed.sha}:{feed.path}"], cwd):
+        return None
+    listing = su.git_out(["ls-tree", "-r", "--name-only", feed.sha, "--", feed.path], cwd)
+    return "\n".join(su.git_out(["show", f"{feed.sha}:{path}"], cwd) for path in listing.split())
+
+
+def check_private_copy(root, info, registry, local, label, problems):
+    private = set()
+    for feed in info["feeds"]:
+        entry = registry.get(feed.repo) or {}
+        if not entry.get("local") or entry.get("self"):
+            continue
+        if not feed.path or not feed.sha or not su.SHA_RE.match(feed.sha):
+            continue
+        text = private_feed_text(root, feed, entry, local)
+        if text:
+            private |= shingles(text)
+    if not private:
+        return
+    ours = set()
+    for path in skill_files(info):
+        if path.suffix == ".md":
+            ours |= shingles(path.read_text())
+    shared = sorted(ours & private)
+    if len(shared) > PRIVATE_RUNS_ALLOWED:
+        problems.append(
+            f"{label}: {len(shared)} {SHINGLE}-word runs copied from a private feed"
+            f" (allowed {PRIVATE_RUNS_ALLOWED}); take its ideas in your own words,"
+            f" e.g. {shared[0]!r}"
+        )
+
+
 def skill_files(info):
     base = info["file"].parent
     return [path for path in sorted(base.rglob("*")) if path.is_file()]
@@ -173,6 +229,7 @@ def lint_skill(root, info, pool, registry, local):
     check_description(info, label, problems)
     check_feeds(root, info, registry, local, label, problems, notes)
     check_denylist(info, label, problems)
+    check_private_copy(root, info, registry, local, label, problems)
     check_sub_skill(root, info, pool, label, problems)
     return problems, notes
 

@@ -370,3 +370,56 @@ def test_named_sub_skill_still_sees_callers_outside_the_selection(repo, sha_of):
         body="# Caller\n\nInvoke hidden before planning.\n",
     )
     assert run(repo, "hidden") == 0
+
+
+PRIVATE_TEXT = (
+    "Every ticket names one observable outcome that a reviewer can check without "
+    "asking the author, and the outcome is written before any design is chosen. "
+    "Evidence is quoted exactly as captured so the reader sees what the system said."
+)
+
+
+def private_upstream(repo, tmp_path, monkeypatch):
+    clone = repo / "upstream" / "demo"
+    (clone / FEED_PATH).write_text(PRIVATE_TEXT + "\n")
+    sha = commit_all(clone, "private text")
+    write_registry(repo, {"demo": {"local": True, "sha": sha}})
+    config = tmp_path / "local.json"
+    config.write_text(json.dumps({"demo": {"url": str(clone)}}))
+    monkeypatch.setenv("SKILL_UPSTREAM_LOCAL_CONFIG", str(config))
+    return sha
+
+
+def test_text_copied_from_a_private_feed_fails(repo, tmp_path, monkeypatch, capsys):
+    sha = private_upstream(repo, tmp_path, monkeypatch)
+    write_skill(repo, feeds=[("demo", FEED_PATH, sha)], body="# Demo\n\n" + PRIVATE_TEXT + "\n")
+    assert run(repo) == 1
+    assert "copied from a private feed" in capsys.readouterr().out
+
+
+def test_private_feed_ideas_in_own_words_pass(repo, tmp_path, monkeypatch):
+    sha = private_upstream(repo, tmp_path, monkeypatch)
+    body = (
+        "# Demo\n\nState the result a reviewer could confirm unaided before picking "
+        "an approach, and paste what the system printed rather than paraphrasing it.\n"
+    )
+    write_skill(repo, feeds=[("demo", FEED_PATH, sha)], body=body)
+    assert run(repo) == 0
+
+
+def test_public_feed_text_may_be_copied(repo, sha_of):
+    clone = repo / "upstream" / "demo"
+    (clone / FEED_PATH).write_text(PRIVATE_TEXT + "\n")
+    sha = commit_all(clone, "public text")
+    write_skill(repo, feeds=[("demo", FEED_PATH, sha)], body="# Demo\n\n" + PRIVATE_TEXT + "\n")
+    assert run(repo) == 0
+
+
+def test_unquoted_hash_in_description_fails(repo, sha_of, capsys):
+    write_skill(
+        repo,
+        feeds=[("demo", FEED_PATH, sha_of(repo))],
+        description='Use when asked to "triage #42".',
+    )
+    assert run(repo) == 1
+    assert "reads as a comment" in capsys.readouterr().out
