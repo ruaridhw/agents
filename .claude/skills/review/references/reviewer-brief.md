@@ -46,7 +46,7 @@ Your review is read-only on this checkout. Do not mutate the working
 tree, the index, HEAD, or branch state in any way. Use `git show`,
 `git diff` and `git log` to inspect history. If you need a working copy
 of another revision, check it out into a separate temporary directory
-(`git worktree add /tmp/review-[SHA] [SHA]`), never by moving HEAD here.
+(`git worktree add .worktrees/review-[SHA] [SHA]`), never by moving HEAD here.
 
 ## You Do Not Spawn Reviewers
 
