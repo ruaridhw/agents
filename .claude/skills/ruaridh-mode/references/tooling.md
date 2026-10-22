@@ -44,6 +44,14 @@ Machine-specific values (hostnames, collector URLs, token paths, tailnet recipes
 
 - Run every `plannotator` command that opens a review (`annotate`, `last`, `review`, plan review) in the background, read the link from its output, then wait for the completion notification. The port changes; never assume it.
 - Do not send a commentary message right before `plannotator last`: it annotates the last message. Prefer `annotate-last --stdin < file`.
+
+### The Inbox
+
+The convention (when, what, thread names) is in `ruaridh-mode` section 5. Mechanics:
+
+- Use the `plannotator_inbox` tool (or the `plannotator-inbox` MCP server) `send_message`. Name the thread `<repo> · <ticket or spec ref>`; look up an existing thread with that name first and post into it.
+- A question goes in a `:::question` block, options listed with the recommended one first; a long-work handover puts the files in `attachments` by absolute path.
+- After sending, keep working. The reply comes back to this session by itself where the harness supports it; otherwise call `wait_for_reply` when you reach work that needs it.
 - The Inbox is for decisions only Ruaridh can make and for handing over finished long work, not for progress.
 
 ## AgentsView
