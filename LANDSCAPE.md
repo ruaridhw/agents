@@ -347,3 +347,79 @@ Environment edits, not removals: the upstream's absolute script path became `scr
 | self `herdr-agent-handoff` | Semantics (sibling / child / team); preconditions and the installed binary as the syntax authority; one named tab per invocation in the caller's workspace and cwd, first agent in the tab's root pane, further members split from that root so no empty shell is left; the single-worker helper's behaviour; `--lean` with its measured ~14.3k to ~3.8k first-turn baseline and the exact-skill-path rule for lean briefs; `team.json`, the roster and the coordinator's integration step; the model-choice doctrine (choose by task, do not clone the caller's model, strongest reasoning for high stakes, check availability, stop rather than silently weakening); the manual contract and its shell example; every coordination rule (absolute handoff paths, explicit pane ids, non-overlapping tasks, `blocked` panes read before input, never close what you did not create); "read raw logs only when the summary says blocked or uncertain, or exact evidence is needed" | The hard-coded `~/.agents/skills/herdr-agent-handoff/scripts/...` path: the scripts live in `scripts/` beside this skill now (environment: path). The model table and every model id in it (`fireworks/...` routers, the Codex Sol placeholder, `--kind claude --model opus`): the repo is public and names models by role, and those slugs are the upstream author's own setup; replaced by the roles in `~/.config/agents/models.toml`, with the upstream's use cases kept as the role table. The inlined brief text and two-file output contract in the manual contract: recorded decision, `implement` owns the brief and `handoff` owns the summary and raw shapes, so the skill keeps the prompt frame and the done notice and points at them instead of duplicating them. No Cursor- or GitHub-specific text to drop in this feed. |
 | self `find-sibling-agents` | The whole file as `references/siblings.md`, prose kept: a sibling is any session in the same AgentsView project; project key is the directory basename, `agentsview projects` shows exact keys; rank by newest transcript message, `--resume` first for live work; exclude yourself by id because `●` marks any resumable session; `Branch evidence` in full (activity, then relevance, then recorded branch; `git log -1` for branch activity, `AGE` is not last activity); the `Adjusting the list` flags table; `Picking a sibling with the most context later`; the rationalization table in full; the report and output shape | The CLI-versus-MCP argument as a paragraph: `ruaridh-mode`'s `tooling.md` already owns the AgentsView rule, so the reference keeps one sentence naming the fields the CLI adds and the rationalization row carrying the decision at the point of temptation, not a second argument. The `agentsview-finding-history` cross-reference: an upstream-author skill that is not curated here; AgentsView history reading is in `tooling.md`. Nothing else: the table is kept in full, reversing wave 1's condensation. |
 | own rule sources (named-agent, relayed-authorization, input-box memories) | A quoted agent or tab name is the existing pane; reply to panes directly; input-box text is not Ruaridh's; authorization does not travel; a listing is a read and the decision is the coordinator's or Ruaridh's | Dates and incident detail |
+
+## write-skill
+
+Wave 2, thinking lane: section written with the skill.
+
+## tdd
+
+Wave 2, build-side lane: section written with the skill.
+
+## debug
+
+Wave 2, build-side lane: section written with the skill.
+
+## verify
+
+Wave 2, quality lane: section written with the skill.
+
+## review
+
+Wave 2, quality lane: section written with the skill.
+
+## babysit
+
+Wave 2, quality lane: section written with the skill.
+
+## ship
+
+Wave 2, quality lane: section written with the skill.
+
+## worktree
+
+Wave 2, build-side lane: section written with the skill.
+
+## prototype
+
+Wave 2, build-side lane: section written with the skill.
+
+## domain
+
+Wave 2, thinking lane: section written with the skill.
+
+## arch
+
+Wave 2, thinking lane: section written with the skill.
+
+## research
+
+Wave 2, thinking lane: section written with the skill.
+
+## recall
+
+Wave 2, thinking lane: section written with the skill.
+
+## retro
+
+Wave 2, thinking lane: section written with the skill.
+
+## technical-writing
+
+Wave 2, thinking lane: section written with the skill.
+
+## teach
+
+Wave 2, thinking lane: section written with the skill.
+
+## wizard
+
+Wave 2, thinking lane: section written with the skill.
+
+## questionnaire
+
+Wave 2, thinking lane: section written with the skill.
+
+## bro
+
+Wave 2, thinking lane: section written with the skill.
