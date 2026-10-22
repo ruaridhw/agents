@@ -32,9 +32,6 @@ upstream:
   - repo: pstack
     path: pstack/skills/no-comments/SKILL.md
     sha: 2f8377461fd533f5af782e1fd643783b1067b847
-  - repo: pstack
-    path: pstack/skills/unslop/SKILL.md
-    sha: 2f8377461fd533f5af782e1fd643783b1067b847
 ---
 
 # review
@@ -170,11 +167,11 @@ An author who disagrees with a `no` argues it in the findings, not by changing t
 
 ## 8. The prose pass
 
-Last, not first: the comment pass and then the prose pass, over the code and over the review itself.
+Last, not first: the comment pass over the code, then the prose pass over the review file and the PR text.
 
 **Comments.** Read `references/no-comments.md` and run the pass. Working comments explain a constraint the code cannot express; everything else is either dead (delete it), a workaround (fix the root cause in scope, or report it open), or a comment standing in for structure (offer the cheapest type, runtime, test or CI check that enforces the constraint instead, then delete it). Restore a deleted comment only with an exact exception and scoped proof. Where the upstream pass would ask `how` or `why` about a thin `do not remove`, read the call sites and the history here instead; where it would run `architect` for a shape, that is `arch`.
 
-**Prose.** Read `references/unslop.md` and apply its stable-id rules to every sentence you are shipping: the review file, PR text, commit bodies, docstrings and comments. The rule numbers are cited by other skills, so a gap in the numbering is deliberate.
+**Prose.** Read `<skills dir>/technical-writing/references/unslop.md` and apply its stable-id rules to the review file and to the PR text this pass produces. That one file is the whole catalog for the repo: this skill keeps no copy of it. Commit bodies and chat are out of scope. The rule numbers are cited by other skills, so a gap in the numbering is deliberate.
 
 ## 9. Receiving a review
 
