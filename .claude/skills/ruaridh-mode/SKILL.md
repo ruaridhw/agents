@@ -92,19 +92,7 @@ Build loops come from `.agents/build-loop.md`. The default is code: failing test
 
 ### Curated skills
 
-These names mean the curated skills in this repo, read from `<skills dir>/<name>/SKILL.md` (the bootstrap header gives the directory), not plugin skills with the same name: `clarify`, `herdr`, `grill`, `to-spec`, `spec-review`, `to-tickets`, `triage`, `to-plan`, `implement`, `pr`, `handoff`, `setup-project`, `update-skills`, `rare-skills`.
-
-Not curated yet; use these until they are:
-
-| Step | Use |
-| --- | --- |
-| `debug` | `superpowers:systematic-debugging` |
-| `tdd` | `superpowers:test-driven-development` |
-| `review` | `mattpocock-skills:code-review`, then a reviewer-role pass (`~/.config/agents/models.toml`) |
-| `verify` | `superpowers:verification-before-completion` |
-| `ship` | merge recipe in `pr`, one PR at a time, bottom up |
-| `prototype` | `mattpocock-skills:prototype` |
-| `research` | `mattpocock-skills:research`, explorers in Herdr panes |
+These names mean the curated skills in this repo, read from `<skills dir>/<name>/SKILL.md` (the bootstrap header gives the directory), not plugin skills with the same name: `clarify`, `herdr`, `grill`, `to-spec`, `spec-review`, `to-tickets`, `triage`, `to-plan`, `implement`, `pr`, `handoff`, `setup-project`, `update-skills`, `rare-skills`, `write-skill`, `tdd`, `debug`, `verify`, `review`, `babysit`, `ship`, `worktree`, `prototype`, `domain`, `arch`, `research`, `recall`, `retro`, `technical-writing`, `teach`, `wizard`, `questionnaire`, `bro`.
 
 Service skills (AWS, Cloudflare and the like) are behind `rare-skills`.
 

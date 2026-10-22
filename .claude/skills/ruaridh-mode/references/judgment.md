@@ -10,4 +10,4 @@ Read this before asking Ruaridh a question, before deciding whether to pause, an
 
 **A broken skill mid-task**: fix it in its own PR (or ticket it on the skills repo). Don't block on it, and don't silently work around it.
 
-**Long, autonomous or multi-phase work**, or any task Ruaridh steps away from to review later: keep a decision trail as you go (`verify` owns its shape once curated; until then, `Ruling:` lines in the progress ledger `implement` keeps).
+**Long, autonomous or multi-phase work**, or any task Ruaridh steps away from to review later: keep a decision trail as you go (`verify` owns its shape; the `Ruling:` lines live in the progress ledger `implement` keeps).
