@@ -38,4 +38,4 @@ repos:
         entry: bin/render-landscape --check
         language: system
         pass_filenames: false
-        files: ^(LANDSCAPE\.md$|docs/landscape\.(html|css)$|bin/render-landscape$)
+        files: ^(LANDSCAPE\.md$|docs/landscape\.(html|css|toml)$|bin/render-landscape$)

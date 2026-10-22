@@ -1,0 +1,182 @@
+# Hand-written copy for docs/landscape.html. bin/render-landscape parses
+# everything else from LANDSCAPE.md and fails when the two disagree: every
+# curated skill there needs a family and a pitch here, and every name here
+# must exist there.
+
+repo = "https://github.com/ruaridhw/agents"
+
+[hero]
+eyebrow = "ruaridhw/agents · agent skills"
+title = "One way of working, written down as skills."
+lede = "An opinionated set of agent skills for one engineer's environment, curated from mattpocock/skills, obra/superpowers and cursor/plugins (pstack), with the author's own skills alongside."
+principle = "The upstream prose stays. Edits are for the environment only, and every removal is on the record."
+
+[chain]
+title = "The chain, and where a human decides"
+intake = "Intake reads what arrived and picks the shortest route. A quick task is just done. A small change goes through clarify to implement. A project takes the whole line."
+side_title = "Side doors, open from any step"
+
+[[chain.phases]]
+name = "Shape"
+steps = [
+  { skill = "grill" },
+  { skill = "to-spec", gate = "The spec, in Plannotator" },
+  { skill = "spec-review", note = "optional" },
+]
+
+[[chain.phases]]
+name = "Plan"
+steps = [
+  { skill = "to-tickets" },
+  { skill = "triage", gate = "The ticket wave" },
+  { skill = "to-plan" },
+]
+
+[[chain.phases]]
+name = "Build"
+steps = [
+  { skill = "implement", loop = ["tdd", "debug", "verify"], gate = "Design review, when the UI changes" },
+]
+
+[[chain.phases]]
+name = "Land"
+steps = [
+  { skill = "review" },
+  { skill = "pr" },
+  { skill = "babysit", gate = "Merge, only on a yes" },
+  { skill = "ship" },
+]
+
+[[chain.side]]
+skill = "clarify"
+when = "a few questions first"
+
+[[chain.side]]
+skill = "prototype"
+when = "settle a design question"
+
+[[chain.side]]
+skill = "research"
+when = "find out why or how"
+
+[[chain.side]]
+skill = "recall"
+when = "get the state of a thread"
+
+[[chain.side]]
+skill = "handoff"
+when = "pause or pick up"
+
+[[families]]
+name = "Operating"
+blurb = "How a session starts, splits and stops."
+skills = ["ruaridh-mode", "herdr", "handoff", "worktree", "recall", "rare-skills"]
+
+[[families]]
+name = "Thinking and shaping"
+blurb = "Work out what to build before building it."
+skills = ["clarify", "grill", "prototype", "research", "domain", "arch", "questionnaire", "bro", "teach"]
+
+[[families]]
+name = "Planning and ticketing"
+blurb = "From a decided idea to tickets a session can finish."
+skills = ["to-spec", "spec-review", "to-tickets", "triage", "to-plan"]
+
+[[families]]
+name = "Building"
+blurb = "The build loop and the checks inside it."
+skills = ["implement", "tdd", "debug", "verify", "wizard"]
+
+[[families]]
+name = "Quality and shipping"
+blurb = "Other eyes, then a PR, then a merge."
+skills = ["review", "pr", "babysit", "ship", "technical-writing"]
+
+[[families]]
+name = "Meta"
+blurb = "Skills that maintain the other skills."
+skills = ["update-skills", "write-skill", "retro", "setup-project"]
+
+[pitches]
+ruaridh-mode = "The always-on router. Classifies what arrived, picks the route and holds the gates."
+herdr = "Spawn, read, resume and close agent panes, and nothing more."
+handoff = "Stop cleanly, resume cleanly, with the trail written down."
+worktree = "One worktree per piece of work, with one base rule and one cleanup gate."
+recall = "The state of one line of work in a screen, with the next move."
+rare-skills = "One router in front of the service skills a session rarely needs."
+clarify = "At most five questions, each with a recommended answer, before work starts."
+grill = "An interview in rounds that ends by sizing the work and naming its route."
+prototype = "Throwaway code that answers one design question."
+research = "Why code has its shape, or how a subsystem works, answered with citations."
+domain = "Challenge a term when it clashes with the glossary, then write the answer down."
+arch = "Sketch two or more designs and compare them before code crosses a boundary."
+questionnaire = "Turn a decision the agent can't make into questions for the person who can."
+bro = "Say it again so it lands: plainer, with context, or one layer up."
+teach = "Lessons over several sessions, or one plain account of a body of work."
+to-spec = "A build-ready spec, written without an interview and gated before publishing."
+spec-review = "An adversarial reviewer in its own pane, answered from the decision history."
+to-tickets = "Tickets sized to one session, with Done-when copied from the spec."
+triage = "Inbound issues through five states, and ticket waves rendered for the gate."
+to-plan = "One task per ticket in dependency order, then a pick: inline or delegated."
+implement = "Build a ticket or a wave, yourself or through coordinated builders."
+tdd = "Red, green, refactor, with a note on what each test seam catches and misses."
+debug = "Root cause first, and a failing reproduction committed before the fix."
+verify = "Evidence before done, with each claim labelled verified, inferred or assumed."
+wizard = "A bash script that walks a human through the steps only a human can take."
+review = "Four passes by other eyes, ending in one verdict."
+pr = "One PR per ticket, stacked, with a body a reviewer can decide from."
+babysit = "Drive a PR to merge-ready and stop there."
+ship = "Land a verified stack bottom-up, only when the human asks."
+technical-writing = "The standard for client-facing docs, finished with the unslop pass."
+update-skills = "The one way upstream text comes in: survey, classify, rebuild, record."
+write-skill = "How to write what an agent reads, built on predictability."
+retro = "Mine a session for lessons and fix each at the highest level that works."
+setup-project = "Bind a repo's hook points, one section at a time."
+
+[[sources]]
+key = "mattpocock"
+name = "mattpocock/skills"
+url = "https://github.com/mattpocock/skills"
+
+[[sources]]
+key = "superpowers"
+name = "obra/superpowers"
+url = "https://github.com/obra/superpowers"
+
+[[sources]]
+key = "pstack"
+name = "cursor/plugins (pstack)"
+url = "https://github.com/cursor/plugins"
+
+[[sources]]
+key = "anthropic"
+name = "anthropics/skills"
+url = "https://github.com/anthropics/skills"
+
+[[sources]]
+key = "own"
+name = "Own skills and rules"
+
+[[sources]]
+key = "kit"
+name = "Private kit, ideas only"
+
+[[honest]]
+title = "Stamps and drift"
+body = "Each skill records the upstream sha it was written from. `bin/skill-upstream` shows what moved since."
+
+[[honest]]
+title = "Lint"
+body = "`bin/skill-lint` checks the format, and fails a skill that copies text from a private feed."
+
+[[honest]]
+title = "Public-repo guard"
+body = "`bin/check-public` blocks private names at commit time, against a denylist kept outside the repo."
+
+[[honest]]
+title = "Stable rule ids"
+body = "When a catalog absorbs another source, the new rules start at the next free hundred, so cited ids never move."
+
+[next]
+title = "Wave 3"
+body = "Next: link the skills whose names collide with plugin skills once those plugins are off, and decide how kit skills reuse generic ones."
