@@ -508,7 +508,23 @@ Decisions:
 
 ## ship
 
-Wave 2, quality lane: section written with the skill.
+**Opinion.** The last gate, and the only skill Ruaridh invokes himself. pstack's shipping playbook is the spine: resolve the stack, hold each PR to a verdict, land only the contiguous verified run rooted at the bottom, re-check the verdict with `git patch-id` after every retarget, merge bottom-up one PR at a time with a read-back, leave the stack alone while it lands, stop at the ceiling. The pstack babysit playbook supplies the seam: `ship` starts where `babysit` ends, drives the frontier to READY, and never merges inside the babysit. The merge mechanics are not here: `pr/references/merge.md` owns the merge-async recipe and `ruaridh-mode` owns the gating and authorization rules, so this skill says when and in what order. One environment change runs through every step: a registered stack is retargeted and re-checked by GitHub itself, so the child is adopted off the remote instead of being retargeted by hand, and that adoption is the one sanctioned reset. After the landing it runs each ticket's proof of landing, asks before any proof that writes to a client remote, and closes tickets with evidence.
+
+Decisions:
+
+- `ship` is invoked only by Ruaridh, and the invocation is the authorization for that stack; a yes for one PR is not a yes for the stack, and nothing relayed counts (Ruaridh, 2026-10-22; `ruaridh-mode` non-negotiable 7).
+- The skill carries `disable-model-invocation: true` so the model cannot reach it by itself. `bin/skill-lint` allows the flag here because `ruaridh-mode` names `ship` and routes to it only on Ruaridh's invocation (Ruaridh, 2026-10-22; lane brief).
+- It runs `babysit` to READY, then merges the stack bottom-up by the `pr` recipe: merge-async, base first, and the remote head adopted afterwards as the one sanctioned reset (wave 0 Git and worktree decisions; `ruaridh-mode` tooling rules).
+- The merge recipe and the gating rule are pointed at, never restated (wave 2 curation rules).
+- Every merge is confirmed with `git patch-id` against the verdict it is trusted on, so a chain rebase that moves a child to a new SHA does not launder an old verdict (pstack `shipping.md`).
+- It runs each ticket's `.agents/prove-landed.md` (default: the tests on the merged sha) and moves the ticket to `done` with evidence per `.agents/tracker.md`; a proof that writes to a client remote is asked about first (Ruaridh, 2026-10-22).
+- The per-PR verdict is `verify`'s evidence on that head, not a separate cloud verifier lane (environment edit; the playbook's verifier was a Cursor cloud agent with control skills this environment does not have).
+- The forge is GitHub through `gh`; the Origin and Graphite paths are dropped whole (environment edit).
+
+| Feed | Taken | Dropped |
+| --- | --- | --- |
+| pstack `pstack/skills/poteto-mode/playbooks/shipping.md` | The spine, nearly whole: "you own what lands", verifying each PR independently before it lands, a verdict from something that did not write the code because an author checks what they meant to build, the contiguous verified run rooted at the bottom with its ceiling, the `git patch-id` re-check with the noise rule and what a changed patch needs, landing bottom-up one PR at a time with a read-back because a merge command can report success when it only queued, auto-merge only on a head the verdict covers, leaving the stack alone while it lands, a stalled merge investigated before anything changes, stopping at the ceiling and the new pass an extension needs, and the reply shape | The Origin forge: `command -v origin`, every `origin pr` command, and the Origin stop condition. `gh` is the forge here, so there is one path. The Graphite warning. The per-PR verifier lane of Cursor cloud agents running the change through `control-ui` or `control-cli` from `cursor-team-kit`: this environment's verdict is `verify`'s evidence on the head plus `.agents/prove-landed.md`, recorded as a decision. `gh pr merge --squash` and "retarget the child, move its patch, push `--force-with-lease`": the merge is `pr/references/merge.md`'s merge-async, and a registered stack is retargeted by GitHub itself, with the adopted remote head replacing the hand retarget. The `--auto` paragraph survives as the rule that auto-merge may only be armed on a covered head |
+| pstack `pstack/skills/poteto-mode/playbooks/babysit.md` | The seam and nothing more: `drive` ends at merge-ready, "before landing, get it green here", the queued `WAITING`/`merge-queue` stop and `COMPLETE`, and the statement that babysitting never authorizes merging, so a request to land routes here | Everything else in the playbook belongs to `babysit` and stays there by design: the modes, the frontier rule, the CI classification, the Bugbot triage and the review-thread replies. Duplicating them here would give the same rule two homes and let them drift |
 
 ## worktree
 
