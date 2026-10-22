@@ -47,11 +47,29 @@ def check_name(info, label, problems):
         )
 
 
+def raw_description(info):
+    """The description value as written, quotes and all, or None."""
+    for line in info["lines"][info["start"] + 1 : info["end"]]:
+        if line[:1].isspace():
+            continue
+        key, _, value = line.partition(":")
+        if key.strip() == "description":
+            return value.strip()
+    return None
+
+
 def check_description(info, label, problems):
     description = info["description"] or ""
+    raw = raw_description(info) or ""
+    unquoted = raw[:1] not in "\"'>|"
     if not description:
         problems.append(f"{label}: description missing from frontmatter")
-    elif description[:1] not in "\"'>|" and re.search(r"\s#", description):
+    elif unquoted and re.search(r":\s", raw):
+        problems.append(
+            f"{label}: description has ': ' in an unquoted scalar, which YAML"
+            " reads as a nested mapping; quote the description"
+        )
+    elif unquoted and re.search(r"\s#", raw):
         problems.append(
             f"{label}: description has ' #' in an unquoted scalar, which YAML"
             " reads as a comment and truncates; quote it or reword"

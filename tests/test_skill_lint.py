@@ -427,3 +427,13 @@ def test_unquoted_hash_in_description_fails(repo, sha_of, capsys):
     )
     assert run(repo) == 1
     assert "reads as a comment" in capsys.readouterr().out
+
+
+def test_unquoted_colon_in_description_fails(repo, sha_of, capsys):
+    write_skill(
+        repo,
+        feeds=[("demo", FEED_PATH, sha_of(repo))],
+        description="Use when building a ticket: inline or delegated.",
+    )
+    assert run(repo) == 1
+    assert "nested mapping" in capsys.readouterr().out

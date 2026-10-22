@@ -1,6 +1,6 @@
 ---
 name: implement
-description: Build one ticket, or a wave of tickets, from fetch to merged and done: inline in this session with a progress ledger and recorded rulings, or delegated to Herdr builders with written briefs while you coordinate. Use when given a ticket ref, several refs or "a wave", or after to-plan once Ruaridh has picked inline or delegated.
+description: "Build one ticket, or a wave of tickets, from fetch to merged and done: inline in this session with a progress ledger and recorded rulings, or delegated to Herdr builders with written briefs while you coordinate. Use when given a ticket ref, several refs or \"a wave\", or after to-plan once Ruaridh has picked inline or delegated."
 upstream:
   - repo: mattpocock
     path: skills/engineering/implement/SKILL.md
