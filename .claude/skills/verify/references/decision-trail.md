@@ -50,7 +50,7 @@ When a run adds to a log that already has rows, its first row has phase `start`,
 
 ## Surfacing it on the ticket
 
-One comment per run or pause, posted per `.agents/tracker.md` (kata: `kata comment <ref> --body-file <path>`; GitHub: `gh api` on the issue, body from a file). The comment has three parts, in this fixed order:
+One comment per run or pause, posted per `.agents/tracker.md`, with the body passed from a file. The comment has three parts, in this fixed order:
 
 1. A header line: the run, the row count, and the non-routine count.
 2. One line per non-routine row, in the form `phase: decision — why → result`.
@@ -72,7 +72,7 @@ Do not edit or delete the comment after posting. A later run posts its own comme
 
 - Append-only. A wrong call gets a new row that supersedes it. Never edit or delete history.
 - Prefer evidence produced by committed scripts over hand-made one-offs. A script can be re-run by the reviewer; a screenshot you took once cannot.
-- The trail is part of every `implement` run, whether inline or delegated. A delegated run's workers append their own rows; the coordinator's rows sit beside them.
+- The trail is part of every `implement` run, whether inline or delegated. The run's owner writes every row: the inline session, or the coordinator in a delegated run. Builders never see or write the trail; the coordinator logs what their reports and reviews lead it to decide.
 
 ## Audit the log against the transcript
 
