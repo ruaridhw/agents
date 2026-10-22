@@ -1,0 +1,23 @@
+# The repo's only CI job: lint the front matter of every curated SKILL.md.
+# Ruff, ty, gitleaks and check-public stay in pre-commit; this is the guard
+# that has to run on every PR, including ones opened from a Mac checkout.
+name: skill-frontmatter
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - name: Lint SKILL.md front matter
+        run: uv run --group dev bin/check-skill-frontmatter
