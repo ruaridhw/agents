@@ -15,27 +15,214 @@ upstream:
 
 # to-plan
 
-Write the decisions the builder cannot make alone: which files, which names and signatures, which tests prove each task, which spec values apply. Nothing else. The plan is not gated, but execution does not start until Ruaridh picks how it runs.
+## Overview
 
-Skip the plan, and say so, when every ticket is small enough to execute directly from its body.
+Write implementation plans for an engineer who has not seen this codebase or this spec. Assume they write idiomatic code in the project's language once they know the exact interface and the exact test, and that they will make a reasonable choice wherever the plan leaves one open. What they cannot know is what you decided: which files, which names and signatures, which values from the spec, which tests prove each task. Document those. Give them the whole plan as bite-sized tasks. DRY. YAGNI. TDD. Frequent commits.
 
-## Steps
+You own the plan, not the code. The plan is a checklist a builder runs box by box, and Ruaridh audits it from the evidence it names. The plan is the deliverable; do not implement while writing it.
 
-1. **Read** the spec issue and its `.scratch/specs/` file, every ticket (body, edges, comments) and the code where they land. Read `.agents/build-loop.md` for the step list (default below). Explore broadly in Herdr panes (`herdr`, cheap role), asking each for file pointers, conventions, test commands and entry points, never dumps.
-2. **Settle forks by running something.** If a choice could be settled by a quick throwaway prototype, do that and record the result in the plan; ask Ruaridh only what no run can settle.
-3. **Map the files** before tasks: what each created or modified file is responsible for. Focused files with one job; follow the codebase's patterns.
-4. **Write `.scratch/plans/<YYYY-MM-DD>-<slug>.md`** in the shape in `references/plan-template.md`: one task per ticket, in dependency order. Each task's steps come from the build loop; each step lets the builder write exactly one reasonable thing. Acceptance cites the spec's cases by name and never invents new ones: a missing case found now is added to the spec issue as a comment and to the `.scratch` spec, then cited.
-5. **Review focus**: the handful of inputs or failure modes the spec implies but no task's test exercises that are most likely to bite, each with the test added to the task that owns the code.
-6. **Self-review** against the spec: every requirement has a task; no step decides nothing ("handle edge cases", "TBD") and none transcribes a body the signature and test already determine; names and types match across tasks; the plan is not longer than the code it describes.
-7. **Propose execution** at the end of the plan and in chat, then wait:
-   - **Inline**: you implement every task in this session (`implement` inline mode), then one reviewer-role pass over the branch. Cheapest; right for few, tightly coupled tasks.
-   - **Delegated**: builders in Herdr panes, one per task or group, with the split written out (which tasks per builder, which can run in parallel, which wait on a merge). Right for many independent tasks.
-   Recommend one, with one sentence of reason from the plan (coupling, count, cost of a shipped mistake). Do not start `implement` until he picks.
+**Announce at start:** "Using to-plan to write the implementation plan."
+
+**Context:** Work happens in a worktree, `.worktrees/<ticket>` in the repo (`ruaridh-mode`, non-negotiable 1). If the plan is written inside one, that worktree exists before the first task runs; the plan does not create it.
+
+**Save plans to:** `.scratch/plans/YYYY-MM-DD-<feature-name>.md`, in the shape in `references/plan-template.md`. A location Ruaridh names overrides this default. The `.scratch/` file stays where it is; skills never delete it.
+
+**Read first:** the spec issue on the tracker and its `.scratch/specs/` file, every ticket `to-tickets` published under it (body, comments and blocked-by edges), and the code where they land. `.agents/tracker.md` gives the tracker, its kinds and its refs; without it, ask him to run `setup-project`. `.agents/build-loop.md` gives the step shape, and `.agents/domain.md`, where the repo has one, the vocabulary.
+
+## Scope Check
+
+If the spec covers multiple independent subsystems, it should have been broken into sub-project specs during `grill` and `to-spec`. If it wasn't, suggest breaking this into separate plans — one per subsystem. Each plan should produce working, testable software on its own.
+
+## Settle Forks Before Writing
+
+When the change is one or two files with an obvious approach, skip the plan. Say so and stop. The same goes when every ticket is small enough to execute directly from its body: `implement` takes them.
+
+Settle open questions by prototype before you write. For each fork a run could answer, run `prototype` and keep the branch, the sha and the artifact it produced; record the answer in the plan. Ask Ruaridh only about a product or preference call that no run can settle, and give the options with the recommended one first. Ask per the Inbox convention when he is away.
+
+Explore in Herdr panes (`herdr`, cheap role), one per area, each told what to look for and what to return. Each returns file pointers, conventions, test commands and entry points. No inlined dumps. Read their summaries; the plan argues from what they found.
+
+## File Structure
+
+Before defining tasks, map out which files will be created or modified and what each one is responsible for. This is where decomposition decisions get locked in.
+
+- Design units with clear boundaries and well-defined interfaces. Each file should have one clear responsibility.
+- You reason best about code you can hold in context at once, and your edits are more reliable when files are focused. Prefer smaller, focused files over large ones that do too much.
+- Files that change together should live together. Split by responsibility, not by technical layer.
+- In existing codebases, follow established patterns. If the codebase uses large files, don't unilaterally restructure - but if a file you're modifying has grown unwieldy, including a split in the plan is reasonable.
+
+This structure informs the task decomposition. Each task should produce self-contained changes that make sense independently.
+
+## Task Right-Sizing
+
+A task is the smallest unit that carries its own test cycle and is worth a fresh reviewer's gate. When drawing task boundaries: fold setup, configuration, scaffolding, and documentation steps into the task whose deliverable needs them; split only where a reviewer could meaningfully reject one task while approving its neighbor. Each task ends with an independently testable deliverable.
+
+**One task per ticket**, in dependency order. The tickets `to-tickets` published already carry their blocking edges; the plan consumes them and does not redraw them. A task names its ticket ref, because that ticket's PR is the task's evidence boundary: one PR is one change with its own evidence.
+
+## Step Granularity
+
+**Each step is one action with a checkable result:**
+
+- "Write the failing test" - step
+- "Run it to make sure it fails" - step
+- "Implement the minimal code to make the test pass" - step
+- "Run the tests and make sure they pass" - step
+- "Commit" - step
+
+One box is one unit of work, and every box names the evidence that checks it: a file, a log line, a screenshot, a test run, or a SHA. Check a box only when its evidence exists. A nested box is a sub-step of the box above it.
 
 ## Build loops
 
-From `.agents/build-loop.md`; without it, the default **code** loop: write the failing test → run it (FAIL, with the expected message) → implement → run it (PASS) → commit. A repo may bind another, for example: change the surface → push → prove it landed → run the case → compare with the expected result → commit.
+The steps come from `.agents/build-loop.md`. Without one, the default **code** loop: write the failing test → run it (FAIL, with the expected message) → implement → run it (PASS) → commit. A repo may bind another, for example: change the surface → push → prove it landed → run the case → compare with the expected result → commit. Write the steps in the repo's loop, not in the default's.
+
+## Plan Document Header
+
+**Every plan MUST start with this header:**
+
+```markdown
+# [Feature Name] Implementation Plan
+
+**Goal:** [One sentence describing what this builds]
+
+**Architecture:** [2-3 sentences about approach]
+
+**Tech Stack:** [Key technologies/libraries]
+
+**Spec:** [tracker ref and the `.scratch/specs/` path — the plan argues
+from the spec, so the spec travels with it; executors read both]
+
+**Tickets:** [refs in dependency order]
+
+## Global Constraints
+
+[The spec's project-wide requirements — version floors, dependency limits,
+naming and copy rules, platform requirements — one line each, with exact
+values copied verbatim from the spec. Every task's requirements implicitly
+include this section.]
+
+## Review Focus
+
+[The five input classes or failure modes the spec implies but no task's
+tests exercise that are most likely to bite a person using this software
+— one line each, naming the input or condition and the behavior a
+reasonable person would expect, most likely first. The spec is a vision
+document: it says what the software must do, not everything it will
+meet, and its silence on an input is not permission for that input to
+break the program. Write the list here, once, with the spec in front of
+you. Then, for each line, add the test that pins it to the task that
+owns the code, in that task's own step style.]
+
+---
+```
+
+## Task Structure
+
+````markdown
+### Task N: [Component Name] (ticket <ref>)
+
+**Files:**
+- Create: `exact/path/to/file.py`
+- Modify: `exact/path/to/existing.py:123-145`
+- Test: `tests/exact/path/to/test.py`
+
+**Interfaces:**
+- Consumes: [what this task uses from earlier tasks — exact signatures]
+- Produces: [what later tasks rely on — exact function names, parameter
+  and return types. A task's implementer sees only their own task; this
+  block is how they learn the names and types neighboring tasks use.]
+
+- [ ] **Step 1: Write the failing test**
+
+```python
+def test_specific_behavior():
+    result = function(input)
+    assert result == expected
+```
+
+- [ ] **Step 2: Run test to verify it fails**
+
+Run: `pytest tests/path/test.py::test_name -v`
+Expected: FAIL with "function not defined"
+
+- [ ] **Step 3: Implement `function(input: InputType) -> ResultType` in `exact/path/to/file.py`**
+
+One line on the approach when the signature and the test leave a choice
+(which library call, which data structure); a code block only for an
+algorithm they do not determine.
+
+- [ ] **Step 4: Run test to verify it passes**
+
+Run: `pytest tests/path/test.py::test_name -v`
+Expected: PASS
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add tests/path/test.py src/path/file.py
+git commit -m "✨ Add specific feature" -m "Why the change is made"
+```
+
+**Acceptance:** cites the spec's case by name and the ticket's Done-when; it adds nothing either of them does not say.
+````
+
+## What a Step Contains
+
+A step is done when the implementer can write exactly one reasonable thing from it. That is the whole requirement: unambiguous, not complete. Each kind of step carries what makes it unambiguous and nothing more:
+
+- **A test step:** the test's name and its assertions, as code, with the spec's exact values in them.
+- **A code step:** the exact signature (name, parameters, return type), the file it lives in, and the specific values the spec pins. The implementer writes the body. A body appears only for an algorithm the signature and tests do not determine, or for exact copy the spec fixes.
+- **A verification step:** the command to run and the output that means it passed.
+- **A reference to another task:** that task's Interfaces block says what to use; the plan does not repeat that task's code.
+
+A plan is the set of decisions the implementer cannot make alone. A plan longer than the code it describes has written the code instead. Lines that decide nothing ("TBD", "handle edge cases", "add appropriate validation", "write tests for the above", a type or function no task defines) are the opposite failure, and the self-review catches both.
+
+## Writing the Plan
+
+Fill every placeholder in `references/plan-template.md`. Keep every heading and every sub-block in the order shown. One section per task, and a task is one PR, so each section stands on its own evidence.
+
+When the plan spans more than one PR, use the program shape in `references/program-plan.md` instead: its skeleton, its program checklist, and its four appendices.
+
+The plan's body is one how-to: what to build, in what order, and how each step is checked. Appendices hold explanation and reference: prototype evidence, alternatives rejected, risks and reading. Each heading states the task or the finding. No long dashes. No mid-sentence colons. Write it in full, then read it back for slop before handing it over.
+
+## Self-Review
+
+After writing the complete plan, look at the spec with fresh eyes and check the plan against it. This is a checklist you run yourself — not a dispatch to a Herdr pane.
+
+**1. Spec coverage:** Skim each section/requirement in the spec. Can you point to a task that implements it? List any gaps. A requirement with no task is a gap in the plan; a requirement with no acceptance is a gap in the spec, put on the spec issue as a comment and in its `.scratch` file before it is cited here.
+
+**2. Step scan:** Every step must let the implementer write exactly one reasonable thing, and no step may carry more than that: a line that decides nothing is a gap, a function body the signature and tests already determine is a transcript. Fix both.
+
+**3. Type consistency:** Do the types, method signatures, and property names you used in later tasks match what you defined in earlier tasks? A function called `clearLayers()` in Task 3 but `clearFullLayers()` in Task 7 is a bug.
+
+**4. Review Focus:** For each input class or failure mode the spec implies, is there a task whose tests exercise it? The five uncovered ones most likely to bite a person go in the Review Focus section, and each line there gets its test added to the owning task. An empty section means you checked and found none, not that you skipped the check.
+
+**5. Proportion:** Compare the plan's length to the spec's. A plan several times longer than the spec it implements is a transcript of the program, not a plan. If code blocks are most of the document, replace bodies with signatures, test names and assertions, and check that each step is still unambiguous.
+
+If you find issues, fix them inline. No need to re-review — just fix and move on. If you find a spec requirement with no task, add the task.
+
+## Execution Handoff
+
+After saving and self-reviewing the plan, link it for Ruaridh to read. If he has already explicitly supplied an execution method, ask him to review the plan and confirm it captures what he wants; wait for that review before implementation, then use the method he supplied. Otherwise, ask him to review the plan and choose an execution method before implementation.
+
+**When no execution method has already been supplied:**
+
+**"Plan complete and saved to `.scratch/plans/<filename>.md`. Please review the plan. Which execution approach would you prefer?**
+
+- **Inline** - I implement every task in this session, then one reviewer-role pass over the branch. Cheapest and fastest; no independent review until the end. Right for few, tightly coupled tasks.
+- **Delegated** - Builders in Herdr panes, one per task or group, a fresh reviewer check per task where the split warrants it, then one whole-branch review at the end. Most thorough; costs a fresh context per pane. Right for many independent tasks.
+
+**For this plan I recommend <inline or delegated>, because <one sentence from the plan: how much the tasks depend on each other's interfaces, how many there are, what a shipped mistake would cost>. Does the plan capture what you want, and which approach should we use?"**
+
+**When an execution method has already been supplied:**
+
+**"Plan complete and saved to `.scratch/plans/<filename>.md`. Please review the plan. Does it capture what you want?"**
+
+Write the split into the plan's Execution section when you recommend delegated: which tasks each builder gets, which run in parallel, which wait on a merge.
+
+The plan is not a gate of its own: his pick covers his review of it. Then hand back with the plan path, what the prototypes proved and what stays unproven, and stop. Do not start `implement` until he picks.
+
+**If Inline chosen:** `implement`, inline mode.
+**If Delegated chosen:** `implement`, delegated mode, with the split the plan names.
 
 ## Map mode (`--map`)
 
-For a foggy effort bigger than one session, where the way to the destination is not visible yet: chart it as a map of decision tickets and resolve them one at a time until a spec can be written. It produces decisions, not deliverables, and hands off to `to-spec`. See `references/map-mode.md`.
+For a foggy effort bigger than one session, where the way to the destination is not visible yet: chart it as a map of decision tickets on the tracker and resolve them one at a time until a spec can be written. It produces decisions, not deliverables, and hands off to `to-spec`. See `references/map-mode.md`.
