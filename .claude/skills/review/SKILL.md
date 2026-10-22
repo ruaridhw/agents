@@ -64,6 +64,8 @@ The spec is a vision document. It says what the software must do; it does not en
 
 ## 3. Identify the standards sources
 
+**`.agents/review.md` first.** When the repo has it, it names, per surface (a path pattern), the checks that must run on every review of a diff touching that surface and the rules that are hard violations there. Match the diff's files against its surfaces, run the named checks (a skill by path, a script, a lint) before the Standards axis, and carry their findings into step 7 as Act-on findings; the file's rules join the standards sources below as documented repo rules. A missing file means no mandatory per-surface checks.
+
 Search the repo for every file that documents how code should be written. When `CODING_STANDARDS.md` or `CONTRIBUTING.md` exists, it must be on the list. `.agents/` files count where they carry rules (a build loop's commit rules, a tracker's comment rules), and a documented `AGENTS.md` rule is a standard.
 
 On top of whatever the repo documents, the Standards axis always carries the **smell baseline** below: a fixed set of Fowler code smells (_Refactoring_, ch.3) that applies even when a repo documents nothing. Two rules bind it:

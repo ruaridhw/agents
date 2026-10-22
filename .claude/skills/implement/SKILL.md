@@ -40,7 +40,7 @@ Execute a plan, ticket by ticket: fetch the ticket, cut a worktree, run the plan
 
 The ticket is the contract, the spec is the authority behind it, the plan is its argument.
 
-Repo specifics come from `.agents/`: `tracker.md` for the ticket and its states, `build-loop.md` for the step list (default: failing test → run → implement → run → commit), `prove-landed.md` for proof, `design-review.md` and `deploy.md` when they exist. A missing file means this skill's default.
+Repo specifics come from `.agents/`: `tracker.md` for the ticket and its states, `build-loop.md` for the step list (default: failing test → run → implement → run → commit), `prove-landed.md` for proof, `references.md` for the must-read references by surface (match the files the task touches against its path patterns and read the named references before the first edit), `review.md` for the per-surface checks `review` runs, and `design-review.md` and `deploy.md` when they exist. A missing file means this skill's default.
 
 ## The decision trail
 

@@ -34,6 +34,8 @@ This is a prompt-driven skill, not a deterministic script. Explore, present what
 | `deploy.md` | How and when a change reaches where it runs, and who authorises it | no deploy step |
 | `design-review.md` | The gate for material UI/UX change | Design section reviewed in the spec gate |
 | `domain.md` | Where the glossary and ADRs live, and the vocabulary rules | `GLOSSARY.md` and `docs/adr/` at the root, if present |
+| `review.md` | Per surface: the checks `review` must run and the rules that are hard violations there | no mandatory per-surface checks |
+| `references.md` | Per surface: the references `implement` must read before the first edit | none |
 
 The tracker profiles are `conventions/tracker-kata.md` and `conventions/tracker-github.md` in the curated-skills repo this skill lives in: one of them is copied into the target repo and its Project block filled. The seeds for the other files are `references/templates.md` and, for the domain file, `references/domain.md`, both beside this `SKILL.md`. Skills read the target repo's copies, never these sources.
 
@@ -88,6 +90,10 @@ Record the choice in `.agents/tracker.md`, with the profile's Project block fill
 **Section F: Deploy.** Ask when the repo deploys: how a merged change reaches where it runs, who authorises it, and what to check after.
 
 **Section G: Design review.** Ask when a change alters what users see or do materially: who reviews, where the mocks or screenshots go, and what the PR carries.
+
+**Section I: Review gate.** Ask which surfaces carry rules a reviewer must apply every time (a prompt directory with its own lint and audit skills, a schema directory with a compatibility check), and for each: the path pattern, the checks to run (skill path, script or lint) and the rules that are hard violations. The strict version of any authoring rule belongs here rather than in the build loop: `review` is the gate, the loop is only the how-to. Write `.agents/review.md` only when a surface has such rules (`references/templates.md`).
+
+**Section J: References.** Ask which surfaces have a reference an agent must read before editing them (CLI quirks, trap lists, workbook layouts, a sibling-agent protocol), and write `.agents/references.md` as path pattern → references. Skip the file when nothing needs reading first.
 
 **Section H: Rare skills.** Offer the service skills in `~/.agents/rare/` that match what exploration found the repo using (`rare-skills` reads them; this links the ones a repo needs). Two or three, named, never the whole list.
 
@@ -146,6 +152,14 @@ The block, with a sub-block for each file actually written (the tracker's is alw
 ### Domain docs
 
 [one-line summary of where the glossary and ADRs live]. See `.agents/domain.md`.
+
+### Review gate
+
+[which surfaces carry mandatory checks]. See `.agents/review.md`.
+
+### References
+
+[which surfaces need reading first]. See `.agents/references.md`.
 ```
 
 Then write the files themselves, from the profile or the seed references.

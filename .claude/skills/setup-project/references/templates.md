@@ -67,3 +67,25 @@ Before tickets: mocks or screenshots of each changed screen and state in the spe
 reviewed by <who> in <Plannotator / a design tool>.
 Before merge: before/after screenshots at the sizes used, in the PR.
 ```
+
+## review.md
+
+```markdown
+# Review gate
+Per surface, the checks every review of a diff touching it must run first, and the rules that are hard violations there.
+
+## <surface name>  (paths: <glob>, <glob>)
+Checks, in order:
+- <skill path, script or lint> — <what it catches>
+Hard violations (cite the rule):
+- <rule, one line>
+```
+
+## references.md
+
+```markdown
+# References by surface
+Read the named references before the first edit to a matching file.
+
+- <glob> → <path to the reference>, <path>
+```

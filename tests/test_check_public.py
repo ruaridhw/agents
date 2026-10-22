@@ -7,8 +7,10 @@ from pathlib import Path
 SCRIPT = Path(__file__).resolve().parent.parent / "bin" / "check-public"
 
 
-def run(*files, rules=None):
+def run(*files, rules=None, rules_env=None):
     env = {"PATH": "/usr/bin:/bin", "PUBLIC_DENYLIST": str(rules)}
+    if rules_env is not None:
+        env["PUBLIC_DENYLIST_RULES"] = rules_env
     return subprocess.run(
         [sys.executable, str(SCRIPT), *map(str, files)],
         capture_output=True,
@@ -58,3 +60,19 @@ def test_binary_files_are_skipped(tmp_path):
     blob = tmp_path / "font.woff2"
     blob.write_bytes(b"\0acmewidgets\0")
     assert run(blob, rules=write_rules(tmp_path)).returncode == 0
+
+
+def test_rules_from_env_content_win_over_file(tmp_path):
+    skill = tmp_path / "SKILL.md"
+    skill.write_text("Work for AcmeWidgets ltd.\n")
+    result = run(skill, rules=tmp_path / "absent.txt", rules_env="\\bacmewidgets\\b\n")
+    assert result.returncode == 1
+    assert "acmewidgets" in result.stdout
+
+
+def test_empty_env_content_fails_closed(tmp_path):
+    skill = tmp_path / "SKILL.md"
+    skill.write_text("clean\n")
+    result = run(skill, rules=write_rules(tmp_path), rules_env="# nothing\n")
+    assert result.returncode != 0
+    assert "failing closed" in result.stderr
