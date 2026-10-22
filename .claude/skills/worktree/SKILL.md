@@ -83,10 +83,12 @@ History stays linear: the base is the fork point, and this branch never has the 
 **MUST verify the directory is ignored before creating the worktree:**
 
 ```bash
-git check-ignore -q .worktrees
+git check-ignore -q .worktrees/
 ```
 
 **If NOT ignored:** Add `.worktrees/` to `.gitignore`, commit that change, then proceed.
+
+Keep the trailing slash: a `.worktrees/` pattern only matches a directory, so `git check-ignore .worktrees` (no slash) reports nothing while the directory does not exist yet, and a script that trusts it sees "not ignored" on every fresh clone.
 
 **Why critical:** Prevents accidentally committing worktree contents to the repository.
 
@@ -164,7 +166,7 @@ Ready to implement <ticket>
 |--------|---------|
 | "I'm obviously not in a worktree — no need to check" | Run Step 0. Harness-created isolation and submodules both fool eyeballing; the detection commands settle it. |
 | "`git worktree add` is quicker than checking the base" | The base is the whole point. A tree cut from a stale local branch makes every diff and every PR base wrong. |
-| "The worktree directory is surely ignored already" | Run `git check-ignore`. An unignored worktree directory commits the whole tree into the repo. |
+| "The worktree directory is surely ignored already" | Run `git check-ignore` on `.worktrees/` (with the slash). An unignored worktree directory commits the whole tree into the repo. |
 | "The workspace is fresh — baseline tests can wait" | A dirty baseline makes every later failure ambiguous. Run the tests now; proceeding past failures is Ruaridh's call. |
 | "I'll just fix one line here, no need for a tree" | Worktree before the first edit, `ruaridh-mode` non-negotiable 1. |
 | "This other tree looks stale, I'll remove it" | Cleanup is gated on merged state and on nobody else using it. A big old directory is not permission. |
