@@ -21,6 +21,22 @@ This repo's change cycle is not test-first code. Follow `<path to the loop skill
 change one surface → push → prove it landed → run the case → compare with the expected result → commit.
 ```
 
+## debug-loop.md
+
+Write it only when the repo's debug loop differs from `debug`'s default (root cause before fix;
+reproduce on the real surface; commit the failing repro before the fix; after three failed fixes,
+stop and talk). Keep the default's four rules and replace or add what this repo does instead.
+
+```markdown
+# Debug loop
+Steps for a bug here:
+1. <how the failure is seen on the real surface: which command, run or tool reads it first>
+2. <where the root cause is recorded before any fix: the ticket comment, the run log, the prompt diff>
+3. <how the failing repro is captured: a test, a frozen case, the failing run pinned in `.scratch/`>
+4. <what counts as a fix, and how it is proved: the same surface re-run, the case replayed>
+After three failed fixes: stop and talk (<who>, or the Inbox convention when Ruaridh is away).
+```
+
 ## prove-landed.md
 
 Default (omit the file): the suite on the merged sha of the default branch.
