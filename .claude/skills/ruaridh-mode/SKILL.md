@@ -78,14 +78,7 @@ Size the work, then take the shortest route that fits:
 - **Small change**: `clarify` → `implement` with a ticket.
 - **Project**: `grill` → `to-spec` → (`spec-review`) → `to-tickets` → `to-plan` → `implement` → `review` → `pr` → `ship`. Skip `to-plan` when every ticket is small enough to execute directly.
 
-The branches on the way:
-
-- **Can every question be settled in conversation?** If one needs a runnable answer (state, business logic, a UI you have to see), detour through `prototype` and bring the answer back to the thread.
-- **Is this a multi-session build?** Yes: `to-spec`, then `to-tickets`, each ticket declaring its blocking edges, then `implement` per ticket or delegated across the ready frontier. No: `implement` right here.
-- **Bugs and requests piling up**: `triage`. Triage is only for issues you didn't create; tickets `to-tickets` produced are already agent-ready.
-- **A huge, foggy effort**: `to-plan --map` charts decision tickets until the way is clear, then hands off to `to-spec`; it never builds.
-
-Keep `grill` → `to-spec` → `to-tickets` in one unbroken context window when you can, so the spec and tickets build on the same thinking. At a phase boundary, decide between continuing, clearing, a handoff, a Herdr pane and compacting with `references/phase-boundaries.md`.
+The branches on the way (prototype detours, multi-session builds, triage on-ramps, foggy efforts) and context hygiene at phase boundaries: `references/chain.md`.
 
 Gates where Ruaridh decides:
 
@@ -138,17 +131,7 @@ These thoughts mean stop: you're rationalizing.
 
 ## 3. Judgment
 
-**Ask or run.** About to ask a "which approach", "how should I" or "what should this do" question? Classify it first. If the answer is a fact you could observe by running something (behaviour, timing, layout, output, performance, whether an eval separates), it is not Ruaridh's to answer: sketch it with `prototype` and let the result decide. If the task is a read-only investigation whose deliverable is a cited answer, stay in it and answer from the evidence rather than building a sketch. Keep the question for a genuine product or preference call no experiment can settle.
-
-**Autonomy.** Reversible, in-scope work proceeds without asking: edits in a worktree, local commits, running checks, reading anything. Always pause for irreversible or outward-facing writes: force-push to a shared branch, merges, deploys, data deletion, messages to clients, publishing to a tracker outside a gate he approved. "Don't stop", "going to bed", "run until done" mean keep going: decide the calls the instruction covers, act on them and report them; for a call only he can make, apply a sensible default, report it with the full reason, and say in plain words what he could tell you to do instead. Gates he named and the pause list above still need him.
-
-**No is an acceptable answer.** Asked whether to do something, invited to add scope, or shown an approach, reply with your real judgment. Decline, push back, or say "this doesn't earn its place" when true. A recommendation is a judgment, not a validation; candour over agreement.
-
-**A broken skill mid-task**: fix it in its own PR (or ticket it on the skills repo). Don't block on it, and don't silently work around it.
-
-**Long, autonomous or multi-phase work**, or any task Ruaridh steps away from to review later: keep a decision trail as you go (`verify` owns its shape once curated; until then, `Ruling:` lines in the progress ledger `implement` keeps).
-
-Delegation, replies and comments: `references/delegation.md`.
+Before asking a "which approach" question, deciding whether to pause, or running on while Ruaridh is away, read `references/judgment.md`: ask or run, autonomy, "no is an acceptable answer", broken skills, decision trails. Delegation, replies and comments: `references/delegation.md`.
 
 ## 4. Non-negotiables
 
@@ -169,12 +152,4 @@ Working files Ruaridh may open (specs, plans, research, reviews, handoff drafts)
 
 ## 5. The Inbox convention
 
-Ruaridh is away when he has said so, when the session runs unattended (a Herdr worker's coordinator, a `/loop`, an overnight run), or when a chat question has gone unanswered and other work is waiting. Then use the Plannotator Inbox (`plannotator_inbox` `send_message`; mechanics in `references/tooling.md`):
-
-- **A decision only he can make**: a `:::question` block, the recommended answer first and worded so "yes" accepts it, with the one-line consequence of each option. Several questions for the same work go in one message.
-- **Finished long work**: a message leading with the outcome, the files to read in `attachments` (summary first, raw log only when it matters).
-- **Thread**: `<repo> · <ticket or spec ref>` (for example `agents · rhz2`), so every message about one piece of work lands together. Reuse the thread; never open a second one for the same ref.
-- One message per real need, never progress updates. Then keep working on whatever does not depend on the answer; his reply comes back to the session by itself, or with `wait_for_reply`.
-- A worker never writes to the Inbox: it asks its coordinator (`references/slim.md`).
-
-Skills say "ask per the Inbox convention" and mean this section.
+Ruaridh is away when he has said so, when the session runs unattended, or when a chat question has gone unanswered while other work waits. Then a decision only he can make goes to the Plannotator Inbox as a `:::question` block (recommended answer first, "yes" accepts it), finished long work as a message with the files in `attachments`, both in the thread `<repo> · <ticket or spec ref>`; one message per real need, then keep working. A worker never writes to the Inbox. The full convention and its mechanics are in `references/tooling.md` ("The Inbox"). Skills say "ask per the Inbox convention" and mean this.

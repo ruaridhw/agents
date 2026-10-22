@@ -10,6 +10,11 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 HOOK = REPO_ROOT / "hooks" / "session-start"
 
+# Claude Code shows only a short preview of SessionStart context longer than
+# 10,000 characters and saves the rest to a file, so the real bodies stay under
+# it with room for a longer skills-directory path in the header.
+CONTEXT_LIMIT = 9_800
+
 FULL_BODY = "FULL-BODY: route this request.\n\nSee references/tooling.md."
 SLIM_BODY = "SLIM-BODY: chain in ten lines."
 
@@ -84,6 +89,12 @@ class SessionStartHookTest(unittest.TestCase):
 
             self.assertIn("Could not read the ruaridh-mode skill", context)
             self.assertIn(str(root / "ruaridh-mode" / "SKILL.md"), context)
+
+    def test_real_bodies_fit_the_injected_context_limit(self):
+        skills = REPO_ROOT / ".claude" / "skills"
+        for mode in (None, "worker"):
+            context = additional_context(run_hook(skills, mode=mode))
+            self.assertLess(len(context), CONTEXT_LIMIT, f"mode={mode}")
 
 
 if __name__ == "__main__":

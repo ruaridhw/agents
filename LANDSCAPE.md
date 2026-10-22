@@ -24,7 +24,7 @@ Every curated skill lives in `.claude/skills/<name>/` and carries `upstream:` st
 
 ## ruaridh-mode
 
-**Opinion.** The one entry point, always loaded: the skill-check rule, intake (classify what arrived and say so), the chain with its branches, gates and build loops, judgment (ask or run, autonomy, no is an answer), twelve general non-negotiables and the Inbox convention. Three bodies: full (`SKILL.md`, interactive top-level sessions), slim (`references/slim.md`, spawned workers) and coordinator (`references/coordinator.md`, sessions that own a long-running goal). Delegation, reply and comment rules sit in `references/delegation.md`, the phase-boundary tree in `references/phase-boundaries.md`, tool and machine rules in `references/tooling.md`, with host-specific values in a private `~/.config/agents/tooling.local.md`. Installed as the Claude SessionStart hook (`hooks/session-start`) and the pi extension (`.pi/extensions/ruaridh-mode.ts`).
+**Opinion.** The one entry point, always loaded: the skill-check rule, intake (classify what arrived and say so), the chain with its branches, gates and build loops, judgment (ask or run, autonomy, no is an answer), twelve general non-negotiables and the Inbox convention. Three bodies: full (`SKILL.md`, interactive top-level sessions), slim (`references/slim.md`, spawned workers) and coordinator (`references/coordinator.md`, sessions that own a long-running goal). Judgment (ask or run, autonomy) sits in `references/judgment.md`, the chain's branches in `references/chain.md`, delegation, reply and comment rules in `references/delegation.md`, the phase-boundary tree in `references/phase-boundaries.md`, tool and machine rules and the full Inbox convention in `references/tooling.md`, with host-specific values in a private `~/.config/agents/tooling.local.md`. Installed as the Claude SessionStart hook (`hooks/session-start`) and the pi extension (`.pi/extensions/ruaridh-mode.ts`).
 
 Decisions:
 
@@ -34,6 +34,7 @@ Decisions:
 - **Colliding names** are reached by path from the bootstrap header's skills directory, so `to-spec` means the curated skill even while the plugin's `to-spec` is installed.
 - **Inbox convention** (Ruaridh, 2026-10-22): defined once here (section 5) with mechanics in `tooling.md`: away means question blocks and messages with attachments, thread `<repo> · <ticket or spec ref>`; other skills say "ask per the Inbox convention". Workers never write to the Inbox.
 - **`(aimsg) ` prefix and DONE notice** (Ruaridh, 2026-10-22): non-negotiable 11 and the slim body's step 9.
+- **Injected body under 10,000 characters** (wave 1 redo): Claude Code shows only a short preview of SessionStart context above that and saves the rest to a file, so the restored prose that is not needed every turn lives in references (`judgment.md`, `chain.md`, the Inbox detail in `tooling.md`) and `tests/test_session_start.py` keeps both bodies under 9,800. This is a harness limit, not a length rule.
 
 | Feed | Taken | Dropped |
 | --- | --- | --- |

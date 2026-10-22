@@ -47,7 +47,17 @@ Machine-specific values (hostnames, collector URLs, token paths, tailnet recipes
 
 ### The Inbox
 
-The convention (when, what, thread names) is in `ruaridh-mode` section 5. Mechanics:
+This is the Inbox convention that skills mean by "ask per the Inbox convention" (summarised in `ruaridh-mode` section 5).
+
+Ruaridh is away when he has said so, when the session runs unattended (a Herdr worker's coordinator, a `/loop`, an overnight run), or when a chat question has gone unanswered and other work is waiting. Then use the Plannotator Inbox (`plannotator_inbox` `send_message`; mechanics below):
+
+- **A decision only he can make**: a `:::question` block, the recommended answer first and worded so "yes" accepts it, with the one-line consequence of each option. Several questions for the same work go in one message.
+- **Finished long work**: a message leading with the outcome, the files to read in `attachments` (summary first, raw log only when it matters).
+- **Thread**: `<repo> · <ticket or spec ref>` (for example `agents · rhz2`), so every message about one piece of work lands together. Reuse the thread; never open a second one for the same ref.
+- One message per real need, never progress updates. Then keep working on whatever does not depend on the answer; his reply comes back to the session by itself, or with `wait_for_reply`.
+- A worker never writes to the Inbox: it asks its coordinator (`references/slim.md`).
+
+Mechanics:
 
 - Use the `plannotator_inbox` tool (or the `plannotator-inbox` MCP server) `send_message`. Name the thread `<repo> · <ticket or spec ref>`; look up an existing thread with that name first and post into it.
 - A question goes in a `:::question` block, options listed with the recommended one first; a long-work handover puts the files in `attachments` by absolute path.
