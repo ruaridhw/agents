@@ -2,6 +2,8 @@
 
 Fill the angle brackets. Keep each file short: a skill reads it every time.
 
+The domain file is not here: its seed and its consumer rules are in `references/domain.md`.
+
 ## build-loop.md (code, the default; write only to change commands)
 
 ```markdown
@@ -48,11 +50,4 @@ Applies when a change alters what users see or do materially.
 Before tickets: mocks or screenshots of each changed screen and state in the spec's Design section,
 reviewed by <who> in <Plannotator / a design tool>.
 Before merge: before/after screenshots at the sizes used, in the PR.
-```
-
-## domain.md
-
-```markdown
-# Domain docs
-Glossary: <path>. ADRs: <path>. Use the glossary's terms in tickets, specs and PR bodies; a contested term goes to the glossary owner before it is used.
 ```
