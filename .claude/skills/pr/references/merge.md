@@ -1,6 +1,6 @@
 # Merge recipe
 
-1. **Read the checks** in their own command: `gh pr checks <n>`. Anything red or pending: stop. Never chain checks and merge with `;`.
+1. **Read the checks** in their own command: `gh pr checks <n>`. Anything red or pending: stop. Never chain checks and merge with `;`. Confirm the base first (`gh pr view <n> --json baseRefName`): merging into the wrong base is expensive to undo.
 2. **Stack order**: merge the lowest unmerged PR first.
 3. **Merge**:
    - Registered GitHub stack (or `gh pr merge` refuses with "part of a stack"):
