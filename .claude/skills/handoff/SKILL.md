@@ -1,6 +1,6 @@
 ---
 name: handoff
-description: Pause in-flight work cleanly so another session can resume it, or pick up work a previous session paused. Pause on "stop", "pause", "hand this off", near-spent context, or a session ending with work in flight; pickup when intake finds a handoff summary or a ticket with work.branch. Also defines the summary and raw-log shapes every worker writes.
+description: Pause in-flight work cleanly so another session can resume it, or pick up work a previous session paused. Use when told to "stop", "pause" or "hand this off", when context is nearly spent, or when a session ends with work in flight (pause); use when intake finds a handoff summary or a ticket with work.branch (pickup). Also defines the summary and raw-log shapes every worker writes.
 upstream:
   - repo: mattpocock
     path: skills/productivity/handoff/SKILL.md
