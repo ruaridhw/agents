@@ -107,6 +107,8 @@ Start from the upstream text, not from the current curated skill. Then:
 6. Frontmatter: `name` equal to the directory; `description` saying when to use it, in the words a caller would say (`Use when ...`); one `upstream:` entry per feed (`repo`, `path`, `sha`); `disable-model-invocation: true` only on a sub-skill another skill calls.
 7. A new public upstream adds its licence notice to `THIRD_PARTY_NOTICES.md`.
 
+When merging a new source into a skill's numbered catalog, follow the convention recorded in `LANDSCAPE.md` under Conventions: existing ids never move, and the merged source's rules start at the next free hundred, extending the spine feed's wording rather than replacing it.
+
 ### 6. Stamp and lint
 
 Restamp every feed you read, including those whose changes you declined, so the next run starts from here. Stamp only what you actually read: a restamp without a review hides drift.
