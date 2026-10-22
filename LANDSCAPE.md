@@ -803,7 +803,22 @@ Environment edits, not removals: `template.sh` is referenced from this skill's d
 
 ## questionnaire
 
-Wave 2, thinking lane: section written with the skill.
+**Opinion.** Turn a decision the agent cannot answer into questions for the one person who can. The upstream insight is kept whole and it is the whole skill: **grill the send, not the subject**. Interview Ruaridh only about who the recipient is and what he needs back, both of which he can always answer, then aim the questions at the gap between what the recipient knows and what he needs. The delivery is rewritten onto Plannotator Inbox question blocks: one `:::question` per question, context lines that let the reader answer cold, choices that carry their consequences, a `Recommended:` the reader can accept in one click, about eight a round, and the answers arriving back under "Answers to your questions" with the skips and the "Other"s intact. The paper Markdown document survives as a reference for a third party who will not open Plannotator.
+
+Decisions:
+
+- **The default delivery is Inbox question blocks** (Ruaridh, 2026-10-22). The answers come back into the session, the thread keeps the history, and nothing has to be cleaned up.
+- **The paper questionnaire is the fallback for a third party** (this build): the upstream document shape is kept as `references/paper-questionnaire.md`, because a recipient outside the Inbox still needs a fillable document.
+- **No file is written when Ruaridh is the recipient** (this build, following from the delivery decision). `to-questionnaire-<slug>.md` in the working directory is gone.
+- **About eight questions a round** (from the Inbox's own guidance): more than that is a spec, and the spec has its own skill.
+- **The question craft is unchanged** (from the feed): one idea per question, most important first, ask only for what the agent cannot derive, ask at the level the recipient thinks at, a "why this matters" line only where a question could be misread, and a closing catch-all.
+- **A worker never writes to the Inbox** (the Inbox convention): the coordinator sends the questionnaire, and a worker asks its coordinator.
+
+| Feed | Taken | Dropped |
+| --- | --- | --- |
+| mattpocock `skills/productivity/to-questionnaire/SKILL.md` | The spine, prose kept: the definition of a questionnaire as knowledge pulled out of the person who holds it; "grill the send, not the subject" and the interview of the send only; step 1 (the recipient's role, expertise and relationship, fixing tone and context) and step 2 (the specific decisions and facts needed), each with its done criterion; step 3's done criterion (the file exists and every item is covered by a question); the one-idea-per-question rule; most-important-first because async means one pass; grouping under `##` headings once there are more than a handful; the "why this matters" line only where a question could be misread | The Markdown document as the default output: it is the fallback, in `references/paper-questionnaire.md`. `to-questionnaire-<slug>.md` in the current directory: nothing lands in the working directory when the recipient is in the Inbox. "Fill out together over a meeting": the Inbox thread covers the async case, and the paper document covers the meeting. The document's header block (title, purpose, from, to, how the answers are used) and its "How to answer" section as the *live* format: the header becomes the message's opening lines and thread name, and the Inbox's own affordances replace the instructions. The answer stubs as blank quote lines: the choice list replaces them. The closing catch-all as a `##` section: a `:::question-text` block. `disable-model-invocation: true` and `/to-questionnaire`: the skill is reached by name. `agents/openai.yaml`: the author's harness metadata |
+| no feed (written for this skill) | The Inbox block mechanics, taken from the `plannotator` skill's "Asking the reviewer questions" section and `ruaridh-mode`'s `references/tooling.md` ("The Inbox"), not from this skill's feed: the four block types, the context lines and "never a bare question", the choices with their consequences, `Recommended:`, `- [x]` for settled, `Stopped:` and `Holds up:`, superseding an open question, the answer shapes including Other, note and skip, the thread naming and posting into an existing thread, the attachment rule for a visual, and the eight-a-round guidance. Recorded here so the row is complete: this half is from the environment, not from `to-questionnaire` | — |
+
 
 ## bro
 
