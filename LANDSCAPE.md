@@ -822,4 +822,18 @@ Decisions:
 
 ## bro
 
-Wave 2, thinking lane: section written with the skill.
+**Opinion.** One small skill for three one-line course corrections, because all three are the same request: say it again so it lands. "Bro" restates the last message plainly, dropping the jargon. "Wait, what?" re-pitches it with a little context, in Simplified Technical English, using the repo's glossary. "Zoom out" goes up a layer and maps the relevant modules and callers in the deep-module vocabulary. Each is answered from what is already known, and nothing else changes: no new work, no new findings, no plan. The feeds are three short prompts, so the copy is small by design and every sentence of them is kept.
+
+Decisions:
+
+- **Three prompts, one skill** (Ruaridh, 2026-10-22): the words decide which branch, and one name covers all three.
+- **Nothing new is produced** (this build): a restate carries the same content, and a genuine gap in a map is named as a gap rather than filled with a guess.
+- **The standard is `technical-writing`'s** (this build): the re-pitch is held to its STE and Global English layers and its unslop pass, rather than restating those rules here.
+- **The vocabulary is the repo's** (environment): `GLOSSARY.md`, or the path `.agents/domain.md` names, and `domain`'s deep-module words for the map. The upstream's `GLOSSARY-MAP.md` is gone, because this environment is single-context.
+
+| Feed | Taken | Dropped |
+| --- | --- | --- |
+| pstack `pstack/skills/bro/SKILL.md` | The whole prompt, word for word: restate the last message, stop using jargon and speak coherently, more simply and concisely, like one human talking to another | `disable-model-invocation: true`: `bro` has to be reachable by typing the word, so it stays model-invocable. Nothing else |
+| mattpocock `skills/productivity/wait-what/SKILL.md` | The whole prompt, prose kept: the stop-and-re-pitch framing, a little bit of context, Simplified Technical English, and the ubiquitous language from the glossary | `GLOSSARY-MAP.md` and `follow GLOSSARY-MAP.md to the right one if the repo has more than one`: single-context here, so the repo's `GLOSSARY.md` (or the path `.agents/domain.md` names) is the one glossary. `disable-model-invocation: true`: reached by name |
+| mattpocock `skills/engineering/zoom-out/SKILL.md` (deleted upstream at `801a01cc`) | The whole prompt, prose kept: not knowing the area well, going up a layer of abstraction, a map of all the relevant modules and callers, in the project's domain glossary vocabulary | `disable-model-invocation: true`: reached by name. Nothing else |
+
