@@ -39,7 +39,6 @@ def render(markdown: str) -> tuple[str, list[tuple[str, str, int]]]:
     i = 0
     in_list: str | None = None
     section_open = False
-    title = "Skills landscape"
 
     def close_list() -> None:
         nonlocal in_list
@@ -50,7 +49,6 @@ def render(markdown: str) -> tuple[str, list[tuple[str, str, int]]]:
     while i < len(lines):
         line = lines[i]
         if line.startswith("# "):
-            title = line[2:]
             i += 1
             continue
         if line.startswith("```"):
@@ -61,7 +59,9 @@ def render(markdown: str) -> tuple[str, list[tuple[str, str, int]]]:
                 buf.append(lines[i])
                 i += 1
             i += 1
-            out.append("<pre><code>%s</code></pre>" % html.escape("\n".join(buf), quote=False))
+            out.append(
+                "<pre><code>%s</code></pre>" % html.escape("\n".join(buf), quote=False)
+            )
             continue
         if line.startswith("## "):
             close_list()
@@ -88,14 +88,19 @@ def render(markdown: str) -> tuple[str, list[tuple[str, str, int]]]:
             while i < len(lines) and lines[i].startswith("|"):
                 rows.append([c.strip() for c in lines[i].strip().strip("|").split("|")])
                 i += 1
-            header, body = rows[0], [r for r in rows[1:] if not set("".join(r)) <= set("-: ")]
+            header, body = (
+                rows[0],
+                [r for r in rows[1:] if not set("".join(r)) <= set("-: ")],
+            )
             out.append(
                 '<div class="tablewrap"><table><thead><tr>'
                 + "".join(f"<th>{inline(h)}</th>" for h in header)
                 + "</tr></thead><tbody>"
             )
             for row in body:
-                out.append("<tr>" + "".join(f"<td>{inline(c)}</td>" for c in row) + "</tr>")
+                out.append(
+                    "<tr>" + "".join(f"<td>{inline(c)}</td>" for c in row) + "</tr>"
+                )
             out.append("</tbody></table></div>")
             continue
         if re.match(r"^\d+\. ", line):
@@ -103,7 +108,8 @@ def render(markdown: str) -> tuple[str, list[tuple[str, str, int]]]:
                 close_list()
                 out.append("<ol>")
                 in_list = "ol"
-            out.append(f"<li>{inline(re.sub(r'^\d+\. ', '', line))}</li>")
+            item = re.sub(r"^\d+\. ", "", line)
+            out.append(f"<li>{inline(item)}</li>")
             i += 1
             continue
         if line.startswith("- "):
@@ -172,7 +178,9 @@ def main(argv: list[str]) -> int:
     rendered = page(body, toc)
     if "--check" in argv:
         if not TARGET.is_file() or TARGET.read_text() != rendered:
-            print("render-landscape: docs/landscape.html is stale; run bin/render-landscape")
+            print(
+                "render-landscape: docs/landscape.html is stale; run bin/render-landscape"
+            )
             return 1
         return 0
     TARGET.write_text(rendered)
