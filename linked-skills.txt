@@ -7,3 +7,15 @@ to-plan
 setup-project
 update-skills
 rare-skills
+# Wave 2 names with no plugin or built-in twin. `tdd`, `review`, `research`, `prototype`, `teach`, `wizard`, `domain` and `retro` wait for wave 3.
+write-skill
+debug
+verify
+babysit
+ship
+worktree
+arch
+recall
+technical-writing
+questionnaire
+bro
