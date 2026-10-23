@@ -28,11 +28,11 @@ repos:
         language: system
         files: ^(\.agents/skills/|conventions/|hooks/|\.pi/|bin/|docs/|LANDSCAPE\.md$|FEEDS\.md$|UPSTREAMS\.json$|linked-skills\.txt$|package\.json$)
       - id: skill-lint
-        name: skill-lint (curated skill frontmatter and stamps)
-        entry: bin/skill-lint
+        name: skill-lint (skill frontmatter, stamps and denylist)
+        entry: uv run --group dev bin/skill-lint
         language: system
         pass_filenames: false
-        files: ^(\.agents/skills/|UPSTREAMS\.json$|bin/skill_lint\.py$)
+        files: ^(\.agents/skills/|UPSTREAMS\.json$|bin/skill[-_]lint(\.py)?$)
       - id: render-landscape
         name: render-landscape (docs/landscape.html matches LANDSCAPE.md)
         entry: bin/render-landscape --check

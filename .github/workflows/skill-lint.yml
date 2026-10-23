@@ -1,0 +1,33 @@
+# CI guards that run on every PR, including ones opened from a Mac checkout:
+# skill-lint (frontmatter, stamps, denylist) and check-public, both reading the
+# denylist from the PUBLIC_DENYLIST_RULES repository secret. Ruff, ty and
+# gitleaks stay in pre-commit.
+name: skill-lint
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    env:
+      PUBLIC_DENYLIST_RULES: ${{ secrets.PUBLIC_DENYLIST_RULES }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # self stamps name shas from this repo's own history.
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - name: Clone the public upstreams (the private kit is skipped)
+        run: bin/skill-upstream sync
+      - name: skill-lint
+        run: uv run --group dev bin/skill-lint
+      - name: check-public
+        run: python3 bin/check-public --all
