@@ -1,6 +1,6 @@
 """Format-only linter for the curated skills: frontmatter, stamps and denylist.
 
-Lints only curated skills (`.claude/skills/<dir>/SKILL.md` with an `upstream:`
+Lints only curated skills (`.agents/skills/<dir>/SKILL.md` with an `upstream:`
 key). Each finding is printed as `<path>: <problem>`; any finding exits 1.
 """
 

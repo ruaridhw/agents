@@ -15,7 +15,7 @@ upstream:
 
 # update-skills
 
-Bring upstream skill text into the curated skills in this repo (`ruaridhw/agents`, `.claude/skills/`). This is the only way upstream text gets in. `write-skill` is for ad-hoc skills of Ruaridh's own and is never used for ingesting.
+Bring upstream skill text into the curated skills in this repo (`ruaridhw/agents`, `.agents/skills/`). This is the only way upstream text gets in. `write-skill` is for ad-hoc skills of Ruaridh's own and is never used for ingesting.
 
 One flow covers three kinds of work:
 

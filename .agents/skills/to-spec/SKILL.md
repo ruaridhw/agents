@@ -9,7 +9,7 @@ upstream:
     path: skills/brainstorming/builder-check-prompt.md
     sha: b739a8af570e10a95898f2bdf6cec97467fa6c12
   - repo: self
-    path: .claude/skills/writing-build-spec/SKILL.md
+    path: .agents/skills/writing-build-spec/SKILL.md
     sha: a70eb44460392eba7f184b60011df4d2b7855ba0
   - repo: mattpocock
     path: skills/engineering/to-spec/SKILL.md

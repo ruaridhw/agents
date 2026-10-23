@@ -8,7 +8,7 @@ const BOOTSTRAP_MARKER = "ruaridh-mode bootstrap";
 
 const extensionDir = dirname(fileURLToPath(import.meta.url));
 const packageRoot = resolve(extensionDir, "../..");
-const skillsDir = resolve(packageRoot, ".claude/skills");
+const skillsDir = resolve(packageRoot, ".agents/skills");
 const skillDir = resolve(skillsDir, "ruaridh-mode");
 const referencesDir = resolve(skillDir, "references");
 const fullBodyPath = resolve(skillDir, "SKILL.md");

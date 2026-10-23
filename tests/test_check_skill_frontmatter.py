@@ -13,7 +13,7 @@ name: {name}
 description: Use when testing the front-matter lint.
 upstream:
   - repo: self
-    path: .claude/skills/{name}/SKILL.md
+    path: .agents/skills/{name}/SKILL.md
     sha: {sha}
 ---
 
@@ -38,7 +38,7 @@ def run(root):
 
 def make_repo(root, *skills):
     for dir_name, text in skills:
-        path = root / ".claude" / "skills" / dir_name / "SKILL.md"
+        path = root / ".agents" / "skills" / dir_name / "SKILL.md"
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(text)
     return root
@@ -110,7 +110,7 @@ def test_broken_front_matter_is_reported(tmp_path, text, expected):
 
     assert result.returncode == 1, output(result)
     assert expected in result.stdout
-    assert ".claude/skills/demo/SKILL.md" in result.stdout
+    assert ".agents/skills/demo/SKILL.md" in result.stdout
 
 
 def test_name_must_match_directory(tmp_path):

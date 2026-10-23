@@ -16,7 +16,7 @@ assert SPEC is not None and SPEC.loader is not None
 skill_lint = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(skill_lint)
 
-SKILL_PATH = ".claude/skills/demo/SKILL.md"
+SKILL_PATH = ".agents/skills/demo/SKILL.md"
 FEED_PATH = "skill/SKILL.md"
 USE_DESCRIPTION = "Use when testing the linter."
 
@@ -66,7 +66,7 @@ def write_skill(
     frontmatter=(),
     body="# Demo\n",
 ):
-    path = root / ".claude/skills" / (dir_name or name) / "SKILL.md"
+    path = root / ".agents/skills" / (dir_name or name) / "SKILL.md"
     path.parent.mkdir(parents=True, exist_ok=True)
     lines = ["---"]
     if name is not None:
@@ -297,7 +297,7 @@ def test_planted_private_name_fails_via_check_public(repo, sha_of, capsys):
 def test_check_public_references_directory_files(repo, sha_of, monkeypatch, capsys):
     sha = sha_of(repo)
     write_skill(repo, feeds=[("demo", FEED_PATH, sha)])
-    note = repo / ".claude/skills/demo/references/note.md"
+    note = repo / ".agents/skills/demo/references/note.md"
     note.parent.mkdir(parents=True)
     note.write_text("zzplantedname\n")
     assert run(repo) == 1
@@ -320,7 +320,7 @@ def test_unreferenced_sub_skill_fails(repo, sha_of, capsys):
     assert run(repo) == 1
     out = capsys.readouterr().out
     assert "no other curated skill calls this one" in out
-    assert ".claude/skills/hidden/SKILL.md" in out
+    assert ".agents/skills/hidden/SKILL.md" in out
 
 
 def test_referenced_sub_skill_passes(repo, sha_of):

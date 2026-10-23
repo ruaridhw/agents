@@ -7,7 +7,7 @@ from pathlib import Path
 
 SCRIPT = (
     Path(__file__).resolve().parent.parent
-    / ".claude"
+    / ".agents"
     / "skills"
     / "verify"
     / "scripts"

@@ -11,7 +11,7 @@ import sys
 from pathlib import Path
 from typing import NamedTuple
 
-SKILLS_DIR = ".claude/skills"
+SKILLS_DIR = ".agents/skills"
 UPSTREAMS_FILE = "UPSTREAMS.json"
 CLONES_DIR = "upstream"
 LOCAL_CONFIG_ENV = "SKILL_UPSTREAM_LOCAL_CONFIG"

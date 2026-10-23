@@ -18,7 +18,7 @@ if [ -n "${RUARIDH_MODE_ROOT:-}" ]; then
     SKILLS_DIR="${RUARIDH_MODE_ROOT}"
   fi
 else
-  SKILLS_DIR="${REPO_ROOT}/.claude/skills"
+  SKILLS_DIR="${REPO_ROOT}/.agents/skills"
 fi
 
 SKILL_DIR="${SKILLS_DIR}/ruaridh-mode"

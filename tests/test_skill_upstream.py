@@ -18,7 +18,7 @@ skill_upstream = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(skill_upstream)
 
 FEED_PATH = "skill/SKILL.md"
-SKILL_PATH = ".claude/skills/demo/SKILL.md"
+SKILL_PATH = ".agents/skills/demo/SKILL.md"
 
 
 def git(cwd, *args):
@@ -42,7 +42,7 @@ def commit_all(path, message):
 
 
 def write_skill(root, feeds=None, name="demo", key=True, dir_name=None):
-    path = root / ".claude/skills" / (dir_name or name) / "SKILL.md"
+    path = root / ".agents/skills" / (dir_name or name) / "SKILL.md"
     path.parent.mkdir(parents=True, exist_ok=True)
     lines = ["---", f"name: {name}", "description: Use when testing the tool."]
     if key:

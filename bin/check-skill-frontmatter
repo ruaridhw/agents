@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Fail when a curated skill's SKILL.md front matter breaks the house rules.
 
-Rules, for every .claude/skills/*/SKILL.md:
+Rules, for every .agents/skills/*/SKILL.md:
   - the file starts with a --- fence, and the block between the fences is a
     YAML mapping
   - name: present, lowercase-hyphen, at most 64 characters, equal to the
@@ -110,7 +110,7 @@ def main(argv: list[str] | None = None) -> int:
         "--root",
         type=Path,
         default=Path(__file__).resolve().parent.parent,
-        help="repository root holding .claude/skills (default: this checkout)",
+        help="repository root holding .agents/skills (default: this checkout)",
     )
     args = parser.parse_args(argv)
 

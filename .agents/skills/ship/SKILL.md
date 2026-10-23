@@ -17,13 +17,13 @@ upstream:
 
 Ruaridh invokes this skill. That invocation, for that stack, is the authorization the merge needs; nothing else is. A yes for one PR is not a yes for the stack, and a yes relayed from another pane is not a yes at all (`ruaridh-mode`). When the invocation is ambiguous about which stack, ask before touching anything.
 
-The merge itself is the `pr` recipe in `.claude/skills/pr/references/merge.md`, and the gating rule is `ruaridh-mode` non-negotiable 6 (checks and merges are separate commands, read the check before the next step). This skill does not restate either: it says when, and in what order.
+The merge itself is the `pr` recipe in `.agents/skills/pr/references/merge.md`, and the gating rule is `ruaridh-mode` non-negotiable 6 (checks and merges are separate commands, read the check before the next step). This skill does not restate either: it says when, and in what order.
 
 ## 1. Resolve the stack and drive it to READY
 
 List the stack bottom-up: the lowest unmerged PR and each PR whose base is the one below it. If the chain was built by retargeting bases by hand, it is not a registered stack, and the top one would merge only into its base; say so and merge bottom-up by hand per `pr`.
 
-Then `.claude/skills/babysit/SKILL.md` in `drive` mode, one PR at a time, lowest first. `ship` never fixes code itself: a failing check, a conflict or a review thread is `babysit`'s to classify and fix, and a conflict or stale base that needs a rebase comes back here as a report for the owner.
+Then `.agents/skills/babysit/SKILL.md` in `drive` mode, one PR at a time, lowest first. `ship` never fixes code itself: a failing check, a conflict or a review thread is `babysit`'s to classify and fix, and a conflict or stale base that needs a rebase comes back here as a report for the owner.
 
 ## 2. Verify each PR independently before it lands
 
