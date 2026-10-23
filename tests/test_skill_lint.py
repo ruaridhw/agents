@@ -269,7 +269,7 @@ def test_self_upstream_follows_the_move_from_claude_skills(repo, capsys):
     git(repo, "config", "user.name", "Test")
     legacy = repo / ".claude/skills/old/SKILL.md"
     legacy.parent.mkdir(parents=True)
-    legacy.write_text("old\n")
+    legacy.write_text("---\nname: old\ndescription: Use when testing.\n---\n")
     sha = commit_all(repo, "old skill at the legacy path")
     git(repo, "mv", ".claude/skills/old", ".agents/skills/old")
     commit_all(repo, "move the skills tree")

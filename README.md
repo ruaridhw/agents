@@ -44,7 +44,7 @@ jobs/<name>/prompt.md     invocation prompt; ${VAR}s resolved from .env
 runner/run_job.py         entrypoint: preflight → query() → jsonl logs
 runner/config.py          .env loading, ${VAR} resolution, MCP subsetting
 runner/preflight.py       auth/env/paths/MCP checks that fail loudly
-.agents/skills/           the `morning` and `granola-notion` skills
+.agents/skills/           the scheduled-job skills and the curated set (LANDSCAPE.md)
 mcp/servers.template.json MCP server defs with ${ENV_VAR} placeholders
 launchd + scripts/        LaunchAgent renderer/installer, hooks, mcp render
 dashboard/                read-only TS/Docker view over logs/
@@ -118,3 +118,5 @@ spend or actions.
   supplied at runtime from `.env` and the local wiki.
 - Pre-commit hooks (`.pre-commit-config.yaml`) run gitleaks on every commit as
   a backstop against accidental secret commits, alongside ruff and ty.
+- `bin/check-public` and `bin/skill-lint` scan the skills against a denylist
+  kept outside the repo; CI runs both with the denylist from a repository secret.

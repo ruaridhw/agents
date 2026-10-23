@@ -3,6 +3,7 @@
 import contextlib
 import importlib.util
 import io
+import re
 import tempfile
 import unittest
 from importlib.machinery import SourceFileLoader
@@ -11,27 +12,14 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SCRIPT = REPO_ROOT / "bin" / "link-skills"
 
-EXPECTED_SKILLS = [
-    "ruaridh-mode",
-    "clarify",
-    "herdr",
-    "spec-review",
-    "to-plan",
-    "setup-project",
-    "update-skills",
-    "rare-skills",
-    "write-skill",
-    "debug",
-    "verify",
-    "babysit",
-    "ship",
-    "worktree",
-    "arch",
-    "recall",
-    "technical-writing",
-    "questionnaire",
-    "bro",
-]
+
+def curated_skill_names():
+    """Directories under .agents/skills whose SKILL.md carries upstream: stamps."""
+    names = []
+    for skill_md in sorted((REPO_ROOT / ".agents" / "skills").glob("*/SKILL.md")):
+        if re.search(r"^upstream:", skill_md.read_text(encoding="utf-8"), re.M):
+            names.append(skill_md.parent.name)
+    return names
 
 
 def load_link_skills():
@@ -142,11 +130,10 @@ class LinkSkillsTest(unittest.TestCase):
         self.assertIn("skip not-written-yet: not written yet", output)
         self.assertFalse((self.dest / "not-written-yet").exists())
 
-    def test_real_linked_skills_list(self):
-        self.assertEqual(
-            self.module.listed_skills(REPO_ROOT / "linked-skills.txt"),
-            EXPECTED_SKILLS,
-        )
+    def test_every_curated_skill_is_listed_once(self):
+        listed = self.module.listed_skills(REPO_ROOT / "linked-skills.txt")
+        self.assertEqual(len(listed), len(set(listed)), "a name is listed twice")
+        self.assertEqual(sorted(listed), curated_skill_names())
 
 
 if __name__ == "__main__":

@@ -1,21 +1,37 @@
-# Curated skills linked into ~/.claude/skills and registered with pi. Names that collide with a plugin skill are added at wave 3.
+# Curated skills linked into ~/.claude/skills and registered with pi. Every curated skill is listed since the wave 3 cutover turned the plugins off.
 ruaridh-mode
 clarify
 herdr
+grill
+to-spec
 spec-review
+to-tickets
+triage
 to-plan
+implement
+pr
+handoff
 setup-project
 update-skills
 rare-skills
-# Wave 2 names with no plugin or built-in twin. `tdd`, `review`, `research`, `prototype`, `teach`, `wizard`, `domain` and `retro` wait for wave 3.
 write-skill
+tdd
 debug
 verify
+review
 babysit
+# `ship` sets disable-model-invocation, so only Ruaridh starts it; it is linked so `/ship` resolves.
 ship
 worktree
+prototype
+domain
 arch
+research
 recall
+retro
 technical-writing
+teach
+wizard
 questionnaire
 bro
+wayfinder

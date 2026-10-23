@@ -28,7 +28,7 @@ conventions/              tracker profiles that setup-project copies into a repo
 hooks/session-start       Claude Code SessionStart hook injecting ruaridh-mode
 package.json, .pi/        pi package: the ruaridh-mode extension
 linked-skills.txt         curated names linked into ~/.claude/skills and registered with pi
-bin/                      skill-upstream, link-skills, check-public
+bin/                      skill-upstream, skill-lint, link-skills, check-public
 mcp/servers.template.json all MCP servers, ${ENV_VAR} placeholders — single source
 scripts/                  launchd installer (per-job), mcp renderer
 .pre-commit-config.yaml   git hooks: ruff format/check, ty, uv-lock, gitleaks
@@ -84,7 +84,12 @@ repos and stamped against them. `LANDSCAPE.md` is the record; read a skill's sec
 - No repo, client, host or personal specifics in a curated skill: those go in a repo's `.agents/*.md`
   (written by `setup-project`) or in files under `~/.config/agents/`. `bin/check-public` scans
   for them against a denylist kept outside the repo and fails closed without it.
-- After adding a non-colliding curated skill, add it to `linked-skills.txt` and run `bin/link-skills`.
+- `bin/skill-lint` is the one skill checker: frontmatter (valid YAML, name = directory, lengths,
+  no duplicate names) for every skill, plus stamps, when-to-use and the denylist for curated ones.
+  Pre-commit and CI (`.github/workflows/skill-lint.yml`) both run it; run `bin/skill-upstream sync` first
+  in a fresh checkout so the stamps resolve.
+- After adding a curated skill, add it to `linked-skills.txt` and run `bin/link-skills` from the main
+  checkout. Every curated skill is linked; the superpowers and mattpocock-skills plugins are off.
 
 ## Hygiene (public repo)
 

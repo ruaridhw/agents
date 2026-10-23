@@ -184,4 +184,4 @@ body = "When a catalog absorbs another source, the new rules start at the next f
 
 [next]
 title = "Wave 3"
-body = "Next: link the skills whose names collide with plugin skills once those plugins are off, and decide how kit skills reuse generic ones."
+body = "Cut over on 2026-10-23: the superpowers and mattpocock-skills plugins are off and every curated skill is linked. Next: a week of use, then update-skills end to end, and deciding how kit skills reuse generic ones."

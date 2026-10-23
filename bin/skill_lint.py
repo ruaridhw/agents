@@ -1,7 +1,11 @@
-"""Format-only linter for the curated skills: frontmatter, stamps and denylist.
+"""Format-only linter for the skills: frontmatter, stamps and denylist.
 
-Lints only curated skills (`.agents/skills/<dir>/SKILL.md` with an `upstream:`
-key). Each finding is printed as `<path>: <problem>`; any finding exits 1.
+Every `.agents/skills/<dir>/SKILL.md` gets the structural checks: a leading
+--- fence, frontmatter that parses as a YAML mapping, a lowercase-hyphen name
+of at most 64 characters equal to the directory, a description of at most 1024
+characters, and no two skills sharing a name. Curated skills (those with an
+`upstream:` key) also get the when-to-use, stamp, denylist and private-copy
+checks. Each finding is printed as `<path>: <problem>`; any finding exits 1.
 """
 
 from __future__ import annotations
@@ -11,6 +15,8 @@ import re
 import subprocess
 import sys
 from pathlib import Path
+
+import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
@@ -24,6 +30,9 @@ CLONE_MISSING = "' clone missing: run bin/skill-upstream sync"
 # A private upstream may inform a skill but its text never enters this public repo.
 SHINGLE = 8
 PRIVATE_RUNS_ALLOWED = 5
+NAME_RE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
+NAME_MAX = 64
+DESCRIPTION_MAX = 1024
 
 
 def top_level_flags(info):
@@ -37,14 +46,77 @@ def top_level_flags(info):
     return flags
 
 
-def check_name(info, label, problems):
-    if not info["name"]:
-        problems.append(f"{label}: name missing from frontmatter")
-    elif info["name"] != info["dir_name"]:
+def parse_frontmatter(skill_md, label, problems):
+    """The frontmatter as a mapping, or None after reporting why it is unusable."""
+    info = su.parse_skill(skill_md.read_text(encoding="utf-8"))
+    if info is None or info["start"] != 0:
         problems.append(
-            f"{label}: name {info['name']!r} does not match directory"
-            f" {info['dir_name']!r}"
+            f"{label}: no frontmatter: the file must start with a --- fence"
         )
+        return None
+    block = "".join(info["lines"][info["start"] + 1 : info["end"]])
+    try:
+        data = yaml.safe_load(block)
+    except yaml.YAMLError as exc:
+        raw = raw_description(info) or ""
+        if raw[:1] not in "\"'>|" and re.search(r":\s", raw):
+            problems.append(
+                f"{label}: description has ': ' in an unquoted scalar, which YAML"
+                " reads as a nested mapping; quote the description"
+            )
+        else:
+            detail = " ".join(str(exc).split())
+            problems.append(f"{label}: frontmatter is not valid YAML: {detail}")
+        return None
+    if not isinstance(data, dict):
+        problems.append(f"{label}: frontmatter is not a YAML mapping")
+        return None
+    return data
+
+
+def check_structure(skill_md, label, problems):
+    """Structural checks every SKILL.md gets; returns (name, frontmatter parsed)."""
+    data = parse_frontmatter(skill_md, label, problems)
+    if data is None:
+        return None, False
+    dir_name = skill_md.parent.name
+    name = data.get("name")
+    if not isinstance(name, str) or not name.strip():
+        problems.append(f"{label}: name missing from frontmatter")
+        name = None
+    else:
+        if not NAME_RE.match(name):
+            problems.append(f"{label}: name {name!r} is not lowercase-hyphen")
+        if len(name) > NAME_MAX:
+            problems.append(f"{label}: name is longer than {NAME_MAX} characters")
+        if name != dir_name:
+            problems.append(
+                f"{label}: name {name!r} does not match directory {dir_name!r}"
+            )
+    description = data.get("description")
+    if not isinstance(description, str) or not description.strip():
+        problems.append(f"{label}: description missing from frontmatter")
+    elif len(description) > DESCRIPTION_MAX:
+        problems.append(
+            f"{label}: description is longer than {DESCRIPTION_MAX} characters"
+        )
+    if "upstream" in data:
+        entries = data["upstream"]
+        if not isinstance(entries, list):
+            problems.append(f"{label}: upstream is not a list")
+        else:
+            for number, entry in enumerate(entries, 1):
+                if not isinstance(entry, dict):
+                    problems.append(
+                        f"{label}: upstream entry {number} is not a mapping"
+                    )
+    return name, True
+
+
+def check_names(owners, problems):
+    for name, labels in sorted(owners.items()):
+        if len(labels) > 1:
+            problems.append(f"{name}: duplicate skill name in {', '.join(labels)}")
 
 
 def raw_description(info):
@@ -63,13 +135,8 @@ def check_description(info, label, problems):
     raw = raw_description(info) or ""
     unquoted = raw[:1] not in "\"'>|"
     if not description:
-        problems.append(f"{label}: description missing from frontmatter")
-    elif unquoted and re.search(r":\s", raw):
-        problems.append(
-            f"{label}: description has ': ' in an unquoted scalar, which YAML"
-            " reads as a nested mapping; quote the description"
-        )
-    elif unquoted and re.search(r"\s#", raw):
+        return  # check_structure reports it
+    if unquoted and re.search(r"\s#", raw):
         problems.append(
             f"{label}: description has ' #' in an unquoted scalar, which YAML"
             " reads as a comment and truncates; quote it or reword"
@@ -246,11 +313,14 @@ def check_sub_skill(root, info, pool, label, problems):
         )
 
 
+def skill_label(dir_name):
+    return f"{su.SKILLS_DIR}/{dir_name}/{SKILL_FILE}"
+
+
 def lint_skill(root, info, pool, registry, local):
-    label = f"{su.SKILLS_DIR}/{info['dir_name']}/{SKILL_FILE}"
+    label = skill_label(info["dir_name"])
     problems = []
     notes = []
-    check_name(info, label, problems)
     check_description(info, label, problems)
     check_feeds(root, info, registry, local, label, problems, notes)
     check_denylist(info, label, problems)
@@ -271,7 +341,23 @@ def cmd_lint(root, names):
         pool = [info for info in pool if info["dir_name"] in names]
     problems = []
     notes = []
+    if names:
+        files = [info["file"] for info in pool]
+    else:
+        files = sorted((root / su.SKILLS_DIR).glob(f"*/{SKILL_FILE}"))
+    parsed = set()
+    owners = {}
+    for skill_md in files:
+        label = skill_label(skill_md.parent.name)
+        name, ok = check_structure(skill_md, label, problems)
+        if ok:
+            parsed.add(skill_md)
+        if name is not None:
+            owners.setdefault(name, []).append(label)
+    check_names(owners, problems)
     for info in pool:
+        if info["file"] not in parsed:
+            continue
         found, skipped = lint_skill(root, info, everything, registry, local)
         problems.extend(found)
         notes.extend(skipped)
@@ -285,7 +371,7 @@ def cmd_lint(root, names):
 def build_parser():
     parser = argparse.ArgumentParser(
         prog="skill-lint",
-        description="Lint the curated skills for format problems (no style opinions).",
+        description="Lint the skills for format problems (no style opinions).",
     )
     parser.add_argument("--root", help="repo root (default: parent of this script)")
     parser.add_argument(
