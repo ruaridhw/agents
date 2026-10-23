@@ -440,7 +440,13 @@ def cmd_diff(root, skill_name, repo, path):
         entry = registry[feed.repo]
         cwd = upstream_cwd(root, feed.repo, entry)
         diff = git(
-            ["diff", "-M", f"{feed.sha}..{row['head']}", "--", *feed_paths(feed, entry)],
+            [
+                "diff",
+                "-M",
+                f"{feed.sha}..{row['head']}",
+                "--",
+                *feed_paths(feed, entry),
+            ],
             cwd,
         ).stdout
         print(diff.rstrip("\n") if diff.strip() else "(no changes)")
