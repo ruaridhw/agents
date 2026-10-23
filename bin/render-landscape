@@ -1,0 +1,418 @@
+#!/usr/bin/env python3
+"""Render docs/landscape.html, the shareable pitch for the curated skills.
+
+LANDSCAPE.md is the record: every curated skill's opinion and its upstream
+feeds. docs/landscape.toml is the hand-written copy: the hero, the chain,
+the families and a one-line pitch per skill. docs/landscape.css is inlined,
+so the page is one self-contained file. The render fails when the two
+sources disagree, which keeps the page complete as skills are added.
+
+Run `bin/render-landscape` after editing any of them; `--check` exits 1
+when the committed page is stale.
+"""
+
+from __future__ import annotations
+
+import html
+import re
+import sys
+import tomllib
+from collections import Counter
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any
+
+ROOT = Path(__file__).resolve().parent.parent
+SOURCE = ROOT / "LANDSCAPE.md"
+DATA = ROOT / "docs" / "landscape.toml"
+STYLE = ROOT / "docs" / "landscape.css"
+TARGET = ROOT / "docs" / "landscape.html"
+
+NOT_SKILLS = {"Conventions", "Whole-landscape dispositions"}
+# First word of a feed row's source cell -> upstream key; None is "no feed".
+UPSTREAM_OF = {
+    "mattpocock": "mattpocock",
+    "superpowers": "superpowers",
+    "pstack": "pstack",
+    "anthropic": "anthropic",
+    "self": "own",
+    "own": "own",
+    "kit": "kit",
+    "no": None,
+}
+NOT_CURATED = ("Kept as shipped", "Rare", "Dropped")
+LABEL = {
+    "mattpocock": "mattpocock",
+    "superpowers": "superpowers",
+    "pstack": "pstack",
+    "anthropic": "anthropic",
+    "own": "own",
+    "kit": "private kit",
+}
+
+
+class RenderError(Exception):
+    pass
+
+
+@dataclass
+class Feed:
+    upstream: str
+    label: str
+
+
+@dataclass
+class Skill:
+    name: str
+    opinion: str = ""
+    feeds: list[Feed] = field(default_factory=list)
+    wave: int = 0
+
+
+@dataclass
+class Landscape:
+    skills: dict[str, Skill]
+    dispositions: dict[str, str]
+
+
+def inline(text: str) -> str:
+    text = html.escape(text, quote=False)
+    text = re.sub(r"`([^`]+)`", r"<code>\1</code>", text)
+    text = re.sub(r"\*\*([^*]+)\*\*", r"<b>\1</b>", text)
+    return text
+
+
+def feed_label(upstream: str, cell: str) -> str:
+    if upstream == "kit":
+        return "private kit"
+    path = re.search(r"`([^`]+)`", cell)
+    if not path:
+        return cell.split(" ", 1)[1].split("(")[0].strip()
+    parts = [p for p in path.group(1).split("/") if p]
+    name = parts[-1]
+    if name == "SKILL.md" and len(parts) > 1:
+        name = parts[-2]
+    return name.removesuffix(".md")
+
+
+def parse_landscape(markdown: str) -> Landscape:
+    skills: dict[str, Skill] = {}
+    dispositions: dict[str, str] = {}
+    section: str | None = None
+    in_feed_table = False
+    for line in markdown.split("\n"):
+        if line.startswith("## "):
+            section = line[3:].strip()
+            if section not in NOT_SKILLS:
+                skills[section] = Skill(section)
+            in_feed_table = False
+            continue
+        if section == "Whole-landscape dispositions":
+            match = re.match(r"- \*\*([^*]+)\*\*(.*)", line)
+            if match:
+                dispositions[match.group(1).strip()] = match.group(2).lstrip(" :")
+            continue
+        if section not in skills:
+            continue
+        skill = skills[section]
+        if line.startswith("**Opinion.**"):
+            skill.opinion = line.removeprefix("**Opinion.**").strip()
+        if line.startswith("| Feed"):
+            in_feed_table = True
+            continue
+        if not line.startswith("|"):
+            in_feed_table = False
+            continue
+        if in_feed_table and not set(line) <= set("|-: "):
+            cell = line.strip().strip("|").split("|")[0].strip()
+            first = cell.split(" ", 1)[0].lower()
+            if first not in UPSTREAM_OF:
+                raise RenderError(f"{section}: unknown upstream in feed row {cell!r}")
+            upstream = UPSTREAM_OF[first]
+            if upstream:
+                skill.feeds.append(Feed(upstream, feed_label(upstream, cell)))
+    for label, text in dispositions.items():
+        wave = re.fullmatch(r"Curated \(wave (\d+)\)", label)
+        if wave:
+            for name in re.findall(r"`([^`]+)`", text):
+                if name in skills:
+                    skills[name].wave = int(wave.group(1))
+    for name, skill in skills.items():
+        if not skill.wave:
+            raise RenderError(f"{name}: not in any 'Curated (wave N)' disposition")
+        if not skill.opinion:
+            raise RenderError(f"{name}: no **Opinion.** paragraph")
+    return Landscape(skills, dispositions)
+
+
+def main_upstream(skill: Skill) -> str:
+    if not skill.feeds:
+        return "own"
+    counts = Counter(f.upstream for f in skill.feeds)
+    top = max(counts.values())
+    return next(f.upstream for f in skill.feeds if counts[f.upstream] == top)
+
+
+def validate(land: Landscape, data: dict[str, Any]) -> None:
+    named = [s for family in data["families"] for s in family["skills"]]
+    named += list(data["pitches"])
+    for phase in data["chain"]["phases"]:
+        for step in phase["steps"]:
+            named += [step["skill"], *step.get("loop", [])]
+    named += [side["skill"] for side in data["chain"]["side"]]
+    unknown = sorted(set(named) - set(land.skills))
+    if unknown:
+        raise RenderError(f"data file names skills LANDSCAPE.md lacks: {unknown}")
+    in_family = Counter(s for family in data["families"] for s in family["skills"])
+    for name in land.skills:
+        if in_family[name] != 1:
+            raise RenderError(f"{name}: needs exactly one family in the data file")
+        if not data["pitches"].get(name):
+            raise RenderError(f"{name}: no pitch in the data file")
+    keys = {source["key"] for source in data["sources"]}
+    for skill in land.skills.values():
+        for feed in skill.feeds:
+            if feed.upstream not in keys:
+                raise RenderError(
+                    f"{skill.name}: upstream {feed.upstream} has no source"
+                )
+
+
+def tally(skill: Skill) -> str:
+    counts = Counter(f.upstream for f in skill.feeds)
+    if not counts:
+        return '<li class="chip up-none">no upstream feed</li>'
+    return "".join(
+        f'<li class="chip up-{up}">{LABEL[up]} <b>{n}</b></li>'
+        for up, n in sorted(counts.items(), key=lambda item: -item[1])
+    )
+
+
+def feed_list(skill: Skill) -> str:
+    groups: dict[str, list[str]] = {}
+    for feed in skill.feeds:
+        names = groups.setdefault(feed.upstream, [])
+        if feed.label not in names:
+            names.append(feed.label)
+    return "".join(
+        f'<div class="fed up-{up}"><dt>{LABEL[up]}</dt>'
+        f"<dd>{', '.join(html.escape(n) for n in names) if up != 'kit' else 'ideas only, no text'}</dd></div>"
+        for up, names in groups.items()
+    )
+
+
+def card(skill: Skill, pitch: str, record: str) -> str:
+    built = (
+        f'<dl class="feeds">{feed_list(skill)}</dl>'
+        if skill.feeds
+        else "<p>No upstream feed: written for this environment.</p>"
+    )
+    return f"""<details class="card" id="skill-{skill.name}">
+<summary><span class="card-top"><code class="name">{skill.name}</code><span class="wave">wave {skill.wave}</span></span>
+<span class="pitch">{inline(pitch)}</span>
+<ul class="chips" aria-label="Feeds per upstream">{tally(skill)}</ul></summary>
+<div class="more"><h4>Built from</h4>{built}
+<a href="{record}#{skill.name}">Opinion, decisions and what was dropped</a></div>
+</details>"""
+
+
+def station(name: str, land: Landscape) -> str:
+    up = main_upstream(land.skills[name])
+    return f'<a class="stn up-{up}" href="#skill-{name}"><code>{name}</code></a>'
+
+
+def chain(data: dict[str, Any], land: Landscape) -> str:
+    phases = []
+    gate_no = 0
+    for phase in data["chain"]["phases"]:
+        items = []
+        for step in phase["steps"]:
+            note = f'<span class="opt">{step["note"]}</span>' if "note" in step else ""
+            loop = ""
+            if "loop" in step:
+                loop = (
+                    '<span class="loop"><span class="loop-label">inside the loop</span>'
+                    + "".join(station(s, land) for s in step["loop"])
+                    + "</span>"
+                )
+            items.append(
+                f'<li class="step">{station(step["skill"], land)}{note}{loop}</li>'
+            )
+            if "gate" in step:
+                gate_no += 1
+                items.append(
+                    f'<li class="gate"><span class="gate-mark" aria-hidden="true">{gate_no}</span>'
+                    f"<span><b>A human decides</b> {html.escape(step['gate'])}</span></li>"
+                )
+        phases.append(
+            f'<li class="phase"><h3>{html.escape(phase["name"])}</h3><ol>{"".join(items)}</ol></li>'
+        )
+    side = "".join(
+        f"<li>{station(s['skill'], land)}<span>{html.escape(s['when'])}</span></li>"
+        for s in data["chain"]["side"]
+    )
+    c = data["chain"]
+    return f"""<section class="chain wrap" id="chain" aria-labelledby="chain-h">
+<h2 id="chain-h">{html.escape(c["title"])}</h2>
+<div class="intake"><span class="stn up-own"><code>ruaridh-mode</code></span><p>{inline(c["intake"])}</p></div>
+<ol class="phases">{"".join(phases)}</ol>
+<div class="side"><h3>{html.escape(c["side_title"])}</h3><ul>{side}</ul></div>
+</section>"""
+
+
+def build(markdown: str, data: dict[str, Any], style: str = "") -> str:
+    land = parse_landscape(markdown)
+    validate(land, data)
+    repo = data["repo"]
+    record = f"{repo}/blob/main/LANDSCAPE.md"
+    skills = land.skills
+    feeds = [f for s in skills.values() for f in s.feeds]
+    upstreams = {f.upstream for f in feeds}
+    hero = data["hero"]
+
+    index = "".join(
+        f'<li><a class="up-{main_upstream(s)}" href="#skill-{s.name}">{s.name}</a></li>'
+        for s in skills.values()
+    )
+    legend = "".join(
+        f'<li class="chip up-{key}">{label}</li>'
+        for key, label in LABEL.items()
+        if key in upstreams
+    )
+    families = []
+    for family in data["families"]:
+        cards = "".join(
+            card(skills[name], data["pitches"][name], record)
+            for name in family["skills"]
+        )
+        fid = re.sub(r"[^a-z0-9]+", "-", family["name"].lower())
+        families.append(
+            f'<section class="family" aria-labelledby="f-{fid}"><div class="family-head">'
+            f'<h3 id="f-{fid}">{html.escape(family["name"])}</h3>'
+            f"<p>{html.escape(family['blurb'])}</p></div>"
+            f'<div class="cards">{cards}</div></section>'
+        )
+    sources = []
+    most = max(
+        sum(any(f.upstream == s["key"] for f in k.feeds) for k in skills.values())
+        for s in data["sources"]
+    )
+    for source in data["sources"]:
+        key = source["key"]
+        fed = sum(any(f.upstream == key for f in s.feeds) for s in skills.values())
+        rows = sum(f.upstream == key for f in feeds)
+        if not fed:
+            continue
+        name = html.escape(source["name"])
+        if "url" in source:
+            name = f'<a href="{source["url"]}">{name}</a>'
+        sources.append(
+            f'<li class="source up-{key}"><span class="src-name">{name}</span>'
+            f'<span class="bar" style="--w:{fed / most:.3f}"></span>'
+            f'<span class="src-n"><b>{fed}</b> skills · {rows} feeds</span></li>'
+        )
+    honest = "".join(
+        f"<li><h3>{html.escape(item['title'])}</h3><p>{inline(item['body'])}</p></li>"
+        for item in data["honest"]
+    )
+    not_curated = "".join(
+        f"<div><dt>{prefix}</dt><dd>{inline(text)}</dd></div>"
+        for prefix in NOT_CURATED
+        for label, text in land.dispositions.items()
+        if label.startswith(prefix)
+    )
+    stats = (
+        (len(skills), "curated skills"),
+        (len(feeds), "upstream feeds"),
+        (len(upstreams), "upstreams"),
+    )
+    strip = "".join(f"<div><dt>{label}</dt><dd>{n}</dd></div>" for n, label in stats)
+    nxt = data["next"]
+
+    return f"""<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agent skills</title>
+<meta name="description" content="{html.escape(hero["lede"])}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&amp;family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&amp;display=swap">
+<style>
+{style}</style>
+</head>
+<body>
+<a class="skip" href="#skills">Skip to the skills</a>
+<button class="themebtn" type="button" id="theme" aria-label="Switch colour theme">Theme</button>
+<header class="hero wrap">
+<div class="hero-copy">
+<p class="eyebrow">{html.escape(hero["eyebrow"])}</p>
+<h1>{html.escape(hero["title"])}</h1>
+<p class="lede">{inline(hero["lede"])}</p>
+<p class="principle">{inline(hero["principle"])}</p>
+</div>
+<nav class="index" aria-labelledby="index-h"><p class="index-label" id="index-h">Every curated skill, coloured by its main upstream</p><ul>{index}</ul></nav>
+</header>
+<dl class="stats wrap">{strip}</dl>
+{chain(data, land)}
+<section class="skills wrap" id="skills" aria-labelledby="skills-h">
+<div class="skills-head"><h2 id="skills-h">The skills</h2>
+<ul class="chips legend" aria-label="Upstream colours">{legend}</ul></div>
+{"".join(families)}
+</section>
+<section class="sources wrap" aria-labelledby="sources-h">
+<h2 id="sources-h">Where they come from</h2>
+<ul>{"".join(sources)}</ul>
+</section>
+<div class="closing wrap">
+<section aria-labelledby="honest-h"><h2 id="honest-h">How it stays honest</h2><ul class="honest">{honest}</ul></section>
+<section aria-labelledby="nc-h"><h2 id="nc-h">Not curated</h2><dl class="nc">{not_curated}</dl>
+<div class="next"><h3>{html.escape(nxt["title"])}</h3><p>{inline(nxt["body"])}</p></div></section>
+</div>
+<footer class="foot wrap">
+<p>Generated from <a href="{record}">LANDSCAPE.md</a>, the full record of every opinion, decision and feed.</p>
+<p><a href="{repo}">{html.escape(repo.removeprefix("https://"))}</a></p>
+</footer>
+<script>
+(function(){{
+  var r=document.documentElement,b=document.getElementById('theme');
+  function cur(){{return r.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')}}
+  b.addEventListener('click',function(){{r.setAttribute('data-theme',cur()==='dark'?'light':'dark')}});
+  function reveal(){{var t=location.hash&&document.getElementById(location.hash.slice(1));if(t&&t.tagName==='DETAILS')t.open=true}}
+  addEventListener('hashchange',reveal);reveal();
+}})();
+</script>
+</body>
+</html>
+"""
+
+
+def main(
+    argv: list[str],
+    source: Path = SOURCE,
+    data: Path = DATA,
+    style: Path = STYLE,
+    target: Path = TARGET,
+) -> int:
+    try:
+        rendered = build(
+            source.read_text(), tomllib.loads(data.read_text()), style.read_text()
+        )
+    except RenderError as error:
+        print(f"render-landscape: {error}", file=sys.stderr)
+        return 1
+    if "--check" in argv:
+        if not target.is_file() or target.read_text() != rendered:
+            print(
+                "render-landscape: docs/landscape.html is stale; run bin/render-landscape"
+            )
+            return 1
+        return 0
+    target.write_text(rendered)
+    print(f"wrote {target}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv[1:]))

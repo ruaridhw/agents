@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Fail when a file meant for this public repo names something private.
 
-The rules are regexes in a file kept outside the repo (default
-~/.config/agents/public-denylist.txt, override with PUBLIC_DENYLIST).
-A missing or empty rules file is an error: the check fails closed.
+The rules are regexes kept outside the repo: the content of PUBLIC_DENYLIST_RULES
+when that variable is set (CI supplies it from a repository secret), else the file
+named by PUBLIC_DENYLIST (default ~/.config/agents/public-denylist.txt).
+Missing or empty rules are an error: the check fails closed.
 
 Usage: check-public [--all] [FILE...]
   FILE...  check these files (what pre-commit passes)
@@ -35,21 +36,26 @@ SCOPE = (
 
 
 def load_rules(path: Path) -> list[re.Pattern[str]]:
+    content = os.environ.get("PUBLIC_DENYLIST_RULES")
+    if content is not None:
+        return parse_rules(content, "PUBLIC_DENYLIST_RULES")
     if not path.is_file():
         raise SystemExit(f"check-public: rules file missing: {path} (failing closed)")
+    return parse_rules(path.read_text(), str(path))
+
+
+def parse_rules(text: str, source: str) -> list[re.Pattern[str]]:
     rules = []
-    for number, line in enumerate(path.read_text().splitlines(), 1):
+    for number, line in enumerate(text.splitlines(), 1):
         line = line.strip()
         if not line or line.startswith("#"):
             continue
         try:
             rules.append(re.compile(line, re.IGNORECASE))
         except re.error as exc:
-            raise SystemExit(f"check-public: bad rule at {path}:{number}: {exc}")
+            raise SystemExit(f"check-public: bad rule at {source}:{number}: {exc}")
     if not rules:
-        raise SystemExit(
-            f"check-public: rules file has no rules: {path} (failing closed)"
-        )
+        raise SystemExit(f"check-public: no rules in {source} (failing closed)")
     return rules
 
 

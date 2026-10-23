@@ -20,6 +20,17 @@ EXPECTED_SKILLS = [
     "setup-project",
     "update-skills",
     "rare-skills",
+    "write-skill",
+    "debug",
+    "verify",
+    "babysit",
+    "ship",
+    "worktree",
+    "arch",
+    "recall",
+    "technical-writing",
+    "questionnaire",
+    "bro",
 ]
 
 

@@ -1,6 +1,6 @@
 ---
 name: setup-project
-description: Configure a repo for the curated skills by writing its .agents/ convention files (tracker, build loop, proof of landing, deploy, design review, domain), creating tracker labels and linking the rare skills it uses. Use once per repo before the first to-spec, to-tickets or triage there, when a skill reports a missing .agents/tracker.md, or to switch a repo's tracker.
+description: Configure a repo for the curated skills by writing its .agents/ convention files (tracker, build loop, debug loop, proof of landing, deploy, design review, domain), creating tracker labels and linking the rare skills it uses. Use once per repo before the first to-spec, to-tickets, triage, implement or debug there, when a skill reports a missing .agents/tracker.md, or to switch a repo's tracker.
 upstream:
   - repo: mattpocock
     path: skills/engineering/setup-matt-pocock-skills/SKILL.md
@@ -13,6 +13,7 @@ Scaffold the per-repo configuration that the curated skills assume:
 
 - **Issue tracker**: where tickets live — the tracker, its project, refs, labels, priorities, states and exact commands
 - **Build loop**: the steps each task goes through
+- **Debug loop**: how a bug is run down here, when it is not the default
 - **Proof of landing**: what makes a merged ticket `done`
 - **Deploy**: how and when a change reaches where it runs, and who authorises it
 - **Design review**: the gate for material UI/UX change
@@ -28,10 +29,13 @@ This is a prompt-driven skill, not a deterministic script. Explore, present what
 | --- | --- | --- |
 | `tracker.md` | Which tracker, project, labels, priorities, states, commands | none: required by `to-spec`, `to-tickets`, `triage`, `implement` |
 | `build-loop.md` | The step list `to-plan` and `implement` use | code: failing test → run → implement → run → commit |
+| `debug-loop.md` | How `debug` runs a bug down in this repo | root cause before fix; reproduce on the real surface; commit the failing repro before the fix; after three failed fixes, stop and talk |
 | `prove-landed.md` | What makes a merged ticket `done` | the tests, run on the merged sha of the default branch |
 | `deploy.md` | How and when a change reaches where it runs, and who authorises it | no deploy step |
 | `design-review.md` | The gate for material UI/UX change | Design section reviewed in the spec gate |
 | `domain.md` | Where the glossary and ADRs live, and the vocabulary rules | `GLOSSARY.md` and `docs/adr/` at the root, if present |
+| `review.md` | Per surface: the checks `review` must run and the rules that are hard violations there | no mandatory per-surface checks |
+| `references.md` | Per surface: the references `implement` must read before the first edit | none |
 
 The tracker profiles are `conventions/tracker-kata.md` and `conventions/tracker-github.md` in the curated-skills repo this skill lives in: one of them is copied into the target repo and its Project block filled. The seeds for the other files are `references/templates.md` and, for the domain file, `references/domain.md`, both beside this `SKILL.md`. Skills read the target repo's copies, never these sources.
 
@@ -76,13 +80,20 @@ Record the choice in `.agents/tracker.md`, with the profile's Project block fill
 
 **Section C: Domain docs.** Default to **single-context**: one `GLOSSARY.md` and `docs/adr/` at the repo root. That fits almost every repo, so settle it without asking. Write `.agents/domain.md` when a skill needs it spelled out anyway, because the paths differ or a term's owner has to be named; the file carries the paths and the consumer rules from `references/domain.md`.
 
-**Section D: Build loop.** Default to **code**, which needs no file: failing test → run → implement → run → commit. Ask only when the repo's change cycle is not test-first code (a change to a surface that has to be pushed and then observed, say), and then point at the loop skill the repo's template ships (`references/templates.md`).
+**Section D: Loops.** Two files, one for building and one for debugging; neither needs a file when the repo matches the default.
+
+- **Build loop.** Default to **code**, which needs no file: failing test → run → implement → run → commit. Ask only when the repo's change cycle is not test-first code (a change to a surface that has to be pushed and then observed, say), and then point at the loop skill the repo's template ships (`references/templates.md`).
+- **Debug loop.** Default to what `debug` states, which needs no file: root cause before any fix; reproduce on the real surface; commit the failing repro before the fix; after three failed fixes, stop and talk. **Ask whether the repo's debug loop differs from that**, and write `.agents/debug-loop.md` only when it does. It usually does when the build loop isn't code: a prompt or process repo's debug loop might be "read the failing run first, then the prompt it was built from", and `references/templates.md` has the shape.
 
 **Section E: Proof of landing.** Default to the suite on the merged sha of the default branch, which needs no file. Ask when a ticket's `Done-when` can only be observed where the change runs; then write the file with the check and the case to run (`references/templates.md`).
 
 **Section F: Deploy.** Ask when the repo deploys: how a merged change reaches where it runs, who authorises it, and what to check after.
 
 **Section G: Design review.** Ask when a change alters what users see or do materially: who reviews, where the mocks or screenshots go, and what the PR carries.
+
+**Section I: Review gate.** Ask which surfaces carry rules a reviewer must apply every time (a prompt directory with its own lint and audit skills, a schema directory with a compatibility check), and for each: the path pattern, the checks to run (skill path, script or lint) and the rules that are hard violations. The strict version of any authoring rule belongs here rather than in the build loop: `review` is the gate, the loop is only the how-to. Write `.agents/review.md` only when a surface has such rules (`references/templates.md`).
+
+**Section J: References.** Ask which surfaces have a reference an agent must read before editing them (CLI quirks, trap lists, workbook layouts, a sibling-agent protocol), and write `.agents/references.md` as path pattern → references. Skip the file when nothing needs reading first.
 
 **Section H: Rare skills.** Offer the service skills in `~/.agents/rare/` that match what exploration found the repo using (`rare-skills` reads them; this links the ones a repo needs). Two or three, named, never the whole list.
 
@@ -122,6 +133,10 @@ The block, with a sub-block for each file actually written (the tracker's is alw
 
 [one-line summary of the loop, or "the default code loop"]. See `.agents/build-loop.md`.
 
+### Debug loop
+
+[one-line summary of how a bug is run down here, or "the default debug loop"]. See `.agents/debug-loop.md`.
+
 ### Proof of landing
 
 [what makes a ticket done here]. See `.agents/prove-landed.md`.
@@ -137,6 +152,14 @@ The block, with a sub-block for each file actually written (the tracker's is alw
 ### Domain docs
 
 [one-line summary of where the glossary and ADRs live]. See `.agents/domain.md`.
+
+### Review gate
+
+[which surfaces carry mandatory checks]. See `.agents/review.md`.
+
+### References
+
+[which surfaces need reading first]. See `.agents/references.md`.
 ```
 
 Then write the files themselves, from the profile or the seed references.

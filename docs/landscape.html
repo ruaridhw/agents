@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agent skills</title>
+<meta name="description" content="An opinionated set of agent skills for one engineer&#x27;s environment, curated from mattpocock/skills, obra/superpowers and cursor/plugins (pstack), with the author&#x27;s own skills alongside.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&amp;family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&amp;display=swap">
+<style>
+:root{
+  --paper:#f3f5f8; --surface:#ffffff; --ink:#141823; --ink-2:#384052; --muted:#5b6376; --rule:#d8dde6;
+  --signal:#f2b300; --signal-ink:#141823; --link:#2340b8;
+  --mp:#0e7470; --sp:#6b3fd0; --ps:#1f5bd0; --an:#b0502a; --own:#4a5468; --kit:#737985;
+  --display:"Bricolage Grotesque","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --sans:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0e1118; --surface:#161b25; --ink:#e8ebf2; --ink-2:#c3c9d6; --muted:#98a1b3; --rule:#283042;
+    --signal:#f5c02e; --signal-ink:#141823; --link:#93abff;
+    --mp:#46c6b8; --sp:#ad90ff; --ps:#74a4ff; --an:#ee9068; --own:#b3bbcb; --kit:#8a92a2;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0e1118; --surface:#161b25; --ink:#e8ebf2; --ink-2:#c3c9d6; --muted:#98a1b3; --rule:#283042;
+  --signal:#f5c02e; --signal-ink:#141823; --link:#93abff;
+  --mp:#46c6b8; --sp:#ad90ff; --ps:#74a4ff; --an:#ee9068; --own:#b3bbcb; --kit:#8a92a2;
+}
+:root[data-theme="light"]{
+  --paper:#f3f5f8; --surface:#ffffff; --ink:#141823; --ink-2:#384052; --muted:#5b6376; --rule:#d8dde6;
+  --signal:#f2b300; --signal-ink:#141823; --link:#2340b8;
+  --mp:#0e7470; --sp:#6b3fd0; --ps:#1f5bd0; --an:#b0502a; --own:#4a5468; --kit:#737985;
+}
+.up-mattpocock{--c:var(--mp)} .up-superpowers{--c:var(--sp)} .up-pstack{--c:var(--ps)}
+.up-anthropic{--c:var(--an)} .up-own{--c:var(--own)} .up-kit{--c:var(--kit)} .up-none{--c:var(--muted)}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}*{transition:none!important}}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 16px/1.55 var(--sans);overflow-x:hidden}
+a{color:var(--link);text-underline-offset:3px}
+code{font-family:var(--mono);font-size:.92em}
+h1,h2,h3,h4{font-family:var(--display);text-wrap:balance;margin:0}
+p{margin:0}
+:focus-visible{outline:2px solid var(--link);outline-offset:3px;border-radius:3px}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip{position:absolute;left:16px;top:-48px;background:var(--ink);color:var(--paper);padding:8px 12px;z-index:3}
+.skip:focus{top:12px}
+.wrap{max-width:1200px;margin-inline:auto;padding-inline:16px}
+@media (min-width:720px){.wrap{padding-inline:32px}}
+.themebtn{position:fixed;top:12px;right:12px;z-index:2;font:500 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;
+  color:var(--ink);background:var(--surface);border:1px solid var(--rule);border-radius:4px;padding:6px 10px;cursor:pointer}
+
+/* Labels: one small uppercase voice for every caption */
+.eyebrow,.index-label,.stats dt,.phase h3,.side h3,.wave,.loop-label,.nc dt,.more h4,.feeds dt{
+  font:500 12px/1.3 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+
+/* Hero */
+.hero{display:grid;gap:40px;padding-block:72px 40px}
+@media (min-width:960px){.hero{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);align-items:end;padding-block:112px 56px}}
+.hero-copy{display:grid;gap:20px;max-width:40rem}
+.hero h1{font-size:clamp(2.5rem,1.4rem + 4.4vw,4.6rem);font-weight:800;line-height:1.02;letter-spacing:-.025em}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink-2);max-width:36rem}
+.principle{font-size:1.05rem;font-weight:500;border-left:4px solid var(--signal);padding-left:14px;max-width:34rem}
+.index{border-top:2px solid var(--ink);padding-top:14px;display:grid;gap:12px}
+.index ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:4px 14px}
+.index a{font:400 15px/1.6 var(--mono);color:var(--c);text-decoration:none}
+.index a:hover{text-decoration:underline}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);margin-block:0;padding-block:0}
+.stats div{display:flex;flex-direction:column-reverse;justify-content:flex-end;gap:2px;padding:18px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.stats div+div{padding-left:16px;border-left:1px solid var(--rule)}
+.stats dd{margin:0;font:800 clamp(2rem,1.2rem + 3vw,3.4rem)/1 var(--display);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+
+/* Chain */
+.chain{padding-block:72px 24px;display:grid;gap:28px}
+.chain h2,.skills h2,.sources h2,.closing h2{font-size:clamp(1.7rem,1.2rem + 1.8vw,2.5rem);font-weight:800;letter-spacing:-.02em;line-height:1.1}
+.intake{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 16px;max-width:52rem;color:var(--ink-2)}
+.intake p{flex:1 1 20rem}
+.stn{display:inline-flex;align-items:center;gap:8px;color:var(--ink);text-decoration:none;font:500 15px/1.4 var(--mono)}
+.stn::before{content:"";width:12px;height:12px;border-radius:50%;background:var(--surface);border:3px solid var(--c);flex:none}
+a.stn:hover code{text-decoration:underline}
+.phases{list-style:none;margin:0;padding:0;display:grid;gap:28px}
+@media (min-width:640px){.phases{grid-template-columns:repeat(2,1fr);gap:28px 0}}
+@media (min-width:1040px){.phases{grid-template-columns:repeat(4,1fr)}}
+.phase{border-top:4px solid var(--ink);padding:12px 20px 0 0;display:grid;gap:14px;align-content:start}
+.phase h3{color:var(--ink)}
+.phase ol{list-style:none;margin:0;padding:0 0 0 5px;display:grid;gap:12px;border-left:2px solid var(--rule)}
+.step{display:grid;gap:8px;padding-left:12px;margin-left:-8px}
+.opt{font:400 12px var(--mono);color:var(--muted);margin-left:28px;margin-top:-6px}
+.loop{display:grid;gap:6px;margin-left:24px;padding:10px 12px;border:1.5px dashed var(--rule);border-radius:6px}
+.loop .stn{font-size:14px}
+.gate{display:flex;gap:10px;align-items:flex-start;margin-left:4px;padding:10px 12px;background:var(--signal);color:var(--signal-ink);
+  border-radius:4px;font-size:14px;line-height:1.35}
+.gate b{display:block;font:600 11px/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase}
+.gate-mark{flex:none;width:22px;height:22px;display:grid;place-items:center;background:var(--signal-ink);color:var(--signal);
+  font:600 12px var(--mono);border-radius:3px}
+.side{display:grid;gap:12px;padding-top:8px}
+.side ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:10px 28px}
+.side li{display:flex;flex-direction:column;gap:2px}
+.side li span:last-child{font-size:14px;color:var(--muted);padding-left:20px}
+
+/* Skills */
+.skills{padding-block:64px 24px;display:grid;gap:40px}
+.skills-head{display:grid;gap:14px}
+.chips{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:500 12px/1 var(--mono);color:var(--c);padding:5px 8px;border-radius:3px;
+  background:color-mix(in srgb,var(--c) 11%,transparent);border:1px solid color-mix(in srgb,var(--c) 35%,transparent)}
+.chip b{font-weight:600;font-variant-numeric:tabular-nums}
+.chip.up-kit{border-style:dashed;background:transparent}
+.family{display:grid;gap:16px}
+.family-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 16px;border-bottom:1px solid var(--rule);padding-bottom:10px}
+.family-head h3{font-size:1.35rem;font-weight:600}
+.family-head p{color:var(--muted)}
+.cards{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(min(100%,270px),1fr));align-items:start}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:6px}
+.card[open]{border-color:color-mix(in srgb,var(--ink) 35%,var(--rule))}
+.card summary{list-style:none;cursor:pointer;padding:14px 16px;display:grid;gap:10px;border-radius:6px}
+.card summary::-webkit-details-marker{display:none}
+.card-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.name{font:500 1.1rem/1.2 var(--mono);color:var(--ink)}
+.wave::after{content:"+";display:inline-block;margin-left:10px;font-size:15px;color:var(--ink);transition:transform .15s}
+.card[open] .wave::after{transform:rotate(45deg)}
+.pitch{color:var(--ink-2);line-height:1.45}
+@media (max-width:559px){.cards{gap:8px}.card summary{gap:8px}}
+.more{padding:0 16px 16px;display:grid;gap:10px;border-top:1px dashed var(--rule);margin:0 16px;padding-inline:0;padding-top:12px}
+.feeds{margin:0;display:grid;gap:8px}
+.fed{display:grid;gap:2px;border-left:3px solid var(--c);padding-left:10px}
+.feeds dt{color:var(--c)}
+.feeds dd{margin:0;font:400 13px/1.5 var(--mono);color:var(--ink-2);overflow-wrap:anywhere}
+.more a{font-size:14px}
+
+/* Sources */
+.sources{padding-block:48px 24px;display:grid;gap:20px}
+.sources ul{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.source{display:grid;grid-template-columns:1fr;gap:6px}
+@media (min-width:720px){.source{grid-template-columns:15rem 1fr 11rem;align-items:center;gap:20px}}
+.src-name{font-weight:600}
+.src-name a{color:var(--ink)}
+.bar{display:block;height:12px;background:color-mix(in srgb,var(--c) 12%,transparent);border-radius:2px;position:relative}
+.bar::before{content:"";position:absolute;inset:0 auto 0 0;width:calc(var(--w)*100%);background:var(--c);border-radius:2px}
+.src-n{font:400 14px var(--mono);color:var(--muted);font-variant-numeric:tabular-nums}
+.src-n b{color:var(--ink);font-weight:600}
+
+/* Closing */
+.closing{padding-block:56px 32px;display:grid;gap:48px}
+@media (min-width:900px){.closing{grid-template-columns:1fr 1fr;gap:64px}}
+.closing section{display:grid;gap:20px;align-content:start}
+.honest{list-style:none;margin:0;padding:0;display:grid;gap:18px}
+@media (min-width:560px){.honest{grid-template-columns:1fr 1fr}}
+.honest h3{font:600 1rem/1.3 var(--sans);margin-bottom:4px}
+.honest p,.nc dd,.next p{color:var(--ink-2);font-size:15px}
+.nc{margin:0;display:grid;gap:12px}
+.nc dd{margin:2px 0 0;font-size:14px}
+.next{border:1.5px dashed var(--rule);border-radius:6px;padding:14px 16px;display:grid;gap:6px}
+.next h3{font-size:1.1rem;font-weight:600}
+.foot{border-top:1px solid var(--rule);padding-block:24px 48px;margin-top:24px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 24px;color:var(--muted);font-size:14px}
+</style>
+</head>
+<body>
+<a class="skip" href="#skills">Skip to the skills</a>
+<button class="themebtn" type="button" id="theme" aria-label="Switch colour theme">Theme</button>
+<header class="hero wrap">
+<div class="hero-copy">
+<p class="eyebrow">ruaridhw/agents · agent skills</p>
+<h1>One way of working, written down as skills.</h1>
+<p class="lede">An opinionated set of agent skills for one engineer's environment, curated from mattpocock/skills, obra/superpowers and cursor/plugins (pstack), with the author's own skills alongside.</p>
+<p class="principle">The upstream prose stays. Edits are for the environment only, and every removal is on the record.</p>
+</div>
+<nav class="index" aria-labelledby="index-h"><p class="index-label" id="index-h">Every curated skill, coloured by its main upstream</p><ul><li><a class="up-mattpocock" href="#skill-ruaridh-mode">ruaridh-mode</a></li><li><a class="up-superpowers" href="#skill-clarify">clarify</a></li><li><a class="up-mattpocock" href="#skill-grill">grill</a></li><li><a class="up-superpowers" href="#skill-to-spec">to-spec</a></li><li><a class="up-own" href="#skill-spec-review">spec-review</a></li><li><a class="up-kit" href="#skill-to-tickets">to-tickets</a></li><li><a class="up-mattpocock" href="#skill-triage">triage</a></li><li><a class="up-superpowers" href="#skill-to-plan">to-plan</a></li><li><a class="up-mattpocock" href="#skill-wayfinder">wayfinder</a></li><li><a class="up-superpowers" href="#skill-implement">implement</a></li><li><a class="up-pstack" href="#skill-pr">pr</a></li><li><a class="up-pstack" href="#skill-handoff">handoff</a></li><li><a class="up-mattpocock" href="#skill-setup-project">setup-project</a></li><li><a class="up-pstack" href="#skill-update-skills">update-skills</a></li><li><a class="up-own" href="#skill-rare-skills">rare-skills</a></li><li><a class="up-own" href="#skill-herdr">herdr</a></li><li><a class="up-mattpocock" href="#skill-write-skill">write-skill</a></li><li><a class="up-mattpocock" href="#skill-tdd">tdd</a></li><li><a class="up-pstack" href="#skill-debug">debug</a></li><li><a class="up-pstack" href="#skill-verify">verify</a></li><li><a class="up-pstack" href="#skill-review">review</a></li><li><a class="up-pstack" href="#skill-babysit">babysit</a></li><li><a class="up-pstack" href="#skill-ship">ship</a></li><li><a class="up-pstack" href="#skill-worktree">worktree</a></li><li><a class="up-mattpocock" href="#skill-prototype">prototype</a></li><li><a class="up-mattpocock" href="#skill-domain">domain</a></li><li><a class="up-mattpocock" href="#skill-arch">arch</a></li><li><a class="up-pstack" href="#skill-research">research</a></li><li><a class="up-pstack" href="#skill-recall">recall</a></li><li><a class="up-pstack" href="#skill-retro">retro</a></li><li><a class="up-pstack" href="#skill-technical-writing">technical-writing</a></li><li><a class="up-mattpocock" href="#skill-teach">teach</a></li><li><a class="up-mattpocock" href="#skill-wizard">wizard</a></li><li><a class="up-mattpocock" href="#skill-questionnaire">questionnaire</a></li><li><a class="up-mattpocock" href="#skill-bro">bro</a></li></ul></nav>
+</header>
+<dl class="stats wrap"><div><dt>curated skills</dt><dd>35</dd></div><div><dt>upstream feeds</dt><dd>185</dd></div><div><dt>upstreams</dt><dd>6</dd></div></dl>
+<section class="chain wrap" id="chain" aria-labelledby="chain-h">
+<h2 id="chain-h">The chain, and where a human decides</h2>
+<div class="intake"><span class="stn up-own"><code>ruaridh-mode</code></span><p>Intake reads what arrived and picks the shortest route. A quick task is just done. A small change goes through clarify to implement. A project takes the whole line.</p></div>
+<ol class="phases"><li class="phase"><h3>Shape</h3><ol><li class="step"><a class="stn up-mattpocock" href="#skill-grill"><code>grill</code></a></li><li class="step"><a class="stn up-superpowers" href="#skill-to-spec"><code>to-spec</code></a></li><li class="gate"><span class="gate-mark" aria-hidden="true">1</span><span><b>A human decides</b> The spec, in Plannotator</span></li><li class="step"><a class="stn up-own" href="#skill-spec-review"><code>spec-review</code></a><span class="opt">optional</span></li></ol></li><li class="phase"><h3>Plan</h3><ol><li class="step"><a class="stn up-kit" href="#skill-to-tickets"><code>to-tickets</code></a></li><li class="step"><a class="stn up-mattpocock" href="#skill-triage"><code>triage</code></a></li><li class="gate"><span class="gate-mark" aria-hidden="true">2</span><span><b>A human decides</b> The ticket wave</span></li><li class="step"><a class="stn up-superpowers" href="#skill-to-plan"><code>to-plan</code></a></li></ol></li><li class="phase"><h3>Build</h3><ol><li class="step"><a class="stn up-superpowers" href="#skill-implement"><code>implement</code></a><span class="loop"><span class="loop-label">inside the loop</span><a class="stn up-mattpocock" href="#skill-tdd"><code>tdd</code></a><a class="stn up-pstack" href="#skill-debug"><code>debug</code></a><a class="stn up-pstack" href="#skill-verify"><code>verify</code></a></span></li><li class="gate"><span class="gate-mark" aria-hidden="true">3</span><span><b>A human decides</b> Design review, when the UI changes</span></li></ol></li><li class="phase"><h3>Land</h3><ol><li class="step"><a class="stn up-pstack" href="#skill-review"><code>review</code></a></li><li class="step"><a class="stn up-pstack" href="#skill-pr"><code>pr</code></a></li><li class="step"><a class="stn up-pstack" href="#skill-babysit"><code>babysit</code></a></li><li class="gate"><span class="gate-mark" aria-hidden="true">4</span><span><b>A human decides</b> Merge, only on a yes</span></li><li class="step"><a class="stn up-pstack" href="#skill-ship"><code>ship</code></a></li></ol></li></ol>
+<div class="side"><h3>Side doors, open from any step</h3><ul><li><a class="stn up-superpowers" href="#skill-clarify"><code>clarify</code></a><span>a few questions first</span></li><li><a class="stn up-mattpocock" href="#skill-prototype"><code>prototype</code></a><span>settle a design question</span></li><li><a class="stn up-pstack" href="#skill-research"><code>research</code></a><span>find out why or how</span></li><li><a class="stn up-pstack" href="#skill-recall"><code>recall</code></a><span>get the state of a thread</span></li><li><a class="stn up-mattpocock" href="#skill-wayfinder"><code>wayfinder</code></a><span>map an effort that is still fog</span></li><li><a class="stn up-pstack" href="#skill-handoff"><code>handoff</code></a><span>pause or pick up</span></li></ul></div>
+</section>
+<section class="skills wrap" id="skills" aria-labelledby="skills-h">
+<div class="skills-head"><h2 id="skills-h">The skills</h2>
+<ul class="chips legend" aria-label="Upstream colours"><li class="chip up-mattpocock">mattpocock</li><li class="chip up-superpowers">superpowers</li><li class="chip up-pstack">pstack</li><li class="chip up-anthropic">anthropic</li><li class="chip up-own">own</li><li class="chip up-kit">private kit</li></ul></div>
+<section class="family" aria-labelledby="f-operating"><div class="family-head"><h3 id="f-operating">Operating</h3><p>How a session starts, splits and stops.</p></div><div class="cards"><details class="card" id="skill-ruaridh-mode">
+<summary><span class="card-top"><code class="name">ruaridh-mode</code><span class="wave">wave 1</span></span>
+<span class="pitch">The always-on router. Classifies what arrived, picks the route and holds the gates.</span>
+<ul class="chips" aria-label="Feeds per upstream"><li class="chip up-mattpocock">mattpocock <b>3</b></li><li class="chip up-superpowers">superpowers <b>2</b></li><li class="chip up-pstack">pstack <b>2</b></li><li class="chip up-own">own <b>1</b></li></ul></summary>
+<div class="more"><h4>Built from</h4><dl class="feeds"><div class="fed up-superpowers"><dt>superpowers</dt><dd>using-superpowers, superpowers.ts</dd></div><div class="fed up-pstack"><dt>pstack</dt><dd>poteto-mode, poteto-help</dd></div><div class="fed up-mattpocock"><dt>mattpocock</dt><dd>ask-matt, PHASE-BOUNDARIES, chief-of-staff</dd></div><div class="fed up-own"><dt>own</dt><dd>rule sources</dd></div></dl>
+<a href="https://github.com/ruaridhw/agents/blob/main/LANDSCAPE.md#ruaridh-mode">Opinion, decisions and what was dropped</a></div>
+</details><details class="card" id="skill-herdr">
+<summary><span class="card-top"><code class="name">herdr</code><span class="wave">wave 1</span></span>
+<span class="pitch">Spawn, read, resume and close agent panes, and nothing more.</span>
+<ul class="chips" aria-label="Feeds per upstream"><li class="chip up-own">own <b>3</b></li></ul></summary>
+<div class="more"><h4>Built from</h4><dl class="feeds"><div class="fed up-own"><dt>own</dt><dd>herdr-agent-handoff, find-sibling-agents, rule sources</dd></div></dl>
+<a href="https://github.com/ruaridhw/agents/blob/main/LANDSCAPE.md#herdr">Opinion, decisions and what was dropped</a></div>
+</details><details class="card" id="skill-handoff">
+<summary><span class="card-top"><code class="name">handoff</code><span class="wave">wave 1</span></span>
+<span class="pitch">Stop cleanly, resume cleanly, with the trail written down.</span>
+<ul class="chips" aria-label="Feeds per upstream"><li class="chip up-pstack">pstack <b>2</b></li><li class="chip up-mattpocock">mattpocock <b>1</b></li><li class="chip up-own">own <b>1</b></li></ul></summary>
+<div class="more"><h4>Built from</h4><dl class="feeds"><div class="fed up-mattpocock"><dt>mattpocock</dt><dd>handoff</dd></div><div class="fed up-pstack"><dt>pstack</dt><dd>pause-safely, session-pickup</dd></div><div class="fed up-own"><dt>own</dt><dd>herdr-agent-handoff</dd></div></dl>
+<a href="https://github.com/ruaridhw/agents/blob/main/LANDSCAPE.md#handoff">Opinion, decisions and what was dropped</a></div>
+</details><details class="card" id="skill-worktree">
+<summary><span class="card-top"><code class="name">worktree</code><span class="wave">wave 2</span></span>
+<span class="pitch">One worktree per piece of work, with one base rule and one cleanup gate.</span>
+<ul class="chips" aria-label="Feeds per upstream"><li class="chip up-pstack">pstack <b>2</b></li><li class="chip up-superpowers">superpowers <b>1</b></li><li class="chip up-kit">private kit <b>1</b></li></ul></summary>
+<div class="more"><h4>Built from</h4><dl class="feeds"><div class="fed up-superpowers"><dt>superpowers</dt><dd>using-git-worktrees</dd></div><div class="fed up-pstack"><dt>pstack</dt><dd>worktree-cleanup, worktree-audit.sh</dd></div><div class="fed up-kit"><dt>private kit</dt><dd>ideas only, no text</dd></div></dl>
+<a href="https://github.com/ruaridhw/agents/blob/main/LANDSCAPE.md#worktree">Opinion, decisions and what was dropped</a></div>
+</details><details class="card" id="skill-recall">
+<summary><span class="card-top"><code class="name">recall</code><span class="wave">wave 2</span></span>
+<span class="pitch">The state of one line of work in a screen, with the next move.</span>
+<ul class="chips" aria-label="Feeds per upstream"><li class="chip up-pstack">pstack <b>2</b></li><li class="chip up-own">own <b>1</b></li></ul></summary>
+<div class="more"><h4>Built from</h4><dl class="feeds"><div class="fed up-pstack"><dt>pstack</dt><dd>recall, ketchup</dd></div><div class="fed up-own"><dt>own</dt><dd>searching-shared-agentsview-history</dd></div></dl>
+<a href="https://github.com/ruaridhw/agents/blob/main/LANDSCAPE.md#recall">Opinion, decisions and what was dropped</a></div>
+</details><details class="card" id="skill-rare-skills">
+<summary><span class="card-top"><code class="name">rare-skills</code><span class="wave">wave 1</span></span>
+<span class="pitch">One router in front of the service skills a session rarely needs.</span>
+<ul class="chips" aria-label="Feeds per upstream"><li class="chip up-none">no upstream feed</li></ul></summary>
+<div class="more"><h4>Built from</h4><p>No upstream feed: written for this environment.</p>
+<a href="https://github.com/ruaridhw/agents/blob/main/LANDSCAPE.md#rare-skills">Opinion, decisions and what was dropped</a></div>
+</details></div></section><section class="family" aria-labelledby="f-thinking-and-shaping"><div class="family-head"><h3 id="f-thinking-and-shaping">Thinking and shaping</h3><p>Work out what to build before building it.</p></div><div class="cards"><details class="card" id="skill-clarify">
+<summary><span class="card-top"><code class="name">clarify</code><span class="wave">wave 1</span></span>
+<span class="pitch">At most five questions, each with a recommended answer, before work starts.</span>
+<ul class="chips" aria-label="Feeds per upstream"><li class="chip up-superpowers">superpowers <b>1</b></li><li class="chip up-pstack">pstack <b>1</b></li><li class="chip up-mattpocock">mattpocock <b>1</b></li></ul></summary>
+<div class="more"><h4>Built from</h4><dl class="feeds"><div class="fed up-superpowers"><dt>superpowers</dt><dd>brainstorming</dd></div><div class="fed up-pstack"><dt>pstack</dt><dd>in-your-own-words</dd></div><div class="fed up-mattpocock"><dt>mattpocock</dt><dd>grilling</dd></div></dl>
+<a href="https://github.com/ruaridhw/agents/blob/main/LANDSCAPE.md#clarify">Opinion, decisions and what was dropped</a></div>
+</details><details class="card" id="skill-grill">
+<summary><span class="card-top"><code class="name">grill</code><span class="wave">wave 1</span></span>
+<span class="pitch">An interview in rounds that ends by sizing the work and naming its route.</span>
+<ul class="chips" aria-label="Feeds per upstream"><li class="chip up-mattpocock">mattpocock <b>2</b></li><li class="chip up-superpowers">superpowers <b>2</b></li><li class="chip up-pstack">pstack <b>1</b></li></ul></summary>
+<div class="more"><h4>Built from</h4><dl class="feeds"><div class="fed up-mattpocock"><dt>mattpocock</dt><dd>grilling, grill-me</dd></div><div class="fed up-superpowers"><dt>superpowers</dt><dd>brainstorming, visual-companion</dd></div><div class="fed up-pstack"><dt>pstack</dt><dd>sharpen</dd></div></dl>
+<a href="https://github.com/ruaridhw/agents/blob/main/LANDSCAPE.md#grill">Opinion, decisions and what was dropped</a></div>
+</details><details class="card" id="skill-prototype">
+<summary><span class="card-top"><code class="name">prototype</code><span class="wave">wave 2</span></span>
+<span class="pitch">Throwaway code that answers one design question.</span>
+<ul class="chips" aria-label="Feeds per upstream"><li class="chip up-mattpocock">mattpocock <b>3</b></li><li class="chip up-pstack">pstack <b>2</b></li><li class="chip up-superpowers">superpowers <b>1</b></li></ul></summary>
+<div class="more"><h4>Built from</h4><dl class="feeds"><div class="fed up-mattpocock"><dt>mattpocock</dt><dd>prototype, LOGIC, UI</dd></div><div class="fed up-pstack"><dt>pstack</dt><dd>prototype, arena</dd></div><div class="fed up-superpowers"><dt>superpowers</dt><dd>brainstorming</dd></div></dl>
+<a href="https://github.com/ruaridhw/agents/blob/main/LANDSCAPE.md#prototype">Opinion, decisions and what was dropped</a></div>
+</details><details class="card" id="skill-research">
+<summary><span class="card-top"><code class="name">research</code><span class="wave">wave 2</span></span>
+<span class="pitch">Why code has its shape, or how a subsystem works, answered with citations.</span>
+<ul class="chips" aria-label="Feeds per upstream"><li class="chip up-pstack">pstack <b>16</b></li><li class="chip up-mattpocock">mattpocock <b>1</b></li><li class="chip up-own">own <b>1</b></li></ul></summary>
+<div class="more"><h4>Built from</h4><dl class="feeds"><div class="fed up-pstack"><dt>pstack</dt><dd>why, epistemics, investigator-prompt, synthesizer-prompt, source-playbook, code-archaeology, linear, notion, slack, sentry, datadog, databricks, incident-postmortem, how, explorer-prompt, explainer-prompt</dd></div><div class="fed up-mattpocock"><dt>mattpocock</dt><dd>research</dd></div><div class="fed up-own"><dt>own</dt><dd>agentsview-finding-history</dd></div></dl>
+<a href="https://github.com/ruaridhw/agents/blob/main/LANDSCAPE.md#research">Opinion, decisions and what was dropped</a></div>
+</details><details class="card" id="skill-domain">
+<summary><span class="card-top"><code class="name">domain</code><span class="wave">wave 2</span></span>
+<span class="pitch">Challenge a term when it clashes with the glossary, then write the answer down.</span>
+<ul class="chips" aria-label="Feeds per upstream"><li class="chip up-mattpocock">mattpocock <b>5</b></li></ul></summary>
+<div class="more"><h4>Built from</h4><dl class="feeds"><div class="fed up-mattpocock"><dt>mattpocock</dt><dd>domain-modeling, GLOSSARY-FORMAT, ADR-FORMAT, ubiquitous-language, codebase-design</dd></div></dl>
+<a href="https://github.com/ruaridhw/agents/blob/main/LANDSCAPE.md#domain">Opinion, decisions and what was dropped</a></div>
+</details><details class="card" id="skill-arch">
+<summary><span class="card-top"><code class="name">arch</code><span class="wave">wave 2</span></span>
+<span class="pitch">Sketch two or more designs and compare them before code crosses a boundary.</span>
+<ul class="chips" aria-label="Feeds per upstream"><li class="chip up-mattpocock">mattpocock <b>5</b></li><li class="chip up-pstack">pstack <b>4</b></li><li class="chip up-superpowers">superpowers <b>1</b></li></ul></summary>
+<div class="more"><h4>Built from</h4><dl class="feeds"><div class="fed up-pstack"><dt>pstack</dt><dd>architect, design-red-flags, rationale-template, runner-prompt</dd></div><div class="fed up-mattpocock"><dt>mattpocock</dt><dd>design-an-interface, DESIGN-IT-TWICE, DEEPENING, improve-codebase-architecture, HTML-REPORT</dd></div><div class="fed up-superpowers"><dt>superpowers</dt><dd>brainstorming</dd></div></dl>
+<a href="https://github.com/ruaridhw/agents/blob/main/LANDSCAPE.md#arch">Opinion, decisions and what was dropped</a></div>
+</details><details class="card" id="skill-questionnaire">
+<summary><span class="card-top"><code class="name">questionnaire</code><span class="wave">wave 2</span></span>
+<span class="pitch">Turn a decision the agent can't make into questions for the person who can.</span>
+<ul class="chips" aria-label="Feeds per upstream"><li class="chip up-mattpocock">mattpocock <b>1</b></li></ul></summary>
+<div class="more"><h4>Built from</h4><dl class="feeds"><div class="fed up-mattpocock"><dt>mattpocock</dt><dd>to-questionnaire</dd></div></dl>
+<a href="https://github.com/ruaridhw/agents/blob/main/LANDSCAPE.md#questionnaire">Opinion, decisions and what was dropped</a></div>
+</details><details class="card" id="skill-bro">
+<summary><span class="card-top"><code class="name">bro</code><span class="wave">wave 2</span></span>
+<span class="pitch">Say it again so it lands: plainer, with context, or one layer up.</span>
+<ul class="chips" aria-label="Feeds per upstream"><li class="chip up-mattpocock">mattpocock <b>2</b></li><li class="chip up-pstack">pstack <b>1</b></li></ul></summary>
+<div class="more"><h4>Built from</h4><dl class="feeds"><div class="fed up-pstack"><dt>pstack</dt><dd>bro</dd></div><div class="fed up-mattpocock"><dt>mattpocock</dt><dd>wait-what, zoom-out</dd></div></dl>
+<a href="https://github.com/ruaridhw/agents/blob/main/LANDSCAPE.md#bro">Opinion, decisions and what was dropped</a></div>
+</details><details class="card" id="skill-teach">
+<summary><span class="card-top"><code class="name">teach</code><span class="wave">wave 2</span></span>
+<span class="pitch">Lessons over several sessions, or one plain account of a body of work.</span>
+<ul class="chips" aria-label="Feeds per upstream"><li class="chip up-mattpocock">mattpocock <b>5</b></li><li class="chip up-pstack">pstack <b>2</b></li></ul></summary>
+<div class="more"><h4>Built from</h4><dl class="feeds"><div class="fed up-mattpocock"><dt>mattpocock</dt><dd>teach, MISSION-FORMAT, RESOURCES-FORMAT, LEARNING-RECORD-FORMAT, GLOSSARY-FORMAT</dd></div><div class="fed up-pstack"><dt>pstack</dt><dd>teach, how</dd></div></dl>
+<a href="https://github.com/ruaridhw/agents/blob/main/LANDSCAPE.md#teach">Opinion, decisions and what was dropped</a></div>
+</details></div></section><section class="family" aria-labelledby="f-planning-and-ticketing"><div class="family-head"><h3 id="f-planning-and-ticketing">Planning and ticketing</h3><p>From a decided idea to tickets a session can finish.</p></div><div class="cards"><details class="card" id="skill-to-spec">
+<summary><span class="card-top"><code class="name">to-spec</code><span class="wave">wave 1</span></span>
+<span class="pitch">A build-ready spec, written without an interview and gated before publishing.</span>
+<ul class="chips" aria-label="Feeds per upstream"><li class="chip up-superpowers">superpowers <b>2</b></li><li class="chip up-own">own <b>1</b></li><li class="chip up-mattpocock">mattpocock <b>1</b></li></ul></summary>
+<div class="more"><h4>Built from</h4><dl class="feeds"><div class="fed up-own"><dt>own</dt><dd>writing-build-spec</dd></div><div class="fed up-superpowers"><dt>superpowers</dt><dd>brainstorming, builder-check-prompt</dd></div><div class="fed up-mattpocock"><dt>mattpocock</dt><dd>to-spec</dd></div></dl>
+<a href="https://github.com/ruaridhw/agents/blob/main/LANDSCAPE.md#to-spec">Opinion, decisions and what was dropped</a></div>
+</details><details class="card" id="skill-spec-review">
+<summary><span class="card-top"><code class="name">spec-review</code><span class="wave">wave 1</span></span>
+<span class="pitch">An adversarial reviewer in its own pane, answered from the decision history.</span>
+<ul class="chips" aria-label="Feeds per upstream"><li class="chip up-own">own <b>1</b></li></ul></summary>
+<div class="more"><h4>Built from</h4><dl class="feeds"><div class="fed up-own"><dt>own</dt><dd>adversarial-spec-review</dd></div></dl>
+<a href="https://github.com/ruaridhw/agents/blob/main/LANDSCAPE.md#spec-review">Opinion, decisions and what was dropped</a></div>
+</details><details class="card" id="skill-to-tickets">
+<summary><span class="card-top"><code class="name">to-tickets</code><span class="wave">wave 1</span></span>
+<span class="pitch">Tickets sized to one session, with Done-when copied from the spec.</span>
+<ul class="chips" aria-label="Feeds per upstream"><li class="chip up-kit">private kit <b>2</b></li><li class="chip up-mattpocock">mattpocock <b>1</b></li></ul></summary>
+<div class="more"><h4>Built from</h4><dl class="feeds"><div class="fed up-mattpocock"><dt>mattpocock</dt><dd>to-tickets</dd></div><div class="fed up-kit"><dt>private kit</dt><dd>ideas only, no text</dd></div></dl>
+<a href="https://github.com/ruaridhw/agents/blob/main/LANDSCAPE.md#to-tickets">Opinion, decisions and what was dropped</a></div>
+</details><details class="card" id="skill-triage">
+<summary><span class="card-top"><code class="name">triage</code><span class="wave">wave 1</span></span>
+<span class="pitch">Inbound issues through five states, and ticket waves rendered for the gate.</span>
+<ul class="chips" aria-label="Feeds per upstream"><li class="chip up-mattpocock">mattpocock <b>3</b></li><li class="chip up-own">own <b>1</b></li></ul></summary>
+<div class="more"><h4>Built from</h4><dl class="feeds"><div class="fed up-mattpocock"><dt>mattpocock</dt><dd>triage, AGENT-BRIEF, OUT-OF-SCOPE</dd></div><div class="fed up-own"><dt>own</dt><dd>kata-triage-artifact</dd></div></dl>
+<a href="https://github.com/ruaridhw/agents/blob/main/LANDSCAPE.md#triage">Opinion, decisions and what was dropped</a></div>
+</details><details class="card" id="skill-to-plan">
+<summary><span class="card-top"><code class="name">to-plan</code><span class="wave">wave 1</span></span>
+<span class="pitch">One task per ticket in dependency order, then a pick: inline or delegated.</span>
+<ul class="chips" aria-label="Feeds per upstream"><li class="chip up-superpowers">superpowers <b>1</b></li><li class="chip up-pstack">pstack <b>1</b></li></ul></summary>
+<div class="more"><h4>Built from</h4><dl class="feeds"><div class="fed up-superpowers"><dt>superpowers</dt><dd>writing-plans</dd></div><div class="fed up-pstack"><dt>pstack</dt><dd>multi-phase-plan</dd></div></dl>
+<a href="https://github.com/ruaridhw/agents/blob/main/LANDSCAPE.md#to-plan">Opinion, decisions and what was dropped</a></div>
+</details><details class="card" id="skill-wayfinder">
+<summary><span class="card-top"><code class="name">wayfinder</code><span class="wave">wave 2</span></span>
+<span class="pitch">A map of decision tickets for an effort whose route is still fog.</span>
+<ul class="chips" aria-label="Feeds per upstream"><li class="chip up-mattpocock">mattpocock <b>2</b></li></ul></summary>
+<div class="more"><h4>Built from</h4><dl class="feeds"><div class="fed up-mattpocock"><dt>mattpocock</dt><dd>wayfinder, openai.yaml</dd></div></dl>
+<a href="https://github.com/ruaridhw/agents/blob/main/LANDSCAPE.md#wayfinder">Opinion, decisions and what was dropped</a></div>
+</details></div></section><section class="family" aria-labelledby="f-building"><div class="family-head"><h3 id="f-building">Building</h3><p>The build loop and the checks inside it.</p></div><div class="cards"><details class="card" id="skill-implement">
+<summary><span class="card-top"><code class="name">implement</code><span class="wave">wave 1</span></span>
+<span class="pitch">Build a ticket or a wave, yourself or through coordinated builders.</span>
+<ul class="chips" aria-label="Feeds per upstream"><li class="chip up-superpowers">superpowers <b>3</b></li><li class="chip up-pstack">pstack <b>3</b></li><li class="chip up-mattpocock">mattpocock <b>2</b></li><li class="chip up-own">own <b>2</b></li></ul></summary>
+<div class="more"><h4>Built from</h4><dl class="feeds"><div class="fed up-superpowers"><dt>superpowers</dt><dd>subagent-driven-development, executing-plans, dispatching-parallel-agents</dd></div><div class="fed up-mattpocock"><dt>mattpocock</dt><dd>implement, implement-spec</dd></div><div class="fed up-pstack"><dt>pstack</dt><dd>orchestrate, feature, refactoring</dd></div><div class="fed up-own"><dt>own</dt><dd>orchestrating-reviewed-build, herdr-agent-handoff</dd></div></dl>
+<a href="https://github.com/ruaridhw/agents/blob/main/LANDSCAPE.md#implement">Opinion, decisions and what was dropped</a></div>
+</details><details class="card" id="skill-tdd">
+<summary><span class="card-top"><code class="name">tdd</code><span class="wave">wave 2</span></span>
+<span class="pitch">Red, green, refactor, with a note on what each test seam catches and misses.</span>
+<ul class="chips" aria-label="Feeds per upstream"><li class="chip up-mattpocock">mattpocock <b>3</b></li><li class="chip up-superpowers">superpowers <b>2</b></li><li class="chip up-pstack">pstack <b>1</b></li></ul></summary>
+<div class="more"><h4>Built from</h4><dl class="feeds"><div class="fed up-superpowers"><dt>superpowers</dt><dd>test-driven-development, writing-good-tests</dd></div><div class="fed up-mattpocock"><dt>mattpocock</dt><dd>tdd, tests, mocking</dd></div><div class="fed up-pstack"><dt>pstack</dt><dd>tdd</dd></div></dl>
+<a href="https://github.com/ruaridhw/agents/blob/main/LANDSCAPE.md#tdd">Opinion, decisions and what was dropped</a></div>
+</details><details class="card" id="skill-debug">
+<summary><span class="card-top"><code class="name">debug</code><span class="wave">wave 2</span></span>
+<span class="pitch">Root cause first, and a failing reproduction committed before the fix.</span>
+<ul class="chips" aria-label="Feeds per upstream"><li class="chip up-pstack">pstack <b>4</b></li><li class="chip up-mattpocock">mattpocock <b>2</b></li><li class="chip up-superpowers">superpowers <b>1</b></li></ul></summary>
+<div class="more"><h4>Built from</h4><dl class="feeds"><div class="fed up-superpowers"><dt>superpowers</dt><dd>systematic-debugging</dd></div><div class="fed up-mattpocock"><dt>mattpocock</dt><dd>diagnosing-bugs, hitl-loop.template.sh</dd></div><div class="fed up-pstack"><dt>pstack</dt><dd>bug-fix, runtime-forensics, trace-forensics, perf-issue</dd></div></dl>
+<a href="https://github.com/ruaridhw/agents/blob/main/LANDSCAPE.md#debug">Opinion, decisions and what was dropped</a></div>
+</details><details class="card" id="skill-verify">
+<summary><span class="card-top"><code class="name">verify</code><span class="wave">wave 2</span></span>
+<span class="pitch">Evidence before done, with each claim labelled verified, inferred or assumed.</span>
+<ul class="chips" aria-label="Feeds per upstream"><li class="chip up-pstack">pstack <b>6</b></li><li class="chip up-superpowers">superpowers <b>1</b></li><li class="chip up-mattpocock">mattpocock <b>1</b></li><li class="chip up-kit">private kit <b>1</b></li></ul></summary>
+<div class="more"><h4>Built from</h4><dl class="feeds"><div class="fed up-superpowers"><dt>superpowers</dt><dd>verification-before-completion</dd></div><div class="fed up-pstack"><dt>pstack</dt><dd>principle-prove-it-works, blast-radius, benchmark-checklist, show-me-your-work, decision-log-template.tsv, log.sh</dd></div><div class="fed up-mattpocock"><dt>mattpocock</dt><dd>qa</dd></div><div class="fed up-kit"><dt>private kit</dt><dd>ideas only, no text</dd></div></dl>
+<a href="https://github.com/ruaridhw/agents/blob/main/LANDSCAPE.md#verify">Opinion, decisions and what was dropped</a></div>
+</details><details class="card" id="skill-wizard">
+<summary><span class="card-top"><code class="name">wizard</code><span class="wave">wave 2</span></span>
+<span class="pitch">A bash script that walks a human through the steps only a human can take.</span>
+<ul class="chips" aria-label="Feeds per upstream"><li class="chip up-mattpocock">mattpocock <b>2</b></li></ul></summary>
+<div class="more"><h4>Built from</h4><dl class="feeds"><div class="fed up-mattpocock"><dt>mattpocock</dt><dd>wizard, template.sh</dd></div></dl>
+<a href="https://github.com/ruaridhw/agents/blob/main/LANDSCAPE.md#wizard">Opinion, decisions and what was dropped</a></div>
+</details></div></section><section class="family" aria-labelledby="f-quality-and-shipping"><div class="family-head"><h3 id="f-quality-and-shipping">Quality and shipping</h3><p>Other eyes, then a PR, then a merge.</p></div><div class="cards"><details class="card" id="skill-review">
+<summary><span class="card-top"><code class="name">review</code><span class="wave">wave 2</span></span>
+<span class="pitch">Four passes by other eyes, ending in one verdict.</span>
+<ul class="chips" aria-label="Feeds per upstream"><li class="chip up-pstack">pstack <b>7</b></li><li class="chip up-superpowers">superpowers <b>3</b></li><li class="chip up-mattpocock">mattpocock <b>1</b></li></ul></summary>
+<div class="more"><h4>Built from</h4><dl class="feeds"><div class="fed up-mattpocock"><dt>mattpocock</dt><dd>code-review</dd></div><div class="fed up-superpowers"><dt>superpowers</dt><dd>requesting-code-review, code-reviewer, receiving-code-review</dd></div><div class="fed up-pstack"><dt>pstack</dt><dd>interrogate, reviewer-prompt, rubric, code-quality-review, lead-judgment, no-comments, unslop</dd></div></dl>
+<a href="https://github.com/ruaridhw/agents/blob/main/LANDSCAPE.md#review">Opinion, decisions and what was dropped</a></div>
+</details><details class="card" id="skill-pr">
+<summary><span class="card-top"><code class="name">pr</code><span class="wave">wave 1</span></span>
+<span class="pitch">One PR per ticket, stacked, with a body a reviewer can decide from.</span>
+<ul class="chips" aria-label="Feeds per upstream"><li class="chip up-pstack">pstack <b>1</b></li><li class="chip up-mattpocock">mattpocock <b>1</b></li><li class="chip up-superpowers">superpowers <b>1</b></li><li class="chip up-own">own <b>1</b></li></ul></summary>
+<div class="more"><h4>Built from</h4><dl class="feeds"><div class="fed up-pstack"><dt>pstack</dt><dd>opening-a-pr</dd></div><div class="fed up-mattpocock"><dt>mattpocock</dt><dd>pr</dd></div><div class="fed up-superpowers"><dt>superpowers</dt><dd>finishing-a-development-branch</dd></div><div class="fed up-own"><dt>own</dt><dd>rule sources</dd></div></dl>
+<a href="https://github.com/ruaridhw/agents/blob/main/LANDSCAPE.md#pr">Opinion, decisions and what was dropped</a></div>
+</details><details class="card" id="skill-babysit">
+<summary><span class="card-top"><code class="name">babysit</code><span class="wave">wave 2</span></span>
+<span class="pitch">Drive a PR to merge-ready and stop there.</span>
+<ul class="chips" aria-label="Feeds per upstream"><li class="chip up-pstack">pstack <b>6</b></li></ul></summary>
+<div class="more"><h4>Built from</h4><dl class="feeds"><div class="fed up-pstack"><dt>pstack</dt><dd>babysit, watch-pr, bootstrap.ts, package.json, bun.lock, bugbot-triage</dd></div></dl>
+<a href="https://github.com/ruaridhw/agents/blob/main/LANDSCAPE.md#babysit">Opinion, decisions and what was dropped</a></div>
+</details><details class="card" id="skill-ship">
+<summary><span class="card-top"><code class="name">ship</code><span class="wave">wave 2</span></span>
+<span class="pitch">Land a verified stack bottom-up, only when the human asks.</span>
+<ul class="chips" aria-label="Feeds per upstream"><li class="chip up-pstack">pstack <b>2</b></li></ul></summary>
+<div class="more"><h4>Built from</h4><dl class="feeds"><div class="fed up-pstack"><dt>pstack</dt><dd>shipping, babysit</dd></div></dl>
+<a href="https://github.com/ruaridhw/agents/blob/main/LANDSCAPE.md#ship">Opinion, decisions and what was dropped</a></div>
+</details><details class="card" id="skill-technical-writing">
+<summary><span class="card-top"><code class="name">technical-writing</code><span class="wave">wave 2</span></span>
+<span class="pitch">The standard for client-facing docs, finished with the unslop pass.</span>
+<ul class="chips" aria-label="Feeds per upstream"><li class="chip up-pstack">pstack <b>2</b></li><li class="chip up-own">own <b>1</b></li></ul></summary>
+<div class="more"><h4>Built from</h4><dl class="feeds"><div class="fed up-pstack"><dt>pstack</dt><dd>technical-writing, unslop</dd></div><div class="fed up-own"><dt>own</dt><dd>copy-review checklist</dd></div></dl>
+<a href="https://github.com/ruaridhw/agents/blob/main/LANDSCAPE.md#technical-writing">Opinion, decisions and what was dropped</a></div>
+</details></div></section><section class="family" aria-labelledby="f-meta"><div class="family-head"><h3 id="f-meta">Meta</h3><p>Skills that maintain the other skills.</p></div><div class="cards"><details class="card" id="skill-update-skills">
+<summary><span class="card-top"><code class="name">update-skills</code><span class="wave">wave 1</span></span>
+<span class="pitch">The one way upstream text comes in: survey, classify, rebuild, record.</span>
+<ul class="chips" aria-label="Feeds per upstream"><li class="chip up-pstack">pstack <b>2</b></li><li class="chip up-own">own <b>1</b></li></ul></summary>
+<div class="more"><h4>Built from</h4><dl class="feeds"><div class="fed up-own"><dt>own</dt><dd>skill_upstream.py</dd></div><div class="fed up-pstack"><dt>pstack</dt><dd>reflect, synthesizer</dd></div></dl>
+<a href="https://github.com/ruaridhw/agents/blob/main/LANDSCAPE.md#update-skills">Opinion, decisions and what was dropped</a></div>
+</details><details class="card" id="skill-write-skill">
+<summary><span class="card-top"><code class="name">write-skill</code><span class="wave">wave 2</span></span>
+<span class="pitch">How to write what an agent reads, built on predictability.</span>
+<ul class="chips" aria-label="Feeds per upstream"><li class="chip up-mattpocock">mattpocock <b>5</b></li><li class="chip up-superpowers">superpowers <b>4</b></li><li class="chip up-pstack">pstack <b>1</b></li><li class="chip up-anthropic">anthropic <b>1</b></li></ul></summary>
+<div class="more"><h4>Built from</h4><dl class="feeds"><div class="fed up-mattpocock"><dt>mattpocock</dt><dd>writing-for-agents, SKILL-MECHANICS, writing-great-skills, GLOSSARY, write-a-skill</dd></div><div class="fed up-superpowers"><dt>superpowers</dt><dd>writing-skills, anthropic-best-practices, persuasion-principles, testing-skills-with-subagents</dd></div><div class="fed up-pstack"><dt>pstack</dt><dd>authoring-a-skill</dd></div><div class="fed up-anthropic"><dt>anthropic</dt><dd>skill-creator</dd></div></dl>
+<a href="https://github.com/ruaridhw/agents/blob/main/LANDSCAPE.md#write-skill">Opinion, decisions and what was dropped</a></div>
+</details><details class="card" id="skill-retro">
+<summary><span class="card-top"><code class="name">retro</code><span class="wave">wave 2</span></span>
+<span class="pitch">Mine a session for lessons and fix each at the highest level that works.</span>
+<ul class="chips" aria-label="Feeds per upstream"><li class="chip up-pstack">pstack <b>7</b></li><li class="chip up-mattpocock">mattpocock <b>1</b></li></ul></summary>
+<div class="more"><h4>Built from</h4><dl class="feeds"><div class="fed up-pstack"><dt>pstack</dt><dd>reflect, judgment-reviewer, tooling-reviewer, divergent-reviewer, synthesizer, correct, automate-me</dd></div><div class="fed up-mattpocock"><dt>mattpocock</dt><dd>retro</dd></div></dl>
+<a href="https://github.com/ruaridhw/agents/blob/main/LANDSCAPE.md#retro">Opinion, decisions and what was dropped</a></div>
+</details><details class="card" id="skill-setup-project">
+<summary><span class="card-top"><code class="name">setup-project</code><span class="wave">wave 1</span></span>
+<span class="pitch">Bind a repo's hook points, one section at a time.</span>
+<ul class="chips" aria-label="Feeds per upstream"><li class="chip up-mattpocock">mattpocock <b>7</b></li></ul></summary>
+<div class="more"><h4>Built from</h4><dl class="feeds"><div class="fed up-mattpocock"><dt>mattpocock</dt><dd>setup-matt-pocock-skills, issue-tracker-github, issue-tracker-gitlab, issue-tracker-local, triage-labels, domain, openai.yaml</dd></div></dl>
+<a href="https://github.com/ruaridhw/agents/blob/main/LANDSCAPE.md#setup-project">Opinion, decisions and what was dropped</a></div>
+</details></div></section>
+</section>
+<section class="sources wrap" aria-labelledby="sources-h">
+<h2 id="sources-h">Where they come from</h2>
+<ul><li class="source up-mattpocock"><span class="src-name"><a href="https://github.com/mattpocock/skills">mattpocock/skills</a></span><span class="bar" style="--w:1.000"></span><span class="src-n"><b>25</b> skills · 61 feeds</span></li><li class="source up-superpowers"><span class="src-name"><a href="https://github.com/obra/superpowers">obra/superpowers</a></span><span class="bar" style="--w:0.600"></span><span class="src-n"><b>15</b> skills · 26 feeds</span></li><li class="source up-pstack"><span class="src-name"><a href="https://github.com/cursor/plugins">cursor/plugins (pstack)</a></span><span class="bar" style="--w:0.960"></span><span class="src-n"><b>24</b> skills · 78 feeds</span></li><li class="source up-anthropic"><span class="src-name"><a href="https://github.com/anthropics/skills">anthropics/skills</a></span><span class="bar" style="--w:0.040"></span><span class="src-n"><b>1</b> skills · 1 feeds</span></li><li class="source up-own"><span class="src-name">Own skills and rules</span><span class="bar" style="--w:0.480"></span><span class="src-n"><b>12</b> skills · 15 feeds</span></li><li class="source up-kit"><span class="src-name">Private kit, ideas only</span><span class="bar" style="--w:0.120"></span><span class="src-n"><b>3</b> skills · 4 feeds</span></li></ul>
+</section>
+<div class="closing wrap">
+<section aria-labelledby="honest-h"><h2 id="honest-h">How it stays honest</h2><ul class="honest"><li><h3>Stamps and drift</h3><p>Each skill records the upstream sha it was written from. <code>bin/skill-upstream</code> shows what moved since.</p></li><li><h3>Lint</h3><p><code>bin/skill-lint</code> checks the format, and fails a skill that copies text from a private feed.</p></li><li><h3>Public-repo guard</h3><p><code>bin/check-public</code> blocks private names at commit time, against a denylist kept outside the repo.</p></li><li><h3>Stable rule ids</h3><p>When a catalog absorbs another source, the new rules start at the next free hundred, so cited ids never move.</p></li></ul></section>
+<section aria-labelledby="nc-h"><h2 id="nc-h">Not curated</h2><dl class="nc"><div><dt>Kept as shipped</dt><dd>the employer's operator skills and kit (changed only through the kit's feedback channel); the Plannotator family; Anthropic artifact, dataviz and document skills; the effective-html family; browser; own scheduled-job skills (<code>morning</code>, <code>granola-notion</code>, <code>notion-todoist-tasks</code>).</dd></div><div><dt>Rare</dt><dd>(moved to <code>~/.agents/rare/</code>, reached through <code>rare-skills</code>): AWS, Cloudflare and other service skills.</dd></div><div><dt>Dropped</dt><dd>mattpocock loop-me, caveman, request-refactor-plan, scaffold-exercises, migrate-to-shoehorn, setup-pre-commit, git-guardrails-claude-code, claude-handoff, setup-ts-deep-modules, writing-beats, writing-shape, writing-fragments, edit-article, and the loose find-skills, claude-code-peer-messaging, obsidian-vault; superpowers diagnosing-superpowers; pstack setup-pstack, poteto-agent, make-bot-ui, visual-parity, autopilot-full, autopilot-stack, eval, hillclimb, create/maintain-verification-skill, typescript-best-practices and the automations.</dd></div></dl>
+<div class="next"><h3>Wave 3</h3><p>Next: link the skills whose names collide with plugin skills once those plugins are off, and decide how kit skills reuse generic ones.</p></div></section>
+</div>
+<footer class="foot wrap">
+<p>Generated from <a href="https://github.com/ruaridhw/agents/blob/main/LANDSCAPE.md">LANDSCAPE.md</a>, the full record of every opinion, decision and feed.</p>
+<p><a href="https://github.com/ruaridhw/agents">github.com/ruaridhw/agents</a></p>
+</footer>
+<script>
+(function(){
+  var r=document.documentElement,b=document.getElementById('theme');
+  function cur(){return r.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')}
+  b.addEventListener('click',function(){r.setAttribute('data-theme',cur()==='dark'?'light':'dark')});
+  function reveal(){var t=location.hash&&document.getElementById(location.hash.slice(1));if(t&&t.tagName==='DETAILS')t.open=true}
+  addEventListener('hashchange',reveal);reveal();
+})();
+</script>
+</body>
+</html>

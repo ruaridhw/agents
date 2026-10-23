@@ -12,7 +12,7 @@
    - Ordinary PR: `gh pr merge <n> --merge`.
    - A chain made by retargeting bases by hand is not a registered stack: merging its top merges only into its base branch. Merge bottom up, or retarget the top to the default branch (its branch contains every parent) and merge that.
 4. **After each merge**: `gh pr view <n> --json state,mergeCommit`. Record the merge sha.
-5. **Adopt remote heads** before touching any child: GitHub retargets children to the default branch and may rewrite them onto it with new shas. With no local-only commits: `git fetch <remote> && git reset --hard <remote>/<child-branch>` (the one sanctioned reset). Never `git rebase --onto` with a parent sha from your local copy; rebase onto the remote base instead.
+5. **Adopt remote heads** before touching any child: GitHub retargets children to the default branch and may rewrite them onto it with new shas. With no local-only commits: `git fetch <remote> && git reset --hard <remote>/<child-branch>` (the sanctioned reset of a branch you do not own). Never `git rebase --onto` with a parent sha from your local copy; rebase onto the remote base instead.
 6. **Wait for the retargeted child's checks** to re-run against the new base, then repeat from step 1 for it.
 7. **Ticket**: label `merged` and comment the PR and merge sha (per `.agents/tracker.md`). `done` waits for proof.
 8. **Branches**: before deleting a branch, retarget every open PR based on it; deleting a base closes its PRs. Remove only worktrees you created, after their commits are on the default branch.

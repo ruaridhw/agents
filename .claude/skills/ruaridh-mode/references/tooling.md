@@ -6,7 +6,9 @@ Machine-specific values (hostnames, collector URLs, token paths, tailnet recipes
 
 - Search with `rg`; read large files and noisy output through `rtk`.
 - Python: bare `python3` for stdlib; the project's own venv or uv project when there is one; otherwise the shared env in `~/AGENTS.md`.
-- Memory-hungry commands go through `memcap <cmd>`. After an OOM kill (exit 137), cut the memory use before re-running.
+- Memory-hungry commands go through `memcap <cmd>`. `bin/memcap` is the reference definition for a systemd user
+  scope and `docs/memcap.slice.example` the slice unit with placeholder limits; install both on your own machine
+  with your own limits. After an OOM kill (exit 137), cut the memory use before re-running.
 - After any blocked or interrupted command, re-check its precondition (`git log -1`, `git status`) before running anything that depends on it.
 
 ## Git
@@ -15,6 +17,7 @@ Machine-specific values (hostnames, collector URLs, token paths, tailnet recipes
 - Base on the freshly fetched remote default branch; stack on an outstanding PR branch only when it is the real latest base.
 - History stays linear: a stale PR branch is rebased onto its new base, never has the default branch merged into it.
 - Stage explicit paths. Never `git add -A` in a tree other sessions may share.
+- The branch you created for a ticket you claimed (`work.branch`) is yours to rewrite: reset, amend and force-push it, with `--force-with-lease` only. Never the default branch, another agent's branch, or a branch another open PR stacks on, unless you rebase those child PRs in the same step. Someone else's work still needs a yes before you reset, stash or discard it.
 - The stash stack is shared across worktrees and sessions: never bare `git stash` / `git stash pop`. Prefer a `wip:` commit.
 - Gate on checks: run them in their own command, read the result, then commit or push. Never `check; commit; push; merge` in one line.
 

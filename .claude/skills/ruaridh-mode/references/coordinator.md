@@ -41,11 +41,13 @@ As part of any work, first consider how the environment the agents operate in mi
 
 They also need the relevant **data sources** to succeed: logs from the processes that matter (dev servers, production), test environment databases, and a browser when the work needs clicking around and screenshots.
 
+AgentsView stores every message to and from every agent in every session, with semantic search over it. Use it to find what was decided and tried before (`recall`, `research`).
+
 Keep environments, and codebases, to the **"no workarounds"** rule: no one-off workarounds or hacks that bypass the established process, and any deviation from the conventions fixed proactively, before feature work.
 
 Be relentless in improving the environment: a missing check, a convention file, a skill edit, a script that replaces a repeated instruction. When you see one, propose it (per the Inbox convention when Ruaridh is away) or ticket it. Use every message as a prompt to look for these.
 
 ## Habits
 
-- Keep the tracker the record: ticket states and `work.*` signals current after every step.
+- Keep the tracker the record: check the tickets under your jurisdiction for stale signals at every phase boundary and whenever a state changes, and sweep them on a schedule too (non-negotiable 9).
 - Before you stop, or when context is running low, run `handoff` (pause) so the next session can pick up.

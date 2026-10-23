@@ -40,7 +40,15 @@ Execute a plan, ticket by ticket: fetch the ticket, cut a worktree, run the plan
 
 The ticket is the contract, the spec is the authority behind it, the plan is its argument.
 
-Repo specifics come from `.agents/`: `tracker.md` for the ticket and its states, `build-loop.md` for the step list (default: failing test → run → implement → run → commit), `prove-landed.md` for proof, `design-review.md` and `deploy.md` when they exist. A missing file means this skill's default.
+Repo specifics come from `.agents/`: `tracker.md` for the ticket and its states, `build-loop.md` for the step list (default: failing test → run → implement → run → commit), `prove-landed.md` for proof, `references.md` for the must-read references by surface (match the files the task touches against its path patterns and read the named references before the first edit), `review.md` for the per-surface checks `review` runs, and `design-review.md` and `deploy.md` when they exist. A missing file means this skill's default.
+
+## The decision trail
+
+Every run of this skill keeps a decision trail, inline or delegated: the record of what you decided on Ruaridh's behalf, written as you go. It exists because the ledger and the plan's workspace are the plan's memory and die with it, while the trail belongs to the ticket and outlives every session that touches it.
+
+- **Where it goes:** `.scratch/decisions/<ticket>.tsv`, appended with `<skills dir>/verify/scripts/log.sh` (the script's usage line is the argument order). It is uncommitted scratch: a resumed session, a fix round and a later ticket in the same stack read it, and nothing commits it. `verify` owns the trail, its rows and what each phase means.
+- **What goes in it:** every decision, logged when you make it, not reconstructed afterwards. Inline mode's `Ruling:` lines, delegated mode's rulings on plan conflicts and builder findings, parked findings and breaker adjudications, review re-grades, deferred minors you decide not to act on, and the stop when you stop. In delegated mode the builders never see the trail: you log what their reports and the reviews lead you to decide.
+- **When it is posted:** at the end of the run, and at any pause before `handoff`, one comment on the ticket carries the trail, in the format `<skills dir>/verify/references/decision-trail.md` gives, posted through the tracker in `.agents/tracker.md`. One comment per run or pause, not one per decision.
 
 ## Two ways to run a plan
 
@@ -391,7 +399,7 @@ When the work outlives one session — many stacked PRs, dozens of units, Ruarid
 
 **You own the contract. The structure changes. The behavior does not.** Distinct from a feature, which adds behavior, and a bug fix, which corrects it.
 
-If the cleanup reveals a missing feature or a real bug, split it out and ship the structural change first against the pinned contract. A redesign is allowed, but name it and route it through the chain as a feature. Large or cross-cutting structural work belongs in `to-plan --map`. This section is the focused-to-medium change.
+If the cleanup reveals a missing feature or a real bug, split it out and ship the structural change first against the pinned contract. A redesign is allowed, but name it and route it through the chain as a feature. Large or cross-cutting structural work belongs in `wayfinder`. This section is the focused-to-medium change.
 
 1. **Pin the behavior contract first.** Learn the contract of the affected subsystem, then write a characterization test, snapshot or equivalence harness that captures current behavior before any structure moves. If the area has no coverage, write the pin before touching structure. Type check and lint are not a pin.
 2. **Name the structure the code is missing.** Boring code stays when the shape is already clear and local. The reshape must delete branches or invalid states, not add indirection.
@@ -410,10 +418,10 @@ Before you delete anything, collect every ledger line containing `Ruling:` — p
 
 When the final review is clean and its fixes are committed, the plan's workspace has served its purpose: the git history is the record now. Leave sibling directories alone; they belong to other plans.
 
-1. `review` (see `ruaridh-mode` for the current stand-in), then `pr`: one PR per ticket, based on the previous ticket's branch.
+1. `review`, then `pr`: one PR per ticket, based on the previous ticket's branch.
 2. Merge only with Ruaridh's yes, in this session, by the recipe in `pr`. Then mark the ticket `merged` with the PR and merge sha, per `.agents/tracker.md`.
 3. Prove it per `.agents/prove-landed.md` (default: the tests on the merged sha). Close as `done` only when the ticket's Done-when is observed; one ticket at a time, as soon as it is. Merged is not done.
-4. Stopping short for any reason: `handoff` (pause). Never end the session with a stale ticket state or `work.*` signal.
+4. Stopping short for any reason: post the decision trail's comment (see "The decision trail"), then `handoff` (pause). Never leave a stale ticket state or `work.*` signal behind: check them at every phase boundary and whenever a state changes (`ruaridh-mode`, non-negotiable 9).
 5. Reply with what you built, what you chose and why, the throughput checkpoint when delegated, and the open decisions. Tables for design alternatives.
 
 ## Common rationalizations

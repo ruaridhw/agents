@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Run a command in the memory-capped slice (see ~/.config/systemd/user/memcap.slice).
+# Optional per-job cap: MEMCAP_MEM=4G memcap <cmd>
+#
+# Reference definition, not an installer: it is the shape this environment runs
+# memory-hungry commands in. Install it on your own machine, with your own slice
+# limits (docs/memcap.slice.example) and the slice unit loaded in the user manager.
+set -euo pipefail
+props=()
+[[ -n "${MEMCAP_MEM:-}" ]] && props+=(-p "MemoryMax=$MEMCAP_MEM")
+exec systemd-run --user --scope --slice=memcap.slice --quiet --collect "${props[@]}" -- "$@"
