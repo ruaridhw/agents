@@ -1,0 +1,12 @@
+# Example systemd user slice for memory-hungry commands, the slice that
+# bin/memcap runs them in. Copy it to ~/.config/systemd/user/memcap.slice,
+# replace the placeholders with limits that fit your own machine, then run
+# `systemctl --user daemon-reload`. Nothing in this repo installs it.
+
+[Unit]
+Description=<memory-capped slice for large ad-hoc commands>
+
+[Slice]
+MemoryHigh=<soft limit, e.g. 75% of RAM>
+MemoryMax=<hard limit>
+MemorySwapMax=<swap allowance>

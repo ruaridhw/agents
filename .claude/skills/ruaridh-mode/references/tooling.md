@@ -6,7 +6,9 @@ Machine-specific values (hostnames, collector URLs, token paths, tailnet recipes
 
 - Search with `rg`; read large files and noisy output through `rtk`.
 - Python: bare `python3` for stdlib; the project's own venv or uv project when there is one; otherwise the shared env in `~/AGENTS.md`.
-- Memory-hungry commands go through `memcap <cmd>`. After an OOM kill (exit 137), cut the memory use before re-running.
+- Memory-hungry commands go through `memcap <cmd>`. `bin/memcap` is the reference definition for a systemd user
+  scope and `docs/memcap.slice.example` the slice unit with placeholder limits; install both on your own machine
+  with your own limits. After an OOM kill (exit 137), cut the memory use before re-running.
 - After any blocked or interrupted command, re-check its precondition (`git log -1`, `git status`) before running anything that depends on it.
 
 ## Git
