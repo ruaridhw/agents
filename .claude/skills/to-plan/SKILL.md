@@ -1,6 +1,6 @@
 ---
 name: to-plan
-description: Write the implementation plan for a set of published tickets, one task per ticket in dependency order, steps from the repo's build loop, acceptance cited from the spec; then propose inline or delegated execution and wait for Ruaridh's pick. With --map, chart work too big for one session as a map of decision tickets instead. Use after to-tickets, or when asked to "plan this" or "plan the build".
+description: Write the implementation plan for a set of published tickets, one task per ticket in dependency order, steps from the repo's build loop, acceptance cited from the spec; then propose inline or delegated execution and wait for Ruaridh's pick. Use after to-tickets, or when asked to "plan this" or "plan the build".
 upstream:
   - repo: superpowers
     path: skills/writing-plans/SKILL.md
@@ -8,9 +8,6 @@ upstream:
   - repo: pstack
     path: pstack/skills/poteto-mode/playbooks/multi-phase-plan.md
     sha: 2f8377461fd533f5af782e1fd643783b1067b847
-  - repo: mattpocock
-    path: skills/engineering/wayfinder/SKILL.md
-    sha: 5beb35b040e3de97e54fa9e386d7e42d15c295c2
 ---
 
 # to-plan
@@ -222,7 +219,3 @@ The plan is not a gate of its own: his pick covers his review of it. Then hand b
 
 **If Inline chosen:** `implement`, inline mode.
 **If Delegated chosen:** `implement`, delegated mode, with the split the plan names.
-
-## Map mode (`--map`)
-
-For a foggy effort bigger than one session, where the way to the destination is not visible yet: chart it as a map of decision tickets on the tracker and resolve them one at a time until a spec can be written. It produces decisions, not deliverables, and hands off to `to-spec`. See `references/map-mode.md`.

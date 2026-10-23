@@ -61,7 +61,7 @@ Before anything else, classify what arrived and say so in one line ("Intake: tic
 | A measured slowness, or a number to improve against a baseline | `debug`, with `verify`'s benchmark checklist before reporting a number |
 | An inbound issue someone else raised | `triage` |
 | A vague ask, idea or "what should we do" | `grill` |
-| Work too big and foggy for one session | `to-plan --map` |
+| Work too big and foggy for one session | `wayfinder` |
 | A design or behaviour question an experiment could settle | `prototype` |
 | A behaviour-preserving change to structure | `implement`, pinning behaviour before moving structure |
 | A PR to drive to merge-ready, or a stack to land | `pr` (merge recipe); `ship` only when Ruaridh invokes it |

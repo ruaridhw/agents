@@ -64,6 +64,10 @@ skill = "recall"
 when = "get the state of a thread"
 
 [[chain.side]]
+skill = "wayfinder"
+when = "map an effort that is still fog"
+
+[[chain.side]]
 skill = "handoff"
 when = "pause or pick up"
 
@@ -80,7 +84,7 @@ skills = ["clarify", "grill", "prototype", "research", "domain", "arch", "questi
 [[families]]
 name = "Planning and ticketing"
 blurb = "From a decided idea to tickets a session can finish."
-skills = ["to-spec", "spec-review", "to-tickets", "triage", "to-plan"]
+skills = ["to-spec", "spec-review", "to-tickets", "triage", "to-plan", "wayfinder"]
 
 [[families]]
 name = "Building"
@@ -118,6 +122,7 @@ spec-review = "An adversarial reviewer in its own pane, answered from the decisi
 to-tickets = "Tickets sized to one session, with Done-when copied from the spec."
 triage = "Inbound issues through five states, and ticket waves rendered for the gate."
 to-plan = "One task per ticket in dependency order, then a pick: inline or delegated."
+wayfinder = "A map of decision tickets for an effort whose route is still fog."
 implement = "Build a ticket or a wave, yourself or through coordinated builders."
 tdd = "Red, green, refactor, with a note on what each test seam catches and misses."
 debug = "Root cause first, and a failing reproduction committed before the fix."

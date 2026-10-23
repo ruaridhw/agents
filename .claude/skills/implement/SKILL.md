@@ -399,7 +399,7 @@ When the work outlives one session — many stacked PRs, dozens of units, Ruarid
 
 **You own the contract. The structure changes. The behavior does not.** Distinct from a feature, which adds behavior, and a bug fix, which corrects it.
 
-If the cleanup reveals a missing feature or a real bug, split it out and ship the structural change first against the pinned contract. A redesign is allowed, but name it and route it through the chain as a feature. Large or cross-cutting structural work belongs in `to-plan --map`. This section is the focused-to-medium change.
+If the cleanup reveals a missing feature or a real bug, split it out and ship the structural change first against the pinned contract. A redesign is allowed, but name it and route it through the chain as a feature. Large or cross-cutting structural work belongs in `wayfinder`. This section is the focused-to-medium change.
 
 1. **Pin the behavior contract first.** Learn the contract of the affected subsystem, then write a characterization test, snapshot or equivalence harness that captures current behavior before any structure moves. If the area has no coverage, write the pin before touching structure. Type check and lint are not a pin.
 2. **Name the structure the code is missing.** Boring code stays when the shape is already clear and local. The reshape must delete branches or invalid states, not add indirection.
