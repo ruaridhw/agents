@@ -263,6 +263,21 @@ def test_self_upstream_resolves_against_the_repo(repo):
     assert run(repo) == 0
 
 
+def test_self_upstream_follows_the_move_from_claude_skills(repo, capsys):
+    git(repo, "init", "-q", "-b", "main")
+    git(repo, "config", "user.email", "test@example.com")
+    git(repo, "config", "user.name", "Test")
+    legacy = repo / ".claude/skills/old/SKILL.md"
+    legacy.parent.mkdir(parents=True)
+    legacy.write_text("old\n")
+    sha = commit_all(repo, "old skill at the legacy path")
+    git(repo, "mv", ".claude/skills/old", ".agents/skills/old")
+    commit_all(repo, "move the skills tree")
+    write_registry(repo, {"self": {"self": True}})
+    write_skill(repo, feeds=[("self", ".agents/skills/old/SKILL.md", sha)])
+    assert run(repo) == 0, capsys.readouterr().out
+
+
 def test_unconfigured_local_upstream_is_reported_but_not_fatal(repo, sha_of, capsys):
     sha = sha_of(repo)
     write_registry(repo, {"demo": {"local": True, "sha": "0" * 40}})

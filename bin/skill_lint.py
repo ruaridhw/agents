@@ -136,7 +136,10 @@ def check_feeds(root, info, registry, local, label, problems, notes):
             if not entry.get("self") and not su.clone_dir(root, feed.repo).exists():
                 clone_reported.add(feed.repo)
             continue
-        if not su.git_ok(["cat-file", "-e", f"{feed.sha}:{feed.path}"], cwd):
+        if not any(
+            su.git_ok(["cat-file", "-e", f"{feed.sha}:{path}"], cwd)
+            for path in su.feed_paths(feed, entry)
+        ):
             problems.append(
                 f"{label}: {feed.path!r} missing at {su.short(feed.sha)} in"
                 f" upstream {feed.repo!r}"
