@@ -152,7 +152,7 @@ async def run(job_name: str, *, dry_run: bool = False) -> int:
                 disallowed_tools=spec.dry_run_disallowed if dry_run else [],
                 permission_mode=spec.permission_mode,
                 model=spec.model,
-                setting_sources=["project"],  # loads .agents/skills/ from this repo
+                setting_sources=["project"],  # loads .claude/skills/, a link to .agents/skills/
                 max_turns=spec.max_turns,
             )
             prompt = spec.load_prompt(env)

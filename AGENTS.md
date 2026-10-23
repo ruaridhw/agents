@@ -21,6 +21,7 @@ runner/config.py          .env loading, ${VAR} resolution, JobSpec, MCP subsetti
 runner/preflight.py       loud pre-run checks: auth, env, paths, MCP reachability
 runner/run_job.py         entrypoint; --dry-run blocks each job's write tools
 .agents/skills/<name>/    skill definitions (scheduled-job skills and the curated skill set)
+.claude/skills            link to .agents/skills, so Claude Code and the job runner find the skills
 LANDSCAPE.md              curated skills: opinion and, per upstream feed, what was taken and dropped
 UPSTREAMS.json            upstream skill repos and their audited shas; clones live in upstream/ (gitignored)
 conventions/              tracker profiles that setup-project copies into a repo's .agents/tracker.md
