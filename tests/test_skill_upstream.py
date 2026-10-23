@@ -330,3 +330,28 @@ def test_missing_registry_is_a_usage_error(tmp_path, capsys):
     root = init_repo(tmp_path / "empty")
     assert run(root, "status") == 2
     assert "not found" in capsys.readouterr().err
+
+
+def test_self_feed_follows_the_move_from_claude_skills(repo, capsys):
+    root = repo["root"]
+    legacy = root / ".claude/skills/old/SKILL.md"
+    legacy.parent.mkdir(parents=True)
+    legacy.write_text("old\n")
+    sha = commit_all(root, "old skill at the legacy path")
+    (root / ".agents/skills").mkdir(exist_ok=True)
+    git(root, "mv", ".claude/skills/old", ".agents/skills/old")
+    commit_all(root, "move the skills tree")
+    feed_path = ".agents/skills/old/SKILL.md"
+    write_skill(root, [("self", feed_path, sha)])
+    commit_all(root, "stamp the moved path")
+
+    assert run(root, "check") == 0
+    capsys.readouterr()
+    assert run(root, "status") == 0
+    feed_line = next(
+        line for line in capsys.readouterr().out.splitlines() if feed_path in line
+    )
+    assert "commits 1" in feed_line
+    assert "missing" not in feed_line
+    assert run(root, "diff", "demo") == 0
+    assert "rename from .claude/skills/old/SKILL.md" in capsys.readouterr().out
