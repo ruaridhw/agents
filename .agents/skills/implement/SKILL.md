@@ -27,10 +27,10 @@ upstream:
     path: pstack/skills/poteto-mode/playbooks/orchestrate.md
     sha: 2f8377461fd533f5af782e1fd643783b1067b847
   - repo: self
-    path: .claude/skills/orchestrating-reviewed-build
+    path: .agents/skills/orchestrating-reviewed-build
     sha: bed823f3b85b9dfd360f434cd62172bfc6d5495b
   - repo: self
-    path: .claude/skills/herdr-agent-handoff/SKILL.md
+    path: .agents/skills/herdr-agent-handoff/SKILL.md
     sha: bed823f3b85b9dfd360f434cd62172bfc6d5495b
 ---
 

@@ -20,7 +20,8 @@ jobs/<name>/precheck.md   optional cheap probe (Haiku, read-only): last line NO_
 runner/config.py          .env loading, ${VAR} resolution, JobSpec, MCP subsetting
 runner/preflight.py       loud pre-run checks: auth, env, paths, MCP reachability
 runner/run_job.py         entrypoint; --dry-run blocks each job's write tools
-.claude/skills/<name>/    skill definitions (scheduled-job skills and the curated skill set)
+.agents/skills/<name>/    skill definitions (scheduled-job skills and the curated skill set)
+.claude/skills            link to .agents/skills, so Claude Code and the job runner find the skills
 LANDSCAPE.md              curated skills: opinion and, per upstream feed, what was taken and dropped
 UPSTREAMS.json            upstream skill repos and their audited shas; clones live in upstream/ (gitignored)
 conventions/              tracker profiles that setup-project copies into a repo's .agents/tracker.md
@@ -39,7 +40,7 @@ logs/<job>/*.jsonl        full run streams + history.jsonl summaries (gitignored
 
 ## Adding a new skill (and scheduling it)
 
-1. **Write the skill** at `.claude/skills/<skill-name>/SKILL.md` — frontmatter
+1. **Write the skill** at `.agents/skills/<skill-name>/SKILL.md` — frontmatter
    `name:` + `description:`, then the doctrine. Extra material goes in
    `references/`. Keep every identifying value (emails, IDs, client names,
    URLs with tenants) OUT of the skill text: write "provided in the

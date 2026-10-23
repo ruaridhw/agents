@@ -22,7 +22,7 @@ from pathlib import Path
 
 DEFAULT_RULES = Path.home() / ".config" / "agents" / "public-denylist.txt"
 SCOPE = (
-    ".claude/skills/",
+    ".agents/skills/",
     "conventions/",
     "hooks/",
     ".pi/",

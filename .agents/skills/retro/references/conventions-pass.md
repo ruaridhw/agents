@@ -6,7 +6,7 @@ A guided flow for turning Ruaridh's working conventions into a skill that agents
 
 ### 0. Check for an existing skill
 
-Look for a `*-mode` skill (or the section of `ruaridh-mode`) that already covers the conventions, in the repo's `.claude/skills/` and in `~/.claude/skills/`. If one exists, confirm the intent (unless it was already said):
+Look for a `*-mode` skill (or the section of `ruaridh-mode`) that already covers the conventions, in the repo's `.agents/skills/` or `.claude/skills/` and in `~/.claude/skills/`. If one exists, confirm the intent (unless it was already said):
 
 - Update the existing skill (the default for a repeat run)
 - Start fresh (rare; ask why first)

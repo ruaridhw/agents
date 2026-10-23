@@ -49,7 +49,7 @@ def main(argv: list[str] | None = None) -> int:
     conflict = False
 
     for name in listed_skills(SKILLS_LIST):
-        source = REPO_ROOT / ".claude" / "skills" / name
+        source = REPO_ROOT / ".agents" / "skills" / name
         target = dest / name
 
         if not source.is_dir():

@@ -9,7 +9,7 @@ upstream:
     path: pstack/skills/ketchup/SKILL.md
     sha: 2f8377461fd533f5af782e1fd643783b1067b847
   - repo: self
-    path: .claude/skills/searching-shared-agentsview-history/SKILL.md
+    path: .agents/skills/searching-shared-agentsview-history/SKILL.md
     sha: a5d5d8a99ef29eaeab5050e3c974cdfc340c7612
 ---
 

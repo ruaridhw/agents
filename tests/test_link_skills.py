@@ -45,7 +45,7 @@ def load_link_skills():
 
 def make_repo(root: Path, names: list[str]) -> Path:
     repo = root / "repo"
-    skills = repo / ".claude" / "skills"
+    skills = repo / ".agents" / "skills"
     skills.mkdir(parents=True)
     for name in names:
         (skills / name).mkdir()
@@ -81,7 +81,7 @@ class LinkSkillsTest(unittest.TestCase):
         self.assertIn("link ruaridh-mode", output)
         self.assertEqual(
             (self.dest / "ruaridh-mode").resolve(),
-            (self.repo / ".claude" / "skills" / "ruaridh-mode").resolve(),
+            (self.repo / ".agents" / "skills" / "ruaridh-mode").resolve(),
         )
 
         code, output = self.run_cli()
@@ -100,7 +100,7 @@ class LinkSkillsTest(unittest.TestCase):
         self.assertIn(f"relink clarify: {foreign}", output)
         self.assertEqual(
             (self.dest / "clarify").resolve(),
-            (self.repo / ".claude" / "skills" / "clarify").resolve(),
+            (self.repo / ".agents" / "skills" / "clarify").resolve(),
         )
 
     def test_real_directory_is_a_conflict_and_untouched(self):

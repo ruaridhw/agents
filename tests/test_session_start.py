@@ -91,7 +91,7 @@ class SessionStartHookTest(unittest.TestCase):
             self.assertIn(str(root / "ruaridh-mode" / "SKILL.md"), context)
 
     def test_real_bodies_fit_the_injected_context_limit(self):
-        skills = REPO_ROOT / ".claude" / "skills"
+        skills = REPO_ROOT / ".agents" / "skills"
         for mode in (None, "worker"):
             context = additional_context(run_hook(skills, mode=mode))
             self.assertLess(len(context), CONTEXT_LIMIT, f"mode={mode}")

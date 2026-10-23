@@ -1,6 +1,6 @@
 # Third-party notices
 
-Curated skills in `.claude/skills/` keep prose from the following MIT-licensed upstreams (see `UPSTREAMS.json` and `LANDSCAPE.md` for which skill takes what). Their notices:
+Curated skills in `.agents/skills/` keep prose from the following MIT-licensed upstreams (see `UPSTREAMS.json` and `LANDSCAPE.md` for which skill takes what). Their notices:
 
 ## mattpocock (https://github.com/mattpocock/skills)
 

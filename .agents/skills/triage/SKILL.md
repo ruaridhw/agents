@@ -12,7 +12,7 @@ upstream:
     path: skills/engineering/triage/OUT-OF-SCOPE.md
     sha: 5beb35b040e3de97e54fa9e386d7e42d15c295c2
   - repo: self
-    path: .claude/skills/kata-triage-artifact
+    path: .agents/skills/kata-triage-artifact
     sha: 43b21c7a5a0621bb6c805a7b81dc91794fb4a175
 ---
 

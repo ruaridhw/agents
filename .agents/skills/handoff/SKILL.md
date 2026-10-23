@@ -12,7 +12,7 @@ upstream:
     path: pstack/skills/poteto-mode/playbooks/session-pickup.md
     sha: 2f8377461fd533f5af782e1fd643783b1067b847
   - repo: self
-    path: .claude/skills/herdr-agent-handoff/SKILL.md
+    path: .agents/skills/herdr-agent-handoff/SKILL.md
     sha: 79c8a819b683ca3451b74586b4dc45655e1ec092
 ---
 

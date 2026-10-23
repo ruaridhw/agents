@@ -11,7 +11,10 @@ import sys
 from pathlib import Path
 from typing import NamedTuple
 
-SKILLS_DIR = ".claude/skills"
+SKILLS_DIR = ".agents/skills"
+# Where the skills lived before they moved; a self feed stamped before the move
+# keeps its sha, so its path is looked up here as well.
+LEGACY_SKILLS_DIR = ".claude/skills"
 UPSTREAMS_FILE = "UPSTREAMS.json"
 CLONES_DIR = "upstream"
 LOCAL_CONFIG_ENV = "SKILL_UPSTREAM_LOCAL_CONFIG"
@@ -125,6 +128,12 @@ def upstream_cwd(root, name, entry):
     if entry.get("self"):
         return root
     return clone_dir(root, name)
+
+
+def feed_paths(feed, entry):
+    if entry.get("self") and feed.path.startswith(SKILLS_DIR + "/"):
+        return [feed.path, LEGACY_SKILLS_DIR + feed.path[len(SKILLS_DIR) :]]
+    return [feed.path]
 
 
 def scalar(value):
@@ -254,8 +263,8 @@ def flag_text(flags):
     return f"  [{', '.join(flags)}]" if flags else ""
 
 
-def count_commits(cwd, base, head, path):
-    out = git_out(["rev-list", "--count", f"{base}..{head}", "--", path], cwd)
+def count_commits(cwd, base, head, *paths):
+    out = git_out(["rev-list", "--count", f"{base}..{head}", "--", *paths], cwd)
     return int(out or 0)
 
 
@@ -341,7 +350,7 @@ def feed_row(root, feed, registry, local):
     if head is None or base is None:
         row["flags"].append("unsynced")
         return row
-    row["commits"] = count_commits(cwd, base, head, feed.path)
+    row["commits"] = count_commits(cwd, base, head, *feed_paths(feed, entry))
     if not git_ok(["cat-file", "-e", f"{head}:{feed.path}"], cwd):
         row["flags"].append("missing-at-head")
     return row
@@ -430,7 +439,16 @@ def cmd_diff(root, skill_name, repo, path):
             continue
         entry = registry[feed.repo]
         cwd = upstream_cwd(root, feed.repo, entry)
-        diff = git(["diff", f"{feed.sha}..{row['head']}", "--", feed.path], cwd).stdout
+        diff = git(
+            [
+                "diff",
+                "-M",
+                f"{feed.sha}..{row['head']}",
+                "--",
+                *feed_paths(feed, entry),
+            ],
+            cwd,
+        ).stdout
         print(diff.rstrip("\n") if diff.strip() else "(no changes)")
     return 0
 
@@ -555,7 +573,10 @@ def cmd_check(root):
                 continue
             if not SHA_RE.match(feed.sha or ""):
                 continue
-            if not git_ok(["cat-file", "-e", f"{feed.sha}:{feed.path}"], cwd):
+            if not any(
+                git_ok(["cat-file", "-e", f"{feed.sha}:{path}"], cwd)
+                for path in feed_paths(feed, entry)
+            ):
                 problems.append(
                     f"{label}: {feed.path} missing at {short(feed.sha)} in {feed.repo}"
                 )

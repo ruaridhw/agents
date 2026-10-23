@@ -3,10 +3,10 @@ name: herdr
 description: Herdr pane primitives for agents that do work. Spawn a sibling, child or team in Herdr panes; list, read, close and resume the panes this session created; find sibling sessions in the same project. Use whenever work is delegated, a worker or reviewer is needed, a named agent or tab is mentioned, or a paused pane must come back. Requires HERDR_ENV=1.
 upstream:
   - repo: self
-    path: .claude/skills/herdr-agent-handoff/SKILL.md
+    path: .agents/skills/herdr-agent-handoff/SKILL.md
     sha: 8134eb883b1bcffe63ebb8bd7481a75b22535f80
   - repo: self
-    path: .claude/skills/find-sibling-agents/SKILL.md
+    path: .agents/skills/find-sibling-agents/SKILL.md
     sha: 8134eb883b1bcffe63ebb8bd7481a75b22535f80
 ---
 

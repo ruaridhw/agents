@@ -1,6 +1,6 @@
 """Format-only linter for the curated skills: frontmatter, stamps and denylist.
 
-Lints only curated skills (`.claude/skills/<dir>/SKILL.md` with an `upstream:`
+Lints only curated skills (`.agents/skills/<dir>/SKILL.md` with an `upstream:`
 key). Each finding is printed as `<path>: <problem>`; any finding exits 1.
 """
 
@@ -136,7 +136,10 @@ def check_feeds(root, info, registry, local, label, problems, notes):
             if not entry.get("self") and not su.clone_dir(root, feed.repo).exists():
                 clone_reported.add(feed.repo)
             continue
-        if not su.git_ok(["cat-file", "-e", f"{feed.sha}:{feed.path}"], cwd):
+        if not any(
+            su.git_ok(["cat-file", "-e", f"{feed.sha}:{path}"], cwd)
+            for path in su.feed_paths(feed, entry)
+        ):
             problems.append(
                 f"{label}: {feed.path!r} missing at {su.short(feed.sha)} in"
                 f" upstream {feed.repo!r}"

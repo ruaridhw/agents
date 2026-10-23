@@ -3,7 +3,7 @@ name: spec-review
 description: Adversarial review of a draft spec by an independent reviewer in a sibling Herdr pane, answered by the author from the project's decision history, before the spec issue is created. Use when to-spec offers it, or when asked to "review the spec", "challenge this spec" or "red-team the spec".
 upstream:
   - repo: self
-    path: .claude/skills/adversarial-spec-review/SKILL.md
+    path: .agents/skills/adversarial-spec-review/SKILL.md
     sha: 51fe9394d52c50b26c417273b7b027e81abf1dff
 ---
 
