@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+# Claude Code SessionStart hook: inject the ruaridh-mode router skill.
+
+set -euo pipefail
+
+# Resolve this script's directory without dirname: a SessionStart hook can run
+# with a broken PATH (anthropics/claude-code#43127).
+case "$0" in
+  */*|*\\*) SCRIPT_DIR="$(cd "${0%[/\\]*}" && pwd)" ;;
+  *) SCRIPT_DIR="$(pwd)" ;;
+esac
+REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+if [ -n "${RUARIDH_MODE_ROOT:-}" ]; then
+  if [ -d "${RUARIDH_MODE_ROOT}" ]; then
+    SKILLS_DIR="$(cd "${RUARIDH_MODE_ROOT}" && pwd)"
+  else
+    SKILLS_DIR="${RUARIDH_MODE_ROOT}"
+  fi
+else
+  SKILLS_DIR="${REPO_ROOT}/.claude/skills"
+fi
+
+SKILL_DIR="${SKILLS_DIR}/ruaridh-mode"
+REFERENCES_DIR="${SKILL_DIR}/references"
+
+if [ "${RUARIDH_MODE:-}" = "worker" ]; then
+  body_file="${REFERENCES_DIR}/slim.md"
+else
+  body_file="${SKILL_DIR}/SKILL.md"
+fi
+
+strip_frontmatter() {
+  local content="$1"
+  if [[ "$content" == ---$'\n'* ]]; then
+    content="${content#---$'\n'}"
+    content="${content#*$'\n'---$'\n'}"
+    while [[ "$content" == $'\n'* ]]; do
+      content="${content#$'\n'}"
+    done
+  fi
+  printf '%s' "$content"
+}
+
+if [ -r "$body_file" ]; then
+  body="$(strip_frontmatter "$(<"$body_file")")"
+else
+  body="Could not read the ruaridh-mode skill at ${body_file}. Continue without it."
+fi
+
+escape_for_json() {
+  local s="$1"
+  s="${s//\\/\\\\}"
+  s="${s//\"/\\\"}"
+  s="${s//$'\n'/\\n}"
+  s="${s//$'\r'/\\r}"
+  s="${s//$'\t'/\\t}"
+  printf '%s' "$s"
+}
+
+session_context="<EXTREMELY_IMPORTANT>
+ruaridh-mode bootstrap
+
+The ruaridh-mode skill is already loaded below; follow it and do not load it again. Its references are under ${REFERENCES_DIR}. Curated skills directory: ${SKILLS_DIR}.
+
+${body}
+</EXTREMELY_IMPORTANT>"
+
+session_context_escaped="$(escape_for_json "$session_context")"
+
+emit_json() {
+  # shellcheck disable=SC2059 # every caller passes a literal format string
+  if command -v cat >/dev/null 2>&1; then
+    printf "$@" | cat
+  else
+    printf "$@"
+  fi
+}
+
+emit_json '{\n  "hookSpecificOutput": {\n    "hookEventName": "SessionStart",\n    "additionalContext": "%s"\n  }\n}\n' "$session_context_escaped"
+
+exit 0

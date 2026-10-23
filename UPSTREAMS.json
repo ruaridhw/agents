@@ -1,0 +1,24 @@
+{
+  "upstreams": {
+    "mattpocock": {
+      "url": "https://github.com/mattpocock/skills",
+      "sha": "49dd158d1076134a641b33efb035946536778336"
+    },
+    "superpowers": {
+      "url": "https://github.com/obra/superpowers",
+      "sha": "bb92a77741419a4ab5f06e711a283343f1ada0c3"
+    },
+    "pstack": {
+      "url": "https://github.com/cursor/plugins",
+      "subdir": "pstack",
+      "sha": "2f8377461fd533f5af782e1fd643783b1067b847"
+    },
+    "kit": {
+      "local": true,
+      "sha": "1d552609f50102184079aa622beb727e38b02341"
+    },
+    "self": {
+      "self": true
+    }
+  }
+}
