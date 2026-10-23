@@ -17,6 +17,7 @@ Machine-specific values (hostnames, collector URLs, token paths, tailnet recipes
 - Base on the freshly fetched remote default branch; stack on an outstanding PR branch only when it is the real latest base.
 - History stays linear: a stale PR branch is rebased onto its new base, never has the default branch merged into it.
 - Stage explicit paths. Never `git add -A` in a tree other sessions may share.
+- The branch you created for a ticket you claimed (`work.branch`) is yours to rewrite: reset, amend and force-push it, with `--force-with-lease` only. Never the default branch, another agent's branch, or a branch another open PR stacks on, unless you rebase those child PRs in the same step. Someone else's work still needs a yes before you reset, stash or discard it.
 - The stash stack is shared across worktrees and sessions: never bare `git stash` / `git stash pop`. Prefer a `wip:` commit.
 - Gate on checks: run them in their own command, read the result, then commit or push. Never `check; commit; push; merge` in one line.
 

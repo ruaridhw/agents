@@ -23,7 +23,7 @@ Ticket states, labels and the commands behind them come from `.agents/tracker.md
 
 **Green first.** Run the project's full checks in their own command and read the result. If they fail, report the failures and stop: the PR comes after a green suite. A green run from earlier in the session only proves the tree it ran on, so run the suite on the tree you are about to push.
 
-**Commits.** Commit liberally. Each commit is a future PR: landable, and ordered to tell the story. The subject is a gitmoji and a short imperative, no trailing period; the emoji is the type (feature, fix, docs, refactor, test, chore, perf) and the subject names a real symbol when one carries the change. Every commit carries a one-line body saying why, and a body never restates its subject. A separable fix gets a new commit; never amend or squash unless Ruaridh asks.
+**Commits.** Commit liberally. Each commit is a future PR: landable, and ordered to tell the story. The subject is a gitmoji and a short imperative, no trailing period; the emoji is the type (feature, fix, docs, refactor, test, chore, perf) and the subject names a real symbol when one carries the change. Every commit carries a one-line body saying why, and a body never restates its subject. A separable fix gets a new commit; amend only on your own ticket branch (`ruaridh-mode`, non-negotiable 4), and never squash unless Ruaridh asks.
 
 **Worktree.** Work from the ticket's worktree under `.worktrees/<ticket>`, based on the freshly fetched default branch; `implement` creates it, and every builder in a Herdr pane gets its own. A dirty branch holding unrelated work: patch it out, start a fresh worktree, and apply the patch there. A branch too tangled to tell the story: start a fresh worktree from the default branch and redo the change minimally, rather than rewriting history in place.
 
@@ -252,4 +252,4 @@ Only worktrees you created are yours to remove, and only after their commits are
 | "Removal refused - `--force` is just finishing the cleanup" | The refusal means files exist only in that worktree. `--force` destroys them permanently. Show him and ask. |
 | "The merged-result failure is probably flaky" | A failing merged result stops everything. Branch and worktree stay put while you investigate. |
 | "The base branch is obviously main" | Confirm the fork point or ask. Merging into the wrong base is expensive to undo. |
-| "The push was rejected - force-push will fix it" | A rejected push means the remote moved. Investigate; force-push only on his explicit request. |
+| "The push was rejected - force-push will fix it" | A rejected push means the remote moved. Investigate; then `--force-with-lease` only if the branch is one you created for a ticket you claimed. |

@@ -279,6 +279,7 @@ Decisions made while building:
 - The three-option finishing menu is not presented by default. Opening the PR is the default and is announced, not asked; merging locally and keeping the branch happen when he picks them; discard happens only on the typed `discard`. (wave 1 redo)
 - `gh` is the only forge, resolved once per session (default remote read from `git remote -v`); the base is confirmed before merging; `references/merge.md` owns every stack mechanic. (wave 1 redo)
 - Domain language comes from `.agents/domain.md`; the repo's checks come from `.agents/build-loop.md`; a worker that opens a PR posts the URL and returns through `handoff` without babysitting. (wave 1 redo)
+- Force-push only on your own claimed branch (Ruaridh, 2026-10-23, review request; scope as relayed by the coordinator): a rejected push is still investigated first, and a `--force-with-lease` push is licensed on a branch you created for a ticket you claimed (`ruaridh-mode`, non-negotiable 4). Amend follows the same licence; squash still needs his yes.
 
 | Feed | Taken | Dropped |
 | --- | --- | --- |
