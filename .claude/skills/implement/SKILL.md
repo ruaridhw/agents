@@ -421,7 +421,7 @@ When the final review is clean and its fixes are committed, the plan's workspace
 1. `review`, then `pr`: one PR per ticket, based on the previous ticket's branch.
 2. Merge only with Ruaridh's yes, in this session, by the recipe in `pr`. Then mark the ticket `merged` with the PR and merge sha, per `.agents/tracker.md`.
 3. Prove it per `.agents/prove-landed.md` (default: the tests on the merged sha). Close as `done` only when the ticket's Done-when is observed; one ticket at a time, as soon as it is. Merged is not done.
-4. Stopping short for any reason: post the decision trail's comment (see "The decision trail"), then `handoff` (pause). Never end the session with a stale ticket state or `work.*` signal.
+4. Stopping short for any reason: post the decision trail's comment (see "The decision trail"), then `handoff` (pause). Never leave a stale ticket state or `work.*` signal behind: check them at every phase boundary and whenever a state changes (`ruaridh-mode`, non-negotiable 9).
 5. Reply with what you built, what you chose and why, the throughput checkpoint when delegated, and the open decisions. Tables for design alternatives.
 
 ## Common rationalizations

@@ -47,5 +47,5 @@ Be relentless in improving the environment: a missing check, a convention file, 
 
 ## Habits
 
-- Keep the tracker the record: ticket states and `work.*` signals current after every step.
+- Keep the tracker the record: check the tickets under your jurisdiction for stale signals at every phase boundary and whenever a state changes, and sweep them on a schedule too (non-negotiable 9).
 - Before you stop, or when context is running low, run `handoff` (pause) so the next session can pick up.
