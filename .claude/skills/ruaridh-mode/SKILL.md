@@ -51,6 +51,9 @@ Before anything else, classify what arrived and say so in one line ("Intake: tic
 
 | What arrived | Route |
 | --- | --- |
+| A quick task (one obvious change, a question, a lookup) | do it |
+| A question that needs primary sources (why the code is shaped this way, how a subsystem works, what the docs or an API actually say) | `research` |
+| Catch me up, or where did I leave off | `recall` |
 | One ticket ref | `implement` |
 | Several refs, or "wave" | `implement`, delegated |
 | A spec ref | `to-tickets` |
@@ -62,7 +65,6 @@ Before anything else, classify what arrived and say so in one line ("Intake: tic
 | A design or behaviour question an experiment could settle | `prototype` |
 | A behaviour-preserving change to structure | `implement`, pinning behaviour before moving structure |
 | A PR to drive to merge-ready, or a stack to land | `pr` (merge recipe); `ship` only when Ruaridh invokes it |
-| A quick task (one obvious change, a question, a lookup) | do it |
 | A handoff summary in `.herdr-handoffs/`, or a ticket with `work.branch` | `handoff` (pickup) |
 | "Stop", "pause", or a session ending with work in flight | `handoff` (pause) |
 | Upstream skill changes, or curating an upstream skill | `update-skills` |
