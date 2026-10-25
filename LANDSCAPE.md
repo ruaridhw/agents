@@ -106,6 +106,7 @@ Decisions:
 - **Publishing stays step 9** (source: wave 1 redo). `spec-review` returns the author to "to-spec step 9" to create the issue from the amended file, and the two skills are rebuilt separately, so the step number is a contract between them.
 - **The wave 0 template stays the document shape** (source: wave 1 redo, on the wave 0 decision). Feed text that belongs to the template is added there rather than in the body: the contents of a decision, the sentence on what makes a good test, and a Further notes section. The body says which sections to fill, not what they look like.
 - **Seams are checked at the gate, not in chat** (source: wave 1 redo). mattpocock's "check with the user that these seams match their expectations" becomes naming the seams in the gate message, because the no-interview decision rules out a question round before the draft exists.
+- **The gate may show the draft as a `spec-page` page** (source: spec-page PR): for a long or table-heavy draft, step 8 annotates the rendered HTML file path; the Markdown stays the file edited, approved and published.
 - **`references/builder-check.md` is the superpowers prompt with only environment edits** (source: wave 1 redo): the worker header, the Herdr pane dispatch, read-only, the summary path and the `HANDOFF_WRITTEN` line from `handoff`. The prompt body stays word for word.
 
 | Feed | Taken | Dropped |
