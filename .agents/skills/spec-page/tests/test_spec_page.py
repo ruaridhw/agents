@@ -51,39 +51,94 @@ class SpecPage(unittest.TestCase):
         self.assertEqual(parser.stack, [])
         self.assertEqual(len(parser.ids), len(set(parser.ids)))
 
-    def test_header_splits_kind_from_title(self):
-        self.assertIn('<p class="eyebrow">Build spec</p>', self.page)
-        self.assertIn(
-            "<h1>Cutting the thumbnail service's cost per image</h1>", self.page
-        )
-        self.assertIn('<span class="notice">Internal only</span>', self.page)
+    def test_every_template_section_is_a_heading_in_order_and_in_the_rail(self):
+        ids = [
+            "intent",
+            "goals-non-goals-anti-goals",
+            "constraints",
+            "decisions",
+            "left-to-the-builder",
+            "acceptance",
+            "design",
+            "out-of-scope",
+            "open-items",
+            "further-notes",
+        ]
+        positions = [self.page.index(f'<h2 id="{hid}">') for hid in ids]
+        self.assertEqual(positions, sorted(positions))
+        for hid in ids:
+            self.assertIn(f'<a href="#{hid}">', self.page)
+        self.assertIn('<li class="sub"><a href="#skip-unchanged-images">', self.page)
 
-    def test_marks_become_pills_with_a_legend(self):
+    def test_header_keeps_the_title_whole_and_shows_the_facts(self):
+        self.assertIn(
+            "<h1>Skip unchanged images in the thumbnail service</h1>", self.page
+        )
+        self.assertIn("<span><b>Spec issue</b> (once published)</span>", self.page)
+        self.assertIn("<span><b>Date</b> 2026-01-12</span>", self.page)
+        self.assertIn('<span class="notice">Internal only</span>', self.page)
+        self.assertIn('<a href="#open-items">2 open items</a>', self.page)
+        page = render("# Retries: back off\n\n## Intent\n\nWhy.\n")
+        self.assertIn("<h1>Retries: back off</h1>", page)
+
+    def test_decisions_table_keeps_its_columns_and_rows(self):
+        table = self.page.split('<h2 id="decisions">')[1].split("<h2")[0]
+        for col in ("Decision", "Source", "Consequence"):
+            self.assertIn(f'<th scope="col">{col}</th>', table)
+        self.assertEqual(table.count("<tr>"), 5)
+
+    def test_open_items_are_tinted_and_anchored(self):
+        section = self.page.split('<h2 id="open-items">')[1].split("<h2")[0]
+        self.assertIn('class="data open"', section)
+        for rid in ("O1", "O2"):
+            self.assertIn(f'<tr id="{rid}">', section)
+        self.assertIn("Consequence if unresolved", section)
+
+    def test_acceptance_cases_are_anchors(self):
+        for rid in ("A1", "A3", "M2"):
+            self.assertIn(
+                f'<tr id="{rid}"><th scope=row class="rid">{rid}</th>', self.page
+            )
+
+    def test_marks_become_pills_and_the_legend_lists_only_those_used(self):
         self.assertIn('class="mark mark-v"', self.page)
         self.assertIn('class="mark mark-r"', self.page)
-        self.assertIn('class="mark mark-i"', self.page)
-        self.assertIn('class="legend"', self.page)
+        legend = self.page.split('class="legend"')[1].split("</div>")[0]
+        self.assertIn("Verified", legend)
+        self.assertNotIn("Inference", legend)
+        page = render(
+            "# T\n\n## Decisions\n\n| Decision | Source |\n| --- | --- |\n| x | I think so |\n"
+        )
+        self.assertNotIn('class="mark mark-i"', page)
 
-    def test_register_rows_are_anchors_and_open_table_is_tinted(self):
-        for rid in ("R1", "S1", "O1"):
-            self.assertIn(f'<tr id="{rid}">', self.page)
-        self.assertIn('class="data open"', self.page)
+    def test_repeated_headings_get_unique_ids(self):
+        page = render("# T\n\n## A\n\n### Phase\n\n## B\n\n### Phase\n")
+        self.assertIn('<h3 id="phase">', page)
+        self.assertIn('<h3 id="phase-2">', page)
 
-    def test_contents_rail_lists_sections_and_numbered_subsections(self):
-        self.assertIn('<a href="#s4">Phase A: skip unchanged images</a>', self.page)
-        self.assertIn('<a href="#s4-2">Steps</a>', self.page)
+    def test_links_render_and_unsafe_schemes_are_dropped(self):
+        page = render(
+            "# T\n\nSee [the issue](https://example.com/1) and [x](javascript:alert(1)).\n"
+        )
+        self.assertIn('<a href="https://example.com/1">the issue</a>', page)
+        self.assertNotIn("javascript:", page)
 
     def test_nested_lists_keep_their_types(self):
-        self.assertRegex(self.page, r"<ol><li><strong>Hash the source\.</strong>")
-        self.assertRegex(self.page, r"<ul><li>same hash and preset")
-        self.assertRegex(self.page, r"<ol><li>the skip share;</li>")
+        page = render(
+            "# T\n\n## Steps\n\n1. **Hash.**\n2. Compare:\n   - same: skip;\n   - else: render.\n"
+            "3. Measure:\n   1. the skip share;\n"
+        )
+        self.assertRegex(page, r"<ol><li><strong>Hash\.</strong>")
+        self.assertRegex(page, r"<ul><li>same: skip;")
+        self.assertRegex(page, r"<ol><li>the skip share;</li>")
 
     def test_ladder_scales_bars_to_the_largest_value(self):
         self.assertIn('style="width:100.0%"', self.page)
         self.assertIn("$0.013", self.page)
 
     def test_bold_first_cell_is_a_lead_row(self):
-        self.assertIn('<tr class="lead">', self.page)
+        page = render("# T\n\n| Step | $ |\n| --- | --- |\n| **All** | 1 |\n")
+        self.assertIn('<tr class="lead">', page)
 
     def test_cli_output_is_byte_stable(self):
         with tempfile.TemporaryDirectory() as tmp:

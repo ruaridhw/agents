@@ -1,61 +1,80 @@
-# Build spec: cutting the thumbnail service's cost per image
+# Skip unchanged images in the thumbnail service
+Spec issue: (once published)   Date: 2026-01-12
 
-Draft for review, 2026-01-12. A spec only: nothing here is built. Each fact is
-marked: **V** verified, **I** inference, **R** a ruling by the owner.
-
-## 1. Purpose
+## Intent
 
 Rendering costs **$0.042 per thumbnail against the $0.010 we charge** (V: `cost.py`,
-scenario T0). Two phases close the gap:
+scenario T0), and 70% of each nightly batch is images whose source has not changed.
+Skipping those is the cheapest way to close most of the gap before the larger move
+to a cheaper instance class.
 
-- **A. Skip images whose source has not changed.** These are 70% of each nightly batch.
-- **B. Move resizing to a cheaper instance class**, once the colour-profile bugs are
-  fixed.
+## Goals / Non-goals / Anti-goals
 
-## 2. What this builds on
+- **Goals:** cost per thumbnail at or below $0.015 over two measured batches; no
+  thumbnail older than its source.
+- **Non-goals:** changing how thumbnails are resized; billing for skipped images.
+- **Anti-goals:** a stale thumbnail served after its source or preset changed, even
+  once. A cheaper batch that does that has failed.
 
-| Fact | Mark |
-| --- | --- |
-| 70% of last night's 12,000 images had an unchanged source hash. | V: `batch-2026-01-11.json` |
-| Unchanged images are never billed. | R, 10 Jan |
-| The cheaper class is about 40% slower per image. | I |
+## Constraints
 
-## 3. Decision register
+- The nightly batch must still finish inside its four-hour window.
+- The thumbnail API and its response shape do not change.
+- Existing outputs carry no hash, so the first run after release renders everything.
 
-### Decided
+## Decisions
 
-| Id | Decision | Source |
+| Decision | Source | Consequence |
 | --- | --- | --- |
-| R1 | Skip on an unchanged source hash *and* an unchanged preset. | Owner, 10 Jan |
-| S1 | A missing hash is never evidence of no change (I). | This spec |
+| Skip only when the source hash *and* the preset are unchanged. | R: owner, 2026-01-10 | A preset edit re-renders every image that uses it. |
+| A missing hash is never evidence of no change. | This spec | The first batch after release is a full render. |
+| The batch worker stores `source_sha256` beside each output; the thumbnail API is untouched. | R: owner, 2026-01-10 | Only the worker and the output store change. |
+| Each skip is logged with the image id and the reason. | V: `batch-2026-01-11.json` sizes the log at ~8,400 lines a night | Skips can be audited without a new dashboard. |
 
-### Open
+## Left to the builder
 
-| Id | Question | Owner |
+- The hash function's streaming buffer size.
+- Where in the worker the comparison sits, as long as no render starts before it.
+- The log line's field order. *My call*: id first, so the log greps cleanly.
+
+## Acceptance
+
+### Skip unchanged images
+
+| Case | Expected result | Seam |
 | --- | --- | --- |
-| O1 | Does a preset change force a full re-render? | Owner |
+| A1 | Unchanged source and preset: no render, one skip log line. | Batch worker, run against a fixture store |
+| A2 | Changed source: rendered as today, new hash stored. | Batch worker |
+| A3 | Missing hash: rendered, hash stored. | Batch worker |
 
-## 4. Phase A: skip unchanged images
+### Measure the saving
 
-### 4.1 Goal and cost
-
-| Configuration | $ per image | Spend per week |
+| Case | Expected result | Seam |
 | --- | --- | --- |
-| T0 today | 0.042 | $3,528 |
-| **A: skip unchanged** | **0.013** | **$1,092** |
+| M1 | Two batches after release average at or below $0.015 per image. | The nightly cost report |
+| M2 | Skip share on a batch with a preset change. Result unknown: case kept as a harvest. | Owner decides the threshold |
 
-### 4.2 Steps
+## Design
 
-1. **Hash the source.** Store `source_sha256` beside each output.
-2. **Compare before rendering:**
-   - same hash and preset: skip, and log the skip;
-   - otherwise: render as today.
-3. **Measure** two batches after release:
-   1. the skip share;
-   2. the cost per image.
-
-## 5. Order
+No screens change. The worker's decision for each image:
 
 ```text
-A hash ─▶ A skip ─▶ two measured batches ─▶ B resize class
+read source ─▶ hash ─▶ stored hash and preset match? ─┬─ yes ─▶ skip, log
+                                                       └─ no  ─▶ render, store hash
 ```
+
+## Out of scope
+
+- **The cheaper instance class.** It waits on two colour-profile fixes and gets its own spec.
+- **Backfilling hashes for old outputs.** The first full batch does it for free.
+
+## Open items
+
+| Item | Owner | Consequence if unresolved |
+| --- | --- | --- |
+| O1 Does a preset change force a full re-render of every image that uses it? | Owner | A3 and M2 cannot be signed off. |
+| O2 What skip share counts as healthy? | Owner | M2 stays a harvest with no pass mark. |
+
+## Further notes
+
+> The batch of 2026-01-11 had 12,000 images; 8,400 had an unchanged source hash.

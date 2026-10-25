@@ -3,21 +3,29 @@
     python3 spec_page.py SPEC.md [-o SPEC.html] [--notice TEXT] [--ladder ladder.json]
 
 The Markdown stays the source: edit it, then re-run. Output is byte-stable for
-the same inputs, so the page can be committed beside its source.
+the same inputs.
 
 Supported Markdown: `#`-`###` headings, paragraphs, nested `-`/`1.` lists,
-pipe tables, fenced blocks, `**bold**`, `*italics*` and `` `code` ``.
+pipe tables, fenced blocks, `>` quotes, `**bold**`, `*italics*`, `` `code` ``,
+`[links](url)` and `![images](path)`.
 
-Conventions the page picks up from the source:
+The page reads the spec template of `to-spec` as written:
 
-- An H1 of `Kind: Title` shows `Kind` as the eyebrow and `Title` as the heading.
-- Text between the H1 and the first H2 is the header's status line.
-- A table column headed `Mark` or `Source` turns a leading `V`, `I` or `R` into a
-  Verified / Inference / Ruling pill; so does `(V` or `(I` in running text.
-- A table under a heading named `Open` is tinted as unresolved.
-- A first cell like `R1`, `S2` or `O3` becomes an anchor (`page.html#O3`).
+- The H1 is the title; text between it and the first H2 is the header. A line of
+  `Label: value` fields split by two or more spaces (`Spec issue: …   Date: …`)
+  shows as labelled facts.
+- `##` and `###` headings fill the contents rail.
+- A table under `Open items` (or `Open`) is tinted as unresolved, and the header
+  links to it with a count of its rows.
+
+Optional extras, for a spec that already means the same thing:
+
+- A table column headed `Mark` or `Source` turns a leading `V`, `I` or `R`
+  followed by `:`, `,` or nothing into a Verified / Inference / Ruling pill; so
+  does `(V` or `(I` in running text.
+- A first cell that is or starts with an id like `R1`, `O3` or `A2.1` becomes an
+  anchor (`page.html#O3`).
 - A first cell in bold marks a lead row (a parent or headline row).
-- `##` headings, and `###` headings numbered like `5.2`, fill the contents rail.
 """
 
 import argparse
@@ -28,9 +36,25 @@ import re
 
 LIST_ITEM = re.compile(r"^( *)([-*]|\d+\.) (.*)$")
 MARK_PILL = re.compile(r"\((V|I)(?=[:,)])")
-MARK_CELL = re.compile(r"^(V|R|I)(?=$|[:,\s])")
+MARK_CELL = re.compile(r"^(V|R|I)(?=$|[:,])")
 MARK_CLASS = {"V": ("v", "Verified"), "I": ("i", "Inference"), "R": ("r", "Ruling")}
 NUMERIC_HEADERS = ("#", "P", "Deadline")
+OPEN_HEADINGS = ("open", "open items", "open questions")
+ROW_ID = re.compile(r"[A-Z]{1,3}\d+(?:\.\d+)*(?=\s|$)")
+FACT = re.compile(r"([A-Z]\w*(?: \w+){0,2}): (\S.*)")
+LINK = re.compile(r"(!?)\[([^\]]+)\]\(([^)\s]+)\)")
+
+
+def safe_url(url):
+    return "#" if re.match(r"(?i)\s*(javascript|data|vbscript):", url) else url
+
+
+def link(m):
+    text, url = m[2], html.escape(safe_url(html.unescape(m[3])))
+    if m[1]:
+        alt = text.replace('"', "&quot;")
+        return f'<img src="{url}" alt="{alt}">'
+    return f'<a href="{url}">{text}</a>'
 
 
 def pill(mark):
@@ -46,6 +70,7 @@ def inline(text):
             out.append(f"<code>{html.escape(part[1:-1])}</code>")
             continue
         s = html.escape(part, quote=False)
+        s = LINK.sub(link, s)
         s = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", s)
         s = re.sub(r"(?<![\w*])\*(?!\s)(.+?)(?<!\s)\*(?![\w*])", r"<em>\1</em>", s)
         s = MARK_PILL.sub(lambda m: "(" + pill(m[1]), s)
@@ -73,14 +98,18 @@ def is_numeric(header):
     )
 
 
-def table(lines, context):
+def is_open(context):
+    return re.sub(r"^\d+(\.\d+)*\.?\s", "", context).lower() in OPEN_HEADINGS
+
+
+def table(lines, context, seen):
     head, _, *body = lines
     cols = split_row(head)
     mark_col = next((i for i, c in enumerate(cols) if c in ("Mark", "Source")), None)
     numeric = [is_numeric(c) for c in cols]
     cls = (
         "data"
-        + (" open" if context == "Open" else "")
+        + (" open" if is_open(context) else "")
         + (" wide" if len(cols) >= 4 else "")
     )
     out: list[str] = [f'<div class="table-wrap"><table class="{cls}"><thead><tr>']
@@ -91,7 +120,10 @@ def table(lines, context):
     out.append("</tr></thead><tbody>")
     for row in body:
         cells = split_row(row)
-        rid = cells[0] if re.fullmatch(r"[RSO]\d+", cells[0]) else None
+        m = ROW_ID.match(cells[0])
+        rid = m[0] if m and m[0] not in seen else None
+        if rid:
+            seen[rid] = 1
         attrs = (f' id="{rid}"' if rid else "") + (
             ' class="lead"' if cells[0].startswith("**") else ""
         )
@@ -102,14 +134,25 @@ def table(lines, context):
                 body_html = pill(m[1]) + " " + inline(c[1:].lstrip(":, "))
             tag = "th scope=row" if i == 0 else "td"
             klass = ' class="num"' if i < len(numeric) and numeric[i] else ""
+            if i == 0 and ROW_ID.fullmatch(c):
+                klass = ' class="rid"'
             out.append(f"<{tag}{klass}>{body_html}</{tag.split()[0]}>")
         out.append("</tr>")
     out.append("</tbody></table></div>")
     return "".join(out)
 
 
-def blocks(lines, context=""):
-    """Render a run of Markdown lines; returns (html, headings)."""
+def unique(hid, seen):
+    n = seen.get(hid, 0)
+    seen[hid] = n + 1
+    return f"{hid}-{n + 1}" if n else hid
+
+
+def blocks(lines, seen, context=""):
+    """Render a run of Markdown lines; returns (html, headings).
+
+    `seen` counts the ids already used on the page, so every id stays unique.
+    """
     out, heads, i = [], [], 0
     while i < len(lines):
         line = lines[i]
@@ -124,7 +167,7 @@ def blocks(lines, context=""):
             i = j + 1
         elif m := re.match(r"(#{1,3}) (.*)", line):
             level, text = len(m[1]), m[2]
-            hid = slug(text)
+            hid = unique(slug(text), seen)
             heads.append((level, hid, text))
             context = text
             out.append(f'<h{level} id="{hid}">{inline(text)}</h{level}>')
@@ -133,7 +176,14 @@ def blocks(lines, context=""):
             j = i
             while j < len(lines) and lines[j].startswith("|"):
                 j += 1
-            out.append(table(lines[i:j], context))
+            out.append(table(lines[i:j], context, seen))
+            i = j
+        elif line.startswith(">"):
+            j = i
+            while j < len(lines) and lines[j].startswith(">"):
+                j += 1
+            quoted = [re.sub(r"^> ?", "", q) for q in lines[i:j]]
+            out.append(f"<blockquote>{blocks(quoted, seen, context)[0]}</blockquote>")
             i = j
         elif LIST_ITEM.match(line):
             j = i + 1
@@ -150,14 +200,14 @@ def blocks(lines, context=""):
                     ):
                         break
                 j += 1
-            out.append(listing(lines[i:j]))
+            out.append(listing(lines[i:j], seen))
             i = j
         else:
             j = i
             while (
                 j < len(lines)
                 and lines[j].strip()
-                and not re.match(r"#|\||```", lines[j])
+                and not re.match(r"#|\||```|>", lines[j])
                 and not LIST_ITEM.match(lines[j])
             ):
                 j += 1
@@ -168,7 +218,7 @@ def blocks(lines, context=""):
     return "\n".join(out), heads
 
 
-def listing(lines):
+def listing(lines, seen):
     first = LIST_ITEM.match(lines[0])
     assert first, lines[0]
     base = len(first[1])
@@ -189,7 +239,7 @@ def listing(lines):
         lead = []
         while item and item[0].strip() and not LIST_ITEM.match(item[0]):
             lead.append(item.pop(0).strip())
-        rest, _ = blocks(item)
+        rest, _ = blocks(item, seen)
         out.append(f"<li>{inline(' '.join(lead))}{rest}</li>")
     out.append(f"</{tag}>")
     return "".join(out)
@@ -220,7 +270,16 @@ def ladder(spec):
     )
 
 
-CSS = """
+DARK = """
+    color-scheme: dark;
+    --paper: #121211; --surface: #1a1a19; --rule: #383835; --grid: #2a2a28;
+    --ink: #f0efec; --ink-2: #c3c2b7; --ink-3: #9a988f; --accent: #6da7ec;
+    --v: #4cc44c; --v-wash: #183318; --i: #e0b45a; --i-wash: #3a2e14; --r: #8fbdf2; --r-wash: #1a2c44;
+    --warn: #ef9a5a; --warn-wash: #3a2416; --alert: #e66767;
+"""
+
+CSS = (
+    """
 :root {
   color-scheme: light;
   --paper: #f7f6f2; --surface: #fcfcfb; --rule: #dedcd5; --grid: #ebe9e3;
@@ -229,14 +288,13 @@ CSS = """
   --warn: #b5530f; --warn-wash: #fbeee3; --alert: #b42f2f;
 }
 @media (prefers-color-scheme: dark) {
-  :root:where(:not([data-theme="light"])) {
-    color-scheme: dark;
-    --paper: #121211; --surface: #1a1a19; --rule: #383835; --grid: #2a2a28;
-    --ink: #f0efec; --ink-2: #c3c2b7; --ink-3: #9a988f; --accent: #6da7ec;
-    --v: #4cc44c; --v-wash: #183318; --i: #e0b45a; --i-wash: #3a2e14; --r: #8fbdf2; --r-wash: #1a2c44;
-    --warn: #ef9a5a; --warn-wash: #3a2416; --alert: #e66767;
-  }
+  :root:where(:not([data-theme="light"])) {"""
+    + DARK
+    + """  }
 }
+:root[data-theme="dark"] {"""
+    + DARK
+    + """}
 * { box-sizing: border-box; }
 html { scroll-padding-top: 16px; }
 body { margin: 0; background: var(--paper); color: var(--ink);
@@ -255,12 +313,15 @@ nav.toc a[aria-current="true"] { color: var(--ink); border-left-color: var(--acc
 nav.toc .sub a { padding-left: 20px; font-size: 12.5px; }
 main { min-width: 0; }
 header { border-bottom: 2px solid var(--ink); padding-bottom: 18px; margin-bottom: 8px; }
-.eyebrow { font-size: 12.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); margin: 0 0 6px; }
 h1 { font-size: 32px; line-height: 1.15; margin: 0 0 12px; letter-spacing: -0.015em; }
 .notice { display: inline-block; font-size: 13px; font-weight: 600; color: var(--alert);
   border: 1px solid currentColor; border-radius: 3px; padding: 1px 8px; margin-right: 10px; }
 .meta { color: var(--ink-2); font-size: 14px; }
 .meta p { margin: 0 0 6px; max-width: none; }
+.facts { display: flex; flex-wrap: wrap; gap: 4px 20px; }
+.facts b { font-weight: 600; color: var(--ink-3); margin-right: 4px; }
+.open-count a { display: inline-block; font-size: 13px; font-weight: 600; color: var(--warn); background: var(--warn-wash);
+  border-radius: 3px; padding: 1px 8px; text-decoration: none; }
 .legend { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 12px; font-size: 13px; color: var(--ink-2); }
 h2 { font-size: 21px; margin: 52px 0 8px; padding-top: 16px; border-top: 1px solid var(--rule); letter-spacing: -0.005em; }
 h2.quiet { font-size: 13px; font-weight: 600; color: var(--ink-2); border: 0; margin: 24px 0 10px; padding: 0; }
@@ -269,6 +330,9 @@ main > p, main li { max-width: 74ch; }
 ul, ol { padding-left: 22px; }
 li { margin: 4px 0; }
 li > ul, li > ol, li > p { margin-top: 4px; }
+main a { color: var(--accent); }
+img { max-width: 100%; height: auto; }
+blockquote { margin: 12px 0; padding: 2px 16px; border-left: 3px solid var(--rule); color: var(--ink-2); }
 code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--grid); padding: 1px 4px; border-radius: 3px;
   overflow-wrap: anywhere; }
 strong { font-weight: 650; }
@@ -299,7 +363,7 @@ th, td { padding: 7px 12px; border-bottom: 1px solid var(--grid); text-align: le
 tbody tr:last-child > * { border-bottom: 0; }
 thead th { font-size: 12.5px; color: var(--ink-2); font-weight: 600; border-bottom: 1px solid var(--rule); vertical-align: bottom; background: var(--paper); }
 tbody th { font-weight: 400; }
-tbody th:first-child:has(> code:only-child), tbody tr[id] > th:first-child { white-space: nowrap; font-weight: 600; }
+tbody th:first-child:has(> code:only-child), tbody th.rid { white-space: nowrap; font-weight: 600; }
 th.num, td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 tr.lead > * { background: var(--paper); }
 tr:target > * { background: var(--r-wash); }
@@ -321,6 +385,7 @@ footer { margin-top: 56px; padding-top: 14px; border-top: 1px solid var(--rule);
 }
 @media print { body { background: #fff; } nav.toc { display: none; } .page { display: block; } .table-wrap, .flow { break-inside: avoid; } }
 """
+)
 
 JS = """
 (() => {
@@ -346,37 +411,73 @@ JS = """
 """
 
 
+def facts(line):
+    """`Label: value` fields split by two or more spaces, or None."""
+    parts = []
+    for part in re.split(r" {2,}", line.strip()):
+        m = FACT.fullmatch(part)
+        if m is None:
+            return None
+        parts.append(m)
+    spans = "".join(f"<span><b>{inline(m[1])}</b> {inline(m[2])}</span>" for m in parts)
+    return f'<p class="facts">{spans}</p>'
+
+
+def header(lines, seen):
+    out, run = [], []
+    for line in lines + [""]:
+        fact = facts(line) if line.strip() else None
+        if fact is None and line.strip():
+            run.append(line)
+            continue
+        if run:
+            out.append(blocks(run, seen)[0])
+            run = []
+        if fact:
+            out.append(fact)
+    return "\n".join(out)
+
+
 def render(md, source_name="the Markdown source", notice="", ladder_spec=None):
     lines = md.splitlines()
     h1 = next((n for n, line in enumerate(lines) if line.startswith("# ")), None)
     if h1 is None:
         raise SystemExit("the source needs an H1 title")
-    kind, _, title = lines[h1][2:].rpartition(": ")
+    title = lines[h1][2:].strip()
     first_h2 = next(
         (n for n in range(h1 + 1, len(lines)) if lines[n].startswith("## ")), len(lines)
     )
-    intro, _ = blocks(lines[h1 + 1 : first_h2])
-    body, heads = blocks(lines[first_h2:])
+    seen: dict[str, int] = {"ladder-h": 1}
+    intro = header(lines[h1 + 1 : first_h2], seen)
+    body, heads = blocks(lines[first_h2:], seen)
     toc = []
     for level, hid, text in heads:
-        if level == 2 or (level == 3 and re.match(r"\d+\.\d", text)):
+        if level in (2, 3):
             label = re.sub(r"^\d+(\.\d+)?\.?\s", "", text)
             toc.append(
                 f'<li class="{"sub" if level == 3 else ""}"><a href="#{hid}">{inline(label)}</a></li>'
             )
-    used = "mark mark-" in intro + body
-    legend = (
-        "".join(f"<span>{pill(k)} {v[1]}</span>" for k, v in MARK_CLASS.items())
-        if used
+    open_rows = sum(
+        t.count("<tr") - 1
+        for t in re.findall(r'<table class="data open.*?</table>', body)
+    )
+    open_id = next((hid for _, hid, text in heads if is_open(text)), None)
+    open_link = (
+        f'<p class="open-count"><a href="#{open_id}">{open_rows} open item{"s" if open_rows != 1 else ""}</a></p>'
+        if open_id and open_rows
         else ""
     )
-    page_title = title or kind
+    legend = "".join(
+        f"<span>{pill(k)} {v[1]}</span>"
+        for k, v in MARK_CLASS.items()
+        if f"mark mark-{v[0]}" in intro + body
+    )
     return f"""<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{html.escape(page_title)}</title>
+<title>{html.escape(title)}</title>
 <style>{CSS}</style>
 </head>
 <body>
@@ -384,9 +485,8 @@ def render(md, source_name="the Markdown source", notice="", ladder_spec=None):
 <nav class="toc" aria-label="Contents"><details open><summary>Contents</summary><ol>{"".join(toc)}</ol></details></nav>
 <main>
 <header>
-{f'<p class="eyebrow">{inline(kind)}</p>' if kind and title else ""}
-<h1>{inline(page_title[:1].upper() + page_title[1:])}</h1>
-<div class="meta">{f'<span class="notice">{inline(notice)}</span>' if notice else ""}{intro}</div>
+<h1>{inline(title)}</h1>
+<div class="meta">{f'<span class="notice">{inline(notice)}</span>' if notice else ""}{intro}{open_link}</div>
 {f'<div class="legend" aria-label="Fact marks">{legend}</div>' if legend else ""}
 </header>
 {ladder(ladder_spec) if ladder_spec else ""}
