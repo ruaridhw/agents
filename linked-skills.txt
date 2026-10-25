@@ -35,3 +35,4 @@ wizard
 questionnaire
 bro
 wayfinder
+spec-page

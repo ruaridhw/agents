@@ -14,12 +14,16 @@ SCRIPT = REPO_ROOT / "bin" / "link-skills"
 
 
 def curated_skill_names():
-    """Directories under .agents/skills whose SKILL.md carries upstream: stamps."""
-    names = []
-    for skill_md in sorted((REPO_ROOT / ".agents" / "skills").glob("*/SKILL.md")):
+    """Skills with upstream: stamps, plus own skills that have a LANDSCAPE.md section."""
+    names = set()
+    for skill_md in (REPO_ROOT / ".agents" / "skills").glob("*/SKILL.md"):
         if re.search(r"^upstream:", skill_md.read_text(encoding="utf-8"), re.M):
-            names.append(skill_md.parent.name)
-    return names
+            names.add(skill_md.parent.name)
+    landscape = (REPO_ROOT / "LANDSCAPE.md").read_text(encoding="utf-8")
+    for name in re.findall(r"^## (\S+)$", landscape, re.M):
+        if (REPO_ROOT / ".agents" / "skills" / name / "SKILL.md").exists():
+            names.add(name)
+    return sorted(names)
 
 
 def load_link_skills():

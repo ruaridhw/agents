@@ -20,6 +20,7 @@ Every curated skill lives in `.agents/skills/<name>/` and carries `upstream:` st
 
 - **Curated (wave 1)**: `ruaridh-mode`, `clarify`, `herdr`, `grill`, `to-spec`, `spec-review`, `to-tickets`, `triage`, `to-plan`, `implement`, `pr`, `handoff`, `setup-project`, `update-skills`, `rare-skills`.
 - **Curated (wave 2)**: `write-skill`, `tdd`, `debug`, `verify`, `review`, `babysit`, `ship`, `worktree`, `prototype`, `domain`, `arch`, `research`, `recall`, `retro`, `technical-writing`, `teach`, `wizard`, `questionnaire`, `bro`, `wayfinder`. `principles` waits for its own grilling.
+- **Curated (wave 4)**: `spec-page`, own work with no upstream feed, added after the cutover.
 - **Kept as shipped**: the employer's operator skills and kit (changed only through the kit's feedback channel); the Plannotator family; Anthropic artifact, dataviz and document skills; the effective-html family; browser; own scheduled-job skills (`morning`, `granola-notion`, `notion-todoist-tasks`).
 - **Rare** (moved to `~/.agents/rare/`, reached through `rare-skills`): AWS, Cloudflare and other service skills.
 - **Dropped**: mattpocock loop-me, caveman, request-refactor-plan, scaffold-exercises, migrate-to-shoehorn, setup-pre-commit, git-guardrails-claude-code, claude-handoff, setup-ts-deep-modules, writing-beats, writing-shape, writing-fragments, edit-article, and the loose find-skills, claude-code-peer-messaging, obsidian-vault; superpowers diagnosing-superpowers; pstack setup-pstack, poteto-agent, make-bot-ui, visual-parity, autopilot-full, autopilot-stack, eval, hillclimb, create/maintain-verification-skill, typescript-best-practices and the automations.
@@ -138,6 +139,22 @@ Decisions:
 | Feed | Taken | Dropped |
 | --- | --- | --- |
 | self `adversarial-spec-review` | Nearly all of it: authority order, access by class not allowlist, evidence-cited questions that could change a build choice, grouped defects, amend / reject / escalate, no round limit, complete vs incomplete verdict | (1) The generic "otherwise use an independent agent" fallback: Herdr is the mechanism here, and a pass without an independent pane is labelled a self-review instead. (2) The `herdr-agent-handoff` skill reference: `herdr` owns pane mechanics and `handoff` owns the file shapes. (3) The generic "review folder" write destination: replaced by one sibling review file at `.scratch/specs/<date>-<slug>.review.md`, so the only writable path is named. (4) The `agentsview-finding-history` skill reference: the AgentsView rules live once in `ruaridh-mode`'s `references/tooling.md`. (5) "client decisions" wording: replaced by "agreed decisions with the other party" because this repo is public and names no client. (6) "the user" and the literal `ESCALATE TO USER` marker: the user in this environment is Ruaridh, so the prose names him and the escalation becomes an Open item in the spec. Nothing dropped for length. |
+
+## spec-page
+
+**Opinion.** A long, table-heavy spec reads and annotates better as a page than as raw Markdown, so this skill renders one: a stdlib Python script turns a Markdown spec into one self-contained HTML file with a contents rail, tinted open items with a count in the header, linkable row ids, an optional cost ladder, and light and dark themes with no network. The Markdown stays the source and the thing that is edited and approved; the page is regenerated beside it in `.scratch/specs/` and never committed. It reads `to-spec`'s template as written, so a spec needs no extra conventions; fact-mark pills, explicit row ids and lead rows are optional extras for a spec that already means the same thing. Feeds: none, own work.
+
+Decisions:
+
+- **The to-spec template is the shape the renderer reads** (spec-page PR, rebased): the title H1, the `Spec issue: …   Date: …` facts line, every section in the rail, the Decisions table, Acceptance cases and the Open items table with its owner and consequence. The PR's `Kind: Title` eyebrow is dropped because a template title may hold a colon; `Mark`/`Source` pills, `R1`-style ids and the `Open` heading stay as optional extras.
+- **No committed wrapper** (spec-page PR, rebased): specs live in gitignored `.scratch/specs/`, so the page is rendered with the plain command beside the source rather than through a script committed next to it.
+- **Hand-off from `to-spec`**: step 8 offers the page for a long or table-heavy draft, and the gate annotates the HTML **file path**, never its URL, because Plannotator sends a non-localhost URL through a third-party converter.
+- **Separate from `triage`'s renderer**: the two pages share token conventions (colours on `:root`, a dark set under `prefers-color-scheme` and `[data-theme="dark"]`), not code.
+- **Unstamped**: no upstream feed, so no `upstream:` block; the linked-skills test counts a skill with a section here as curated.
+
+| Feed | Taken | Dropped |
+| --- | --- | --- |
+| no feed (written for this skill) | The renderer, its tests, the template-shaped example and the ladder example. | Nothing. |
 
 ## to-tickets
 

@@ -84,7 +84,7 @@ skills = ["clarify", "grill", "prototype", "research", "domain", "arch", "questi
 [[families]]
 name = "Planning and ticketing"
 blurb = "From a decided idea to tickets a session can finish."
-skills = ["to-spec", "spec-review", "to-tickets", "triage", "to-plan", "wayfinder"]
+skills = ["to-spec", "spec-review", "spec-page", "to-tickets", "triage", "to-plan", "wayfinder"]
 
 [[families]]
 name = "Building"
@@ -119,6 +119,7 @@ bro = "Say it again so it lands: plainer, with context, or one layer up."
 teach = "Lessons over several sessions, or one plain account of a body of work."
 to-spec = "A build-ready spec, written without an interview and gated before publishing."
 spec-review = "An adversarial reviewer in its own pane, answered from the decision history."
+spec-page = "A Markdown spec rendered as one self-contained page for reading and annotation."
 to-tickets = "Tickets sized to one session, with Done-when copied from the spec."
 triage = "Inbound issues through five states, and ticket waves rendered for the gate."
 to-plan = "One task per ticket in dependency order, then a pick: inline or delegated."
