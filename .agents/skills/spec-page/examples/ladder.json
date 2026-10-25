@@ -1,0 +1,11 @@
+{
+  "title": "Cost per image, each step on top of the last",
+  "unit": "$",
+  "decimals": 3,
+  "note": "From Intent and Acceptance. We charge $0.010 per billed image; skipped images are not billed.",
+  "rows": [
+    {"key": "Today", "label": "T0: render everything", "value": 0.042, "aside": "$3,528/wk", "anchor": "intent"},
+    {"key": "Skip", "label": "Skip unchanged images", "value": 0.013, "aside": "$1,092/wk", "anchor": "skip-unchanged-images"},
+    {"key": "Later", "label": "Cheaper instance class (out of scope)", "value": 0.008, "aside": "$672/wk", "anchor": "out-of-scope"}
+  ]
+}

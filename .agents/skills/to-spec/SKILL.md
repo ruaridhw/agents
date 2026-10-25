@@ -50,7 +50,7 @@ Read `.agents/tracker.md` for the tracker, its labels and its commands; without 
 
 7. **Audit the handoff.** For every source decision, find its workstream or its non-build disposition; for every workstream, find its proof and its dependencies. If a policy changes, compare client-facing wording and domain documentation with the rule. Fix the gaps in the file. Share the draft for the gate with its path and status, its decision escalations, its dependency map, its proof gaps and the issues awaiting action.
 
-8. **Gate.** Open the draft with `plannotator annotate <spec path>` in the background, give him the link, and apply every annotation to the file. Repeat until he approves the file as it stands. Name the calls that were yours and the seams you chose so he can check those while reading.
+8. **Gate.** Open the draft with `plannotator annotate <spec path>` in the background, give him the link, and apply every annotation to the file. Repeat until he approves the file as it stands. Name the calls that were yours and the seams you chose so he can check those while reading. When the draft is long or table-heavy, render it with `spec-page` and annotate the HTML file path instead (never its URL); the Markdown stays the file that is edited and approved.
 
    **Offer `spec-review`.** One line, recommending it when the work is client-facing, hard to reverse or spans many workstreams. If he takes it, run it now; its amendments land in the same file, and publishing resumes from the amended file.
 
