@@ -134,7 +134,7 @@ def table(lines, context, seen):
                 body_html = pill(m[1]) + " " + inline(c[1:].lstrip(":, "))
             tag = "th scope=row" if i == 0 else "td"
             klass = ' class="num"' if i < len(numeric) and numeric[i] else ""
-            if i == 0 and ROW_ID.fullmatch(c):
+            if i == 0 and (ROW_ID.fullmatch(c) or re.fullmatch(r"`[^`]*`", c)):
                 klass = ' class="rid"'
             out.append(f"<{tag}{klass}>{body_html}</{tag.split()[0]}>")
         out.append("</tr>")
@@ -363,7 +363,8 @@ th, td { padding: 7px 12px; border-bottom: 1px solid var(--grid); text-align: le
 tbody tr:last-child > * { border-bottom: 0; }
 thead th { font-size: 12.5px; color: var(--ink-2); font-weight: 600; border-bottom: 1px solid var(--rule); vertical-align: bottom; background: var(--paper); }
 tbody th { font-weight: 400; }
-tbody th:first-child:has(> code:only-child), tbody th.rid { white-space: nowrap; font-weight: 600; }
+td { min-width: 12ch; }
+tbody th.rid { white-space: nowrap; font-weight: 600; }
 th.num, td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 tr.lead > * { background: var(--paper); }
 tr:target > * { background: var(--r-wash); }

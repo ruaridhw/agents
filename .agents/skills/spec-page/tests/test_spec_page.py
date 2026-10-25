@@ -136,6 +136,14 @@ class SpecPage(unittest.TestCase):
         self.assertIn('style="width:100.0%"', self.page)
         self.assertIn("$0.013", self.page)
 
+    def test_only_an_id_or_bare_code_first_cell_stays_on_one_line(self):
+        page = render(
+            "# T\n\n| Decision | Source |\n| --- | --- |\n"
+            "| Store `sha` beside each output. | R |\n| `sha` | R |\n"
+        )
+        self.assertIn("<th scope=row>Store <code>sha</code>", page)
+        self.assertIn('<th scope=row class="rid"><code>sha</code></th>', page)
+
     def test_bold_first_cell_is_a_lead_row(self):
         page = render("# T\n\n| Step | $ |\n| --- | --- |\n| **All** | 1 |\n")
         self.assertIn('<tr class="lead">', page)
