@@ -44,6 +44,7 @@ Decisions:
 - **Intake order and rows** (Ruaridh, 2026-10-23, review): the quick task is the first row of the intake table, because the shortest route should be the first one read, and `research` (a question that needs primary sources) and `recall` (catch me up) have their own rows rather than falling under `do it` and `handoff`.
 - **Stale tickets are checked at every state change** (Ruaridh, 2026-10-23, review): non-negotiable 9 now checks the tickets under the session's jurisdiction at every phase boundary and whenever a state changes, with a coordinator also sweeping on a schedule, instead of only at session end. The old trigger was too late: a ticket goes stale the moment its branch or labels change, not when the session stops.
 - **AgentsView in the strategic view** (Ruaridh, 2026-10-23, review): the coordinator's data sources name AgentsView's semantic search over every message to and from every agent, which is where what was already decided and tried is found (`recall`, `research`).
+- **Chief-of-staff relay counts** (Ruaridh, 2026-10-26, chief-of-staff session): a yes relayed by the chief-of-staff coordinator authorizes tracker writes, PR merges, pushes, GitHub comments, email drafts and typed-`client` writes (the receiver may type the remote name), never sending to people outside the organization. The relay starts `(aimsg) `, quotes his words with where and when, and names the exact action; the receiver records the quote and source. The full statement lives once, in `references/coordinator.md` ("Relayed authorization"); non-negotiables 7 and 11, the red-flag row, `tooling.md`, `slim.md`, `herdr`, `pr` and `ship` point to it. This supersedes "relayed authorization does not count".
 - **Injected body under 10,000 characters** (wave 1 redo): Claude Code shows only a short preview of SessionStart context above that and saves the rest to a file, so the restored prose that is not needed every turn lives in references (`judgment.md`, `chain.md`, the Inbox detail in `tooling.md`) and `tests/test_session_start.py` keeps both bodies under 9,800. This is a harness limit, not a length rule.
 
 | Feed | Taken | Dropped |
@@ -565,7 +566,7 @@ Decisions:
 
 Decisions:
 
-- `ship` is invoked only by Ruaridh, and the invocation is the authorization for that stack; a yes for one PR is not a yes for the stack, and nothing relayed counts (Ruaridh, 2026-10-22; `ruaridh-mode` non-negotiable 7).
+- `ship` is invoked only by Ruaridh, and the invocation is the authorization for that stack; a yes for one PR is not a yes for the stack, and only a chief-of-staff relay naming the stack counts (Ruaridh, 2026-10-22, relay amended 2026-10-26; `ruaridh-mode` non-negotiable 7).
 - The skill carries `disable-model-invocation: true` so the model cannot reach it by itself. `bin/skill-lint` allows the flag here because `ruaridh-mode` names `ship` and routes to it only on Ruaridh's invocation (Ruaridh, 2026-10-22; lane brief).
 - It runs `babysit` to READY, then merges the stack bottom-up by the `pr` recipe: merge-async, base first, and the remote head adopted afterwards as the one sanctioned reset (wave 0 Git and worktree decisions; `ruaridh-mode` tooling rules).
 - The merge recipe and the gating rule are pointed at, never restated (wave 2 curation rules).
