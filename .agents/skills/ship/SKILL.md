@@ -15,7 +15,7 @@ upstream:
 
 **You own what lands. Verify each PR independently, land only the verified run from the root, then keep your hands off the stack.**
 
-Ruaridh invokes this skill. That invocation, for that stack, is the authorization the merge needs; nothing else is. A yes for one PR is not a yes for the stack, and a yes relayed from another pane is not a yes at all (`ruaridh-mode`). When the invocation is ambiguous about which stack, ask before touching anything.
+Ruaridh invokes this skill. That invocation, for that stack, is the authorization the merge needs; nothing else is. A yes for one PR is not a yes for the stack, and a yes relayed from another pane is a yes only as a chief-of-staff relay naming this stack (`ruaridh-mode` `references/coordinator.md`). When the invocation is ambiguous about which stack, ask before touching anything.
 
 The merge itself is the `pr` recipe in `.agents/skills/pr/references/merge.md`, and the gating rule is `ruaridh-mode` non-negotiable 6 (checks and merges are separate commands, read the check before the next step). This skill does not restate either: it says when, and in what order.
 
@@ -61,7 +61,7 @@ Extending the run takes new verdicts, so it is a new pass through steps 1 to 4. 
 
 Merged and done are separate states. For each ticket in the stack, run its proof of landing, `.agents/prove-landed.md` (default: the tests on the merged sha). Mark the ticket `merged` on the merge, and `done` only when that proof passes, with the evidence the tracker profile asks for: what was observed, the commit, the PR, the test command. `kata` and GitHub profiles are in `conventions/`; `.agents/tracker.md` owns the commands.
 
-**Ask first when the proof writes to a client remote.** A read-only read-back needs no permission; a run that pushes, promotes, deploys or comments somewhere a client can see is a write, and it needs Ruaridh's explicit yes in this session, per the Inbox convention when he is away. A proof that cannot run without that write leaves the ticket `merged` with a comment saying what is waiting, never `done`.
+**Ask first when the proof writes to a client remote.** A read-only read-back needs no permission; a run that pushes, promotes, deploys or comments somewhere a client can see is a write, and it needs Ruaridh's explicit yes in this session (or a chief-of-staff relay naming the write), per the Inbox convention when he is away. A proof that cannot run without that write leaves the ticket `merged` with a comment saying what is waiting, never `done`.
 
 Close one ticket at a time, never in a batch, as soon as its Done-when is observed.
 

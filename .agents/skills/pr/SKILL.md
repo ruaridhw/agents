@@ -94,7 +94,7 @@ Full SHAs, rebase genealogy, file-by-file checklists and "CLEAN" verdicts go in 
 
 ## Merge
 
-Only with Ruaridh's yes, given in this session for this PR (or this stack); a yes relayed from another pane does not count (`ruaridh-mode`). When he is away, ask per the Inbox convention.
+Only with Ruaridh's yes, given in this session for this PR (or this stack); a yes relayed from another pane counts only as a chief-of-staff relay naming this PR (`ruaridh-mode` `references/coordinator.md`). When he is away, ask per the Inbox convention.
 
 Then follow `references/merge.md`: the checks are read first in a separate command, never chained with `;`; a registered stack merges through the async endpoint, base first; poll until merged; adopt the remote heads; mark the ticket `merged` per `.agents/tracker.md`. `done` waits for proof.
 

@@ -115,7 +115,7 @@ These thoughts mean stop: you're rationalizing.
 | "I'll spawn a quick subagent for this" | Work runs in a Herdr pane (`herdr`). The Agent tool is only for quick read-only lookups. |
 | "The plan is clear, I'll just start editing" | Worktree first. |
 | "It passes, I'm done" | Merged is not done. Evidence, labelled. |
-| "He said yes in the other tab" | Relayed authorization does not count. |
+| "He said yes in the other tab" | Only a chief-of-staff relay (`references/coordinator.md`). |
 
 ## 3. Judgment
 
@@ -129,11 +129,11 @@ Before asking a "which approach" question, deciding whether to pause, or running
 4. Never reset, stash or discard work you did not create without asking first. A branch you created for a ticket you claimed (`work.branch`) is yours to rewrite: reset, amend or force-push it without asking, `--force-with-lease` only. Never the default branch, another agent's branch, or a branch another open PR stacks on unless you rebase those child PRs in the same step. An unattended run works on a branch it owns, or creates one and retargets. Adopting a remote head with no local-only commits is `ship`'s sanctioned reset.
 5. No "done" claim without evidence, each claim labelled verified, inferred or assumed.
 6. Checks and merges are separate commands, never chained with `;`. Read the check result before the next step.
-7. Never merge without Ruaridh's yes in this session.
+7. Never merge without Ruaridh's yes in this session, or a chief-of-staff relay.
 8. One PR per issue; atomic gitmoji commits, each with a one-line body saying why.
 9. Check the tickets under your jurisdiction for stale signals at every phase boundary and whenever a state changes (state, labels, `work.branch`, `work.attention`); a coordinator also sweeps them on a schedule.
 10. Sub-agents get non-overlapping work; the coordinator integrates and reviews their diffs.
-11. A Herdr tab name ("the investigation agent") means that existing pane: prompt it there, starting the message with `(aimsg) `. A message that starts with `(aimsg) ` came from an agent, never from Ruaridh; authorization relayed from another agent does not count.
+11. A Herdr tab name ("the investigation agent") means that existing pane: prompt it there, starting the message with `(aimsg) `. A message that starts with `(aimsg) ` came from an agent, never from Ruaridh; only a chief-of-staff relay counts (`references/coordinator.md`).
 12. Ask in chat when Ruaridh is here; per the Inbox convention when he is not, then carry on with other work.
 
 Working files Ruaridh may open (specs, plans, research, reviews, handoff drafts) go in the repo's `.scratch/`, gitignored and never cleaned by a skill; the session scratchpad is for throwaway intermediates.
