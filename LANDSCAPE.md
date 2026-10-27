@@ -20,8 +20,8 @@ Every curated skill lives in `.agents/skills/<name>/` and carries `upstream:` st
 
 - **Curated (wave 1)**: `ruaridh-mode`, `clarify`, `herdr`, `grill`, `to-spec`, `spec-review`, `to-tickets`, `triage`, `to-plan`, `implement`, `pr`, `handoff`, `setup-project`, `update-skills`, `rare-skills`.
 - **Curated (wave 2)**: `write-skill`, `tdd`, `debug`, `verify`, `review`, `babysit`, `ship`, `worktree`, `prototype`, `domain`, `arch`, `research`, `recall`, `retro`, `technical-writing`, `teach`, `wizard`, `questionnaire`, `bro`, `wayfinder`. `principles` waits for its own grilling.
-- **Curated (wave 4)**: `spec-page`, own work with no upstream feed, added after the cutover.
-- **Kept as shipped**: the employer's operator skills and kit (changed only through the kit's feedback channel); the Plannotator family; Anthropic artifact, dataviz and document skills; the effective-html family; browser; own scheduled-job skills (`morning`, `granola-notion`, `notion-todoist-tasks`).
+- **Curated (wave 4)**: `spec-page` and `browser`, with no upstream feed, added after the cutover.
+- **Kept as shipped**: the employer's operator skills and kit (changed only through the kit's feedback channel); the Plannotator family; Anthropic artifact, dataviz and document skills; the effective-html family; own scheduled-job skills (`morning`, `granola-notion`, `notion-todoist-tasks`).
 - **Rare** (moved to `~/.agents/rare/`, reached through `rare-skills`): AWS, Cloudflare and other service skills.
 - **Dropped**: mattpocock loop-me, caveman, request-refactor-plan, scaffold-exercises, migrate-to-shoehorn, setup-pre-commit, git-guardrails-claude-code, claude-handoff, setup-ts-deep-modules, writing-beats, writing-shape, writing-fragments, edit-article, and the loose find-skills, claude-code-peer-messaging, obsidian-vault; superpowers diagnosing-superpowers; pstack setup-pstack, poteto-agent, make-bot-ui, visual-parity, autopilot-full, autopilot-stack, eval, hillclimb, create/maintain-verification-skill, typescript-best-practices and the automations.
 - **Cutover** (wave 3, 2026-10-23): the `superpowers` and `mattpocock-skills` Claude plugins are disabled at user scope (project-scope superpowers installs in other repos are left alone), and pi's `git:github.com/obra/superpowers` package is removed, so `ruaridh-mode` is the only injected mode. Every curated skill is linked, the formerly held-back names included. The loose `~/.agents/skills` copies of the mattpocock set, its aliases and the dropped extras moved to `~/.agents/.deleted-2026-10-23/`; the kept-as-shipped skills and `~/.agents/rare/` stay. `bin/check-skill-frontmatter` is folded into `bin/skill-lint`, the one checker, which pre-commit and CI both run.
@@ -370,7 +370,7 @@ Decisions:
 
 **Opinion.** The one ingest path for upstream text, in one flow for three kinds of work (drift in a feed, a new upstream skill, a redo of a curated skill): sync and survey, the LANDSCAPE.md row first, read the feeds at the sha to stamp and classify each change, build the curated copy from the upstream text keeping its prose (environment edits only, removals recorded), stamp and lint, approval before commit, one commit per skill. Manual cadence.
 
-Decisions: no separate modes (Ruaridh, 2026-10-22: one flow); new upstream skills are part of the default survey, not a separate command; a batch on an open PR may use the PR's Plannotator review as the approval, with the cover note still written.
+Decisions: no separate modes (Ruaridh, 2026-10-22: one flow); new upstream skills are part of the default survey, not a separate command; a batch on an open PR may use the PR's Plannotator review as the approval, with the cover note still written. Generated skills (`browser`, regenerated from `betterwright skill --claude`) are refreshed on the same cadence by a short section in the skill, not by a stamp, because there is no upstream clone to stamp against (Ruaridh, 2026-10-27).
 
 | Feed | Taken | Dropped |
 | --- | --- | --- |
@@ -381,6 +381,22 @@ Decisions: no separate modes (Ruaridh, 2026-10-22: one flow); new upstream skill
 ## rare-skills
 
 **Opinion.** One router whose description lists the domains, over `~/.agents/rare/<name>/` (AWS, Cloudflare and web-performance skills moved out of `~/.claude/skills` on 2026-10-21). Read the skill's file and follow it; `setup-project` links the ones a repo uses so they auto-invoke there. No upstream feeds (`upstream: []`).
+
+## browser
+
+**Opinion.** Live-web tasks (logging in, forms, booking, reading a page no API gives) go through `betterwright`, a persistent, policy-guarded Playwright daemon, instead of an ad-hoc browser tool. The skill is the instruction text betterwright ships for agents, so the repo holds the same file every session loads.
+
+Decisions:
+
+- **Ingested verbatim** (Ruaridh, 2026-10-27): the file is the output of `betterwright skill --claude` at 2.8.8, byte for byte, `generated_by` line included. It was a loose copy in `~/.agents/skills` and `~/.claude/skills`, listed under "kept as shipped"; it is curated now so it is versioned and linked like the others.
+- **No edits, no feed**: the text is generated by the tool, not a skill upstream, so there is no `upstream:` stamp and nothing to curate away. An edit here would be lost on the next regeneration.
+- **Refresh by regenerating** (the routine is `update-skills`' "Generated skills"): after a betterwright upgrade, run `betterwright skill --claude > .agents/skills/browser/SKILL.md` and review the diff. `betterwright skill --install` writes to `~/.claude/skills` and `~/.agents/skills`, so with `browser` linked it would write through the symlink into this repo; check `git diff` after running it.
+- **pi** (Ruaridh, 2026-10-27): the skill reaches pi through `linked-skills.txt` like the others, and drives the CLI through pi's shell. `betterwright init` does not wire pi; betterwright's native pi extension (`browser` and `browser_download` tools, screenshots as vision input) is a separate `pi install npm:betterwright` in `~/.pi/agent/settings.json`, which is host state and stays out of this repo. Skill only for now (Ruaridh, 2026-10-27); shipping hooks and extensions from this repo, as `ruaridh-mode` already does for pi, is the likely direction when the next tool needs more than a skill.
+- **The `e2e-review` skill betterwright installs beside it is not taken**: `full-stack-e2e-review` stays kept as shipped.
+
+| Feed | Taken | Dropped |
+| --- | --- | --- |
+| no feed (`betterwright skill --claude`, 2.8.8) | The whole file. | Nothing. |
 
 ## herdr
 

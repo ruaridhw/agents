@@ -74,7 +74,7 @@ when = "pause or pick up"
 [[families]]
 name = "Operating"
 blurb = "How a session starts, splits and stops."
-skills = ["ruaridh-mode", "herdr", "handoff", "worktree", "recall", "rare-skills"]
+skills = ["ruaridh-mode", "herdr", "handoff", "worktree", "recall", "rare-skills", "browser"]
 
 [[families]]
 name = "Thinking and shaping"
@@ -108,6 +108,7 @@ handoff = "Stop cleanly, resume cleanly, with the trail written down."
 worktree = "One worktree per piece of work, with one base rule and one cleanup gate."
 recall = "The state of one line of work in a screen, with the next move."
 rare-skills = "One router in front of the service skills a session rarely needs."
+browser = "A persistent, policy-guarded real browser for live-web tasks, driven through betterwright."
 clarify = "At most five questions, each with a recommended answer, before work starts."
 grill = "An interview in rounds that ends by sizing the work and naming its route."
 prototype = "Throwaway code that answers one design question."

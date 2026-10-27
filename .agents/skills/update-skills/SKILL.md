@@ -17,7 +17,7 @@ upstream:
 
 Bring upstream skill text into the curated skills in this repo (`ruaridhw/agents`, `.agents/skills/`). This is the only way upstream text gets in. `write-skill` is for ad-hoc skills of Ruaridh's own and is never used for ingesting.
 
-One flow covers three kinds of work:
+One flow covers three kinds of work, plus generated skills (below):
 
 - **Drift**: a feed of a curated skill moved upstream since its stamp.
 - **New**: an upstream skill that no curated skill takes from yet.
@@ -151,6 +151,16 @@ Short list, no preamble:
 - Removed: per skill, what was removed and why (the LANDSCAPE.md rows).
 - Backlog filed: `<ticket>`. One line each.
 - Declined: one line per upstream change not taken, with the reason.
+
+## Generated skills
+
+A generated skill is the output of a tool's own command, so it has no upstream clone and no stamp. `browser` is the one today: `betterwright skill --claude`, with `generated_by: betterwright@<version>` in its frontmatter. On the same cadence as an upstream release, and whenever the tool is upgraded:
+
+1. Upgrade the tool (`bun update -g betterwright`, then `betterwright doctor`).
+2. Regenerate into the worktree and read the diff: `betterwright skill --claude > .agents/skills/browser/SKILL.md`.
+3. Take the new text whole, because an edit would be lost on the next regeneration; update the version named in the skill's LANDSCAPE.md section, and put the change in the cover note.
+
+Never use the tool's own `--install`: it writes to `~/.claude/skills` and `~/.agents/skills`, and once the skill is linked it would write through the symlink into the repo.
 
 ## Rules
 
