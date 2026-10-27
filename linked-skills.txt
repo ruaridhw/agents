@@ -36,3 +36,4 @@ questionnaire
 bro
 wayfinder
 spec-page
+browser
