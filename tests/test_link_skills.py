@@ -62,6 +62,7 @@ class LinkSkillsTest(unittest.TestCase):
         self.pi_dirs = [self.root / "agents-skills", self.root / "pi-skills"]
         self.module.PI_SETTINGS = self.pi_settings
         self.module.PI_SKILL_DIRS = tuple(self.pi_dirs)
+        self.write_pi_settings([str(self.repo)])
 
     def write_pi_settings(self, packages):
         self.pi_settings.parent.mkdir(parents=True, exist_ok=True)
@@ -164,11 +165,15 @@ class LinkSkillsTest(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertIn("missing pi package", output)
 
-    def test_no_pi_settings_is_skipped(self):
+    def test_no_pi_settings_suggests_creating_one(self):
+        self.pi_settings.unlink()
+
         code, output = self.run_cli()
 
-        self.assertEqual(code, 0)
-        self.assertIn("skip pi package", output)
+        self.assertEqual(code, 1)
+        self.assertIn(f"missing pi settings: create {self.pi_settings}", output)
+        self.assertIn(json.dumps({"packages": [str(self.repo)]}), output)
+        self.assertFalse(self.pi_settings.exists())
 
     def test_pi_dir_copy_collides_but_link_to_repo_does_not(self):
         self.write_pi_settings([str(self.repo)])

@@ -122,7 +122,11 @@ def main(argv: list[str] | None = None) -> int:
     pi_problem = False
     registered = pi_package_registered(PI_SETTINGS.expanduser())
     if registered is None:
-        print(f"skip pi package: no settings at {PI_SETTINGS}")
+        pi_problem = True
+        print(
+            f"missing pi settings: create {PI_SETTINGS} containing "
+            + json.dumps({"packages": [str(REPO_ROOT)]})
+        )
     elif registered:
         print("ok pi package")
     else:
