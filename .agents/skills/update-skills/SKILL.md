@@ -154,13 +154,14 @@ Short list, no preamble:
 
 ## Generated skills
 
-A generated skill is the output of a tool's own command, so it has no upstream clone and no stamp. `browser` is the one today: `betterwright skill --claude`, with `generated_by: betterwright@<version>` in its frontmatter. On the same cadence as an upstream release, and whenever the tool is upgraded:
+A generated skill is the output of a tool's own command, so it has no upstream clone and no stamp. `browser` and `full-stack-e2e-review` are the two today, both written by betterwright, with `generated_by: betterwright@<version>` in the frontmatter. On the same cadence as an upstream release, and whenever the tool is upgraded:
 
 1. Upgrade the tool (`bun update -g betterwright`, then `betterwright doctor`).
-2. Regenerate into the worktree and read the diff: `betterwright skill --claude > .agents/skills/browser/SKILL.md`.
-3. Take the new text whole, because an edit would be lost on the next regeneration; update the version named in the skill's LANDSCAPE.md section, and put the change in the cover note.
+2. Regenerate into a throwaway `HOME`, so nothing real is written: `T=$(mktemp -d); HOME=$T betterwright skill --install`.
+3. Copy `$T/.claude/skills/<name>/SKILL.md` over `.agents/skills/<name>/SKILL.md` for each generated skill, and read the diff.
+4. Take the new text whole, because an edit would be lost on the next regeneration; update the version named in each skill's LANDSCAPE.md section, and put the change in the cover note.
 
-Never use the tool's own `--install`: it writes to `~/.claude/skills` and `~/.agents/skills`, and once the skill is linked it would write through the symlink into the repo.
+Never run the tool's `--install` against the real `HOME`: it writes to `~/.claude/skills` and `~/.agents/skills`, and once a skill is linked it would write through the symlink into the repo.
 
 ## Rules
 
