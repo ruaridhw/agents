@@ -32,7 +32,7 @@ The short version of the whole set is the landscape page, `docs/landscape.html`:
 | `hooks/session-start` | The Claude Code hook that injects `ruaridh-mode`. |
 | `.pi/extensions/ruaridh-mode.ts`, `package.json` | The pi package: the same injection, plus the skills directory registered with pi. |
 | `linked-skills.txt` | The skills linked into `~/.claude/skills` and registered with pi. |
-| `bin/` | `skill-upstream`, `skill-lint`, `check-public`, `link-skills`, `render-landscape`, `memcap`. |
+| `bin/` | `skill-upstream`, `skill-lint`, `check-public`, `check-skill-links`, `render-landscape`, `memcap`. |
 | `THIRD_PARTY_NOTICES.md` | The upstream licences. |
 | `jobs/`, `runner/`, `scripts/`, `dashboard/`, `mcp/` | The scheduled-jobs harness (see below). |
 
@@ -63,7 +63,14 @@ The skills assume the environment they were written for: a tracker (kata or GitH
    bin/skill-upstream sync        # clones the upstreams so the stamps resolve
    ```
 
-2. Link the skills for Claude Code and add the hook. `bin/link-skills` links every name in `linked-skills.txt` into `~/.claude/skills`. Then register the hook in `~/.claude/settings.json`:
+2. Link the skills for Claude Code and add the hook. Link every name in `linked-skills.txt` into `~/.claude/skills`, with your host's sync job or by hand (this does not replace a real directory, so remove one first):
+
+   ```sh
+   for n in $(sed 's/#.*//' linked-skills.txt); do ln -sfn "$PWD/.agents/skills/$n" ~/.claude/skills/$n; done
+   bin/check-skill-links          # read-only: reports anything missing, conflicting or duplicated
+   ```
+
+   Then register the hook in `~/.claude/settings.json`:
 
    ```json
    {

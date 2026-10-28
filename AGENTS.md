@@ -22,7 +22,7 @@ A curated skill is written from upstream files and stamped against them. `LANDSC
 2. Write or update its `LANDSCAPE.md` section: an opinion paragraph, a decisions list, and a Feed / Taken / Dropped table. An own skill with no feed says so.
 3. Stamp its feeds: `bin/skill-upstream stamp --add <skill> --repo <key> --path <path>`; `bin/skill-upstream check` confirms every stamp resolves.
 4. Give it a family and a pitch in `docs/landscape.toml`, then run `bin/render-landscape`.
-5. Add the name to `linked-skills.txt`. After the change lands on `main`, run `bin/link-skills` from the main checkout so `~/.claude/skills` and pi see it.
+5. Add the name to `linked-skills.txt`. After the change lands on `main`, run `bin/check-skill-links` from the main checkout: it reports whether `~/.claude/skills` and pi see the skill, and links nothing.
 6. Run the checks below, each as its own command.
 
 A retired skill keeps a `self` stamp reachable at its last sha, so the stamps that name it still resolve.

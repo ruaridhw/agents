@@ -1,4 +1,4 @@
-"""bin/link-skills links the curated skills into a skills directory."""
+"""bin/check-skill-links reports whether the curated skills are visible to Claude Code and pi."""
 
 import contextlib
 import importlib.util
@@ -11,7 +11,7 @@ from importlib.machinery import SourceFileLoader
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-SCRIPT = REPO_ROOT / "bin" / "link-skills"
+SCRIPT = REPO_ROOT / "bin" / "check-skill-links"
 
 
 def curated_skill_names():
@@ -27,9 +27,9 @@ def curated_skill_names():
     return sorted(names)
 
 
-def load_link_skills():
-    loader = SourceFileLoader("link_skills", str(SCRIPT))
-    spec = importlib.util.spec_from_loader("link_skills", loader)
+def load_check_skill_links():
+    loader = SourceFileLoader("check_skill_links", str(SCRIPT))
+    spec = importlib.util.spec_from_loader("check_skill_links", loader)
     assert spec is not None
     module = importlib.util.module_from_spec(spec)
     loader.exec_module(module)
@@ -49,9 +49,9 @@ def make_repo(root: Path, names: list[str]) -> Path:
     return repo
 
 
-class LinkSkillsTest(unittest.TestCase):
+class CheckSkillLinksTest(unittest.TestCase):
     def setUp(self):
-        self.module = load_link_skills()
+        self.module = load_check_skill_links()
         self.tmp = tempfile.TemporaryDirectory()
         self.root = Path(self.tmp.name)
         self.repo = make_repo(self.root, ["ruaridh-mode", "clarify"])
@@ -79,65 +79,49 @@ class LinkSkillsTest(unittest.TestCase):
             code = self.module.main(["--dest", str(self.dest), *args])
         return code, out.getvalue()
 
-    def test_first_run_links_and_second_run_is_idempotent(self):
-        code, output = self.run_cli()
-        self.assertEqual(code, 0)
-        self.assertIn("link ruaridh-mode", output)
-        self.assertEqual(
-            (self.dest / "ruaridh-mode").resolve(),
-            (self.repo / ".agents" / "skills" / "ruaridh-mode").resolve(),
-        )
+    def link_all(self):
+        self.dest.mkdir(parents=True, exist_ok=True)
+        for name in ("ruaridh-mode", "clarify"):
+            (self.dest / name).symlink_to(self.repo / ".agents" / "skills" / name)
+
+    def test_all_linked_is_ok(self):
+        self.link_all()
 
         code, output = self.run_cli()
+
         self.assertEqual(code, 0)
         self.assertEqual(
             output.splitlines()[:2], ["ok ruaridh-mode", "ok clarify"], output
         )
 
-    def test_foreign_symlink_is_relinked(self):
-        self.dest.mkdir(parents=True)
+    def test_missing_link_is_reported_and_never_created(self):
+        code, output = self.run_cli()
+
+        self.assertEqual(code, 1)
+        self.assertIn("missing ruaridh-mode: ln -s", output)
+        self.assertFalse(self.dest.exists())
+
+    def test_real_directory_or_foreign_link_is_a_conflict_and_left_alone(self):
+        self.link_all()
+        real = self.dest / "clarify"
+        real.unlink()
+        real.mkdir()
+        (real / "keep.txt").write_text("mine", encoding="utf-8")
         foreign = self.root / "elsewhere"
         foreign.mkdir()
-        (self.dest / "clarify").symlink_to(foreign)
-
-        code, output = self.run_cli()
-
-        self.assertEqual(code, 0)
-        self.assertIn(f"relink clarify: {foreign}", output)
-        self.assertEqual(
-            (self.dest / "clarify").resolve(),
-            (self.repo / ".agents" / "skills" / "clarify").resolve(),
-        )
-
-    def test_real_directory_is_a_conflict_and_untouched(self):
-        real = self.dest / "clarify"
-        real.mkdir(parents=True)
-        (real / "keep.txt").write_text("mine", encoding="utf-8")
+        (self.dest / "ruaridh-mode").unlink()
+        (self.dest / "ruaridh-mode").symlink_to(foreign)
 
         code, output = self.run_cli()
 
         self.assertEqual(code, 1)
-        self.assertIn(f"conflict clarify: real directory at {real}", output)
-        self.assertFalse(real.is_symlink())
+        self.assertIn("conflict clarify", output)
+        self.assertIn("conflict ruaridh-mode", output)
         self.assertEqual((real / "keep.txt").read_text(encoding="utf-8"), "mine")
-
-    def test_check_and_dry_run_change_nothing(self):
-        code, output = self.run_cli("--check")
-        self.assertEqual(code, 1)
-        self.assertIn("would link ruaridh-mode", output)
-        self.assertFalse(self.dest.exists())
-
-        code, output = self.run_cli("--dry-run")
-        self.assertEqual(code, 0)
-        self.assertIn("would link ruaridh-mode", output)
-        self.assertFalse(self.dest.exists())
-
-        self.assertEqual(self.run_cli()[0], 0)
-        code, output = self.run_cli("--check")
-        self.assertEqual(code, 0)
-        self.assertEqual(output.splitlines()[:2], ["ok ruaridh-mode", "ok clarify"])
+        self.assertEqual((self.dest / "ruaridh-mode").resolve(), foreign.resolve())
 
     def test_missing_source_is_skipped(self):
+        self.link_all()
         (self.repo / "linked-skills.txt").write_text(
             "ruaridh-mode\nnot-written-yet\n", encoding="utf-8"
         )
@@ -146,11 +130,11 @@ class LinkSkillsTest(unittest.TestCase):
 
         self.assertEqual(code, 0)
         self.assertIn("skip not-written-yet: not written yet", output)
-        self.assertFalse((self.dest / "not-written-yet").exists())
 
     def test_pi_package_registered_by_relative_path(self):
         # Pi resolves a relative package against the settings file's directory.
         self.write_pi_settings(["npm:other", {"source": "npm:x"}, "../repo"])
+        self.link_all()
 
         code, output = self.run_cli()
 
