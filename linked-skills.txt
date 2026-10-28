@@ -37,3 +37,4 @@ bro
 wayfinder
 spec-page
 browser
+full-stack-e2e-review

@@ -94,7 +94,7 @@ skills = ["implement", "tdd", "debug", "verify", "wizard"]
 [[families]]
 name = "Quality and shipping"
 blurb = "Other eyes, then a PR, then a merge."
-skills = ["review", "pr", "babysit", "ship", "technical-writing"]
+skills = ["review", "full-stack-e2e-review", "pr", "babysit", "ship", "technical-writing"]
 
 [[families]]
 name = "Meta"
@@ -109,6 +109,7 @@ worktree = "One worktree per piece of work, with one base rule and one cleanup g
 recall = "The state of one line of work in a screen, with the next move."
 rare-skills = "One router in front of the service skills a session rarely needs."
 browser = "A persistent, policy-guarded real browser for live-web tasks, driven through betterwright."
+full-stack-e2e-review = "A whole-feature review across code, data, permissions and a real browser pass, before merge or deploy."
 clarify = "At most five questions, each with a recommended answer, before work starts."
 grill = "An interview in rounds that ends by sizing the work and naming its route."
 prototype = "Throwaway code that answers one design question."
