@@ -3,6 +3,7 @@
 import contextlib
 import importlib.util
 import io
+import json
 import re
 import tempfile
 import unittest
@@ -57,6 +58,17 @@ class LinkSkillsTest(unittest.TestCase):
         self.module.REPO_ROOT = self.repo
         self.module.SKILLS_LIST = self.repo / "linked-skills.txt"
         self.dest = self.root / "dest"
+        self.pi_settings = self.root / "pi" / "settings.json"
+        self.pi_dirs = [self.root / "agents-skills", self.root / "pi-skills"]
+        self.module.PI_SETTINGS = self.pi_settings
+        self.module.PI_SKILL_DIRS = tuple(self.pi_dirs)
+        self.write_pi_settings([str(self.repo)])
+
+    def write_pi_settings(self, packages):
+        self.pi_settings.parent.mkdir(parents=True, exist_ok=True)
+        self.pi_settings.write_text(
+            json.dumps({"packages": packages}), encoding="utf-8"
+        )
 
     def tearDown(self):
         self.tmp.cleanup()
@@ -78,7 +90,9 @@ class LinkSkillsTest(unittest.TestCase):
 
         code, output = self.run_cli()
         self.assertEqual(code, 0)
-        self.assertEqual(output.splitlines(), ["ok ruaridh-mode", "ok clarify"], output)
+        self.assertEqual(
+            output.splitlines()[:2], ["ok ruaridh-mode", "ok clarify"], output
+        )
 
     def test_foreign_symlink_is_relinked(self):
         self.dest.mkdir(parents=True)
@@ -121,7 +135,7 @@ class LinkSkillsTest(unittest.TestCase):
         self.assertEqual(self.run_cli()[0], 0)
         code, output = self.run_cli("--check")
         self.assertEqual(code, 0)
-        self.assertEqual(output.splitlines(), ["ok ruaridh-mode", "ok clarify"])
+        self.assertEqual(output.splitlines()[:2], ["ok ruaridh-mode", "ok clarify"])
 
     def test_missing_source_is_skipped(self):
         (self.repo / "linked-skills.txt").write_text(
@@ -133,6 +147,49 @@ class LinkSkillsTest(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertIn("skip not-written-yet: not written yet", output)
         self.assertFalse((self.dest / "not-written-yet").exists())
+
+    def test_pi_package_registered_by_relative_path(self):
+        # Pi resolves a relative package against the settings file's directory.
+        self.write_pi_settings(["npm:other", {"source": "npm:x"}, "../repo"])
+
+        code, output = self.run_cli()
+
+        self.assertEqual(code, 0)
+        self.assertIn("ok pi package", output)
+
+    def test_pi_package_missing_is_reported(self):
+        self.write_pi_settings(["npm:pi-recap"])
+
+        code, output = self.run_cli()
+
+        self.assertEqual(code, 1)
+        self.assertIn("missing pi package", output)
+
+    def test_no_pi_settings_suggests_creating_one(self):
+        self.pi_settings.unlink()
+
+        code, output = self.run_cli()
+
+        self.assertEqual(code, 1)
+        self.assertIn(f"missing pi settings: create {self.pi_settings}", output)
+        self.assertIn(json.dumps({"packages": [str(self.repo)]}), output)
+        self.assertFalse(self.pi_settings.exists())
+
+    def test_pi_dir_copy_collides_but_link_to_repo_does_not(self):
+        self.write_pi_settings([str(self.repo)])
+        source = self.repo / ".agents" / "skills"
+        self.pi_dirs[0].mkdir()
+        (self.pi_dirs[0] / "clarify").symlink_to(source / "clarify")
+        copy = self.pi_dirs[1] / "ruaridh-mode"
+        copy.mkdir(parents=True)
+        (copy / "SKILL.md").write_text("# copy\n", encoding="utf-8")
+
+        code, output = self.run_cli()
+
+        self.assertEqual(code, 1)
+        self.assertIn(f"duplicate ruaridh-mode: {copy}", output)
+        self.assertNotIn("duplicate clarify", output)
+        self.assertTrue(copy.exists())
 
     def test_every_curated_skill_is_listed_once(self):
         listed = self.module.listed_skills(REPO_ROOT / "linked-skills.txt")

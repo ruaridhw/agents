@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import sys
 from pathlib import Path
@@ -11,6 +12,9 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SKILLS_LIST = REPO_ROOT / "linked-skills.txt"
 DEFAULT_DEST = Path("~/.claude/skills")
+PI_SETTINGS = Path("~/.pi/agent/settings.json")
+# Pi scans both recursively; a same-named copy there is a name collision.
+PI_SKILL_DIRS = (Path("~/.agents/skills"), Path("~/.pi/agent/skills"))
 
 
 def listed_skills(path: Path) -> list[str]:
@@ -20,6 +24,40 @@ def listed_skills(path: Path) -> list[str]:
         if name:
             names.append(name)
     return names
+
+
+def pi_package_registered(settings_path: Path) -> bool | None:
+    """Whether pi's settings list this repo as a package; None when there is no settings file."""
+    if not settings_path.is_file():
+        return None
+    settings = json.loads(settings_path.read_text(encoding="utf-8"))
+    for entry in settings.get("packages", []):
+        source = entry.get("source") if isinstance(entry, dict) else entry
+        if not isinstance(source, str) or source.startswith(("npm:", "git:", "http")):
+            continue
+        # Pi resolves a relative package path against the settings file's directory.
+        resolved = (settings_path.parent / Path(source).expanduser()).resolve()
+        if resolved == REPO_ROOT.resolve():
+            return True
+    return False
+
+
+def pi_collisions(names: list[str], scan_dirs: list[Path]) -> list[str]:
+    """Curated names that exist in a pi-scanned dir as something other than a link to the repo.
+
+    Pi skips a second path to the same real file silently, so a symlink into the repo is
+    fine; a copy is a different file and gets a collision warning.
+    """
+    found = []
+    for scan_dir in scan_dirs:
+        for name in names:
+            entry = scan_dir / name
+            if not (entry.is_symlink() or entry.exists()):
+                continue
+            source = REPO_ROOT / ".agents" / "skills" / name
+            if Path(os.path.realpath(entry)) != Path(os.path.realpath(source)):
+                found.append(f"duplicate {name}: {entry} is not a link to {source}")
+    return found
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -80,7 +118,26 @@ def main(argv: list[str] | None = None) -> int:
         if not read_only:
             target.symlink_to(source)
 
-    if conflict:
+    names = listed_skills(SKILLS_LIST)
+    pi_problem = False
+    registered = pi_package_registered(PI_SETTINGS.expanduser())
+    if registered is None:
+        pi_problem = True
+        print(
+            f"missing pi settings: create {PI_SETTINGS} containing "
+            + json.dumps({"packages": [str(REPO_ROOT)]})
+        )
+    elif registered:
+        print("ok pi package")
+    else:
+        pi_problem = True
+        print(f'missing pi package: add "{REPO_ROOT}" to packages in {PI_SETTINGS}')
+    scan_dirs = [d.expanduser() for d in PI_SKILL_DIRS]
+    for line in pi_collisions(names, scan_dirs):
+        pi_problem = True
+        print(line)
+
+    if conflict or pi_problem:
         return 1
     if args.check and would_change:
         return 1
