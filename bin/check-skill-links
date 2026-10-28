@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Link the skills listed in linked-skills.txt into a skills directory."""
+"""Check that every skill in linked-skills.txt is visible to Claude Code and pi.
+
+Read-only: it reports and exits 1, and never links, relinks or deletes. Linking itself
+is the host's job (a sync job, or the one-liner in README.md).
+"""
 
 from __future__ import annotations
 
@@ -60,88 +64,54 @@ def pi_collisions(names: list[str], scan_dirs: list[Path]) -> list[str]:
     return found
 
 
+def claude_links(names: list[str], dest: Path) -> list[str]:
+    """Problems with the per-skill links Claude Code reads from `dest`."""
+    problems = []
+    for name in names:
+        source = REPO_ROOT / ".agents" / "skills" / name
+        target = dest / name
+        if not source.is_dir():
+            print(f"skip {name}: not written yet")
+            continue
+        if not (target.is_symlink() or target.exists()):
+            problems.append(f"missing {name}: ln -s {source} {target}")
+        elif Path(os.path.realpath(target)) == Path(os.path.realpath(source)):
+            print(f"ok {name}")
+        else:
+            problems.append(f"conflict {name}: {target} is not a link to {source}")
+    return problems
+
+
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(
-        description="Symlink the curated skills into a skills directory."
-    )
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument(
         "--dest",
         type=Path,
         default=DEFAULT_DEST,
-        help="skills directory to link into (default: ~/.claude/skills)",
-    )
-    parser.add_argument(
-        "--dry-run", action="store_true", help="report actions without making them"
-    )
-    parser.add_argument(
-        "--check", action="store_true", help="exit 1 if anything would change"
+        help="Claude Code skills directory to check (default: ~/.claude/skills)",
     )
     args = parser.parse_args(argv)
 
-    read_only = args.dry_run or args.check
-    dest = args.dest.expanduser()
-    if not read_only:
-        dest.mkdir(parents=True, exist_ok=True)
-
-    would_change = False
-    conflict = False
-
-    for name in listed_skills(SKILLS_LIST):
-        source = REPO_ROOT / ".agents" / "skills" / name
-        target = dest / name
-
-        if not source.is_dir():
-            print(f"skip {name}: not written yet")
-            continue
-
-        if target.is_symlink():
-            if Path(os.path.realpath(target)) == Path(os.path.realpath(source)):
-                print(f"ok {name}")
-                continue
-            would_change = True
-            verb = "would relink" if read_only else "relink"
-            print(f"{verb} {name}: {os.readlink(target)} -> {source}")
-            if not read_only:
-                target.unlink()
-                target.symlink_to(source)
-            continue
-
-        if target.exists():
-            conflict = True
-            kind = "directory" if target.is_dir() else "file"
-            print(f"conflict {name}: real {kind} at {target}")
-            continue
-
-        would_change = True
-        verb = "would link" if read_only else "link"
-        print(f"{verb} {name}: {target} -> {source}")
-        if not read_only:
-            target.symlink_to(source)
-
     names = listed_skills(SKILLS_LIST)
-    pi_problem = False
+    problems = claude_links(names, args.dest.expanduser())
+
     registered = pi_package_registered(PI_SETTINGS.expanduser())
     if registered is None:
-        pi_problem = True
-        print(
+        problems.append(
             f"missing pi settings: create {PI_SETTINGS} containing "
             + json.dumps({"packages": [str(REPO_ROOT)]})
         )
     elif registered:
         print("ok pi package")
     else:
-        pi_problem = True
-        print(f'missing pi package: add "{REPO_ROOT}" to packages in {PI_SETTINGS}')
-    scan_dirs = [d.expanduser() for d in PI_SKILL_DIRS]
-    for line in pi_collisions(names, scan_dirs):
-        pi_problem = True
-        print(line)
+        problems.append(
+            f'missing pi package: add "{REPO_ROOT}" to packages in {PI_SETTINGS}'
+        )
+    problems += pi_collisions(names, [d.expanduser() for d in PI_SKILL_DIRS])
 
-    if conflict or pi_problem:
-        return 1
-    if args.check and would_change:
-        return 1
-    return 0
+    for problem in problems:
+        print(problem)
+    return 1 if problems else 0
 
 
 if __name__ == "__main__":
