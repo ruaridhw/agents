@@ -74,6 +74,7 @@ Run each check as its own command and read its exit before the next. Never chain
 | Build succeeds | Build command: exit 0 | Linter passing, logs look good |
 | Bug fixed | Test original symptom: passes | Code changed, assumed fixed |
 | Regression test works | Red-green cycle verified | Test passes once |
+| Changed load-bearing guard is protected | A realistic mutation is killed by a relevant assertion, then the restored code passes | Green suite or mental mutation alone |
 | Worker completed | VCS diff shows changes | The worker reports "success" |
 | Requirements met | Line-by-line checklist | Tests passing |
 
@@ -186,6 +187,19 @@ A writeup that sounds right is worthless, and it reads as convincing whether or 
 5. You reproduced it in the running app.
 
 Most changes that look risky are safe because of a single fact ("this call only drops already-dead cache entries and does nothing else"). Find that fact, prove it, and most of the risk clears at once. Steps 4 and 5 are the rungs a claim of "verified" needs; a rung 2 answer is at best `inferred`. The steps for a full blast-radius pass, and the writeup shape it hands back, are in `references/blast-radius.md`.
+
+## Diff-scoped mutation proof
+
+When claiming tests protect a changed load-bearing guard, branch or invariant, prove they reject a realistic break in that behaviour. Pin the base and head, inspect their diff, and select changed conditions or the enclosing function where the invariant crosses lines. Report that scope; it is not whole-system proof.
+
+1. Run the covering tests on the unmutated code and confirm green.
+2. Use the repo's mutation runner scoped to that diff/module, or introduce one realistic manual mutation (invert a guard, change a boundary operator, omit a side effect). Run the covering tests: a relevant behavioural assertion must fail. A syntax/import error or harness crash is not a killed behavioural mutant.
+3. Restore the exact pre-mutation bytes, then rerun the covering tests and confirm green. Work in a disposable copy or isolated scratch worktree; if editing in place, save the current bytes first and restore them even on interruption. Never use a blanket checkout/reset that discards existing edits. Check the final diff for accidental mutations.
+4. Record the command, base/head, mutated location, failing assertion and restored run. Classify survivors as a real coverage gap, equivalent/out-of-contract (with justification), or unresolved. Tool errors, timeouts and untested mutants are not passes. Fix real gaps before claiming the invariant is protected; report unresolved cases as limitations.
+
+A manual mutation proves only the selected break. Red-first TDD remains required by `tdd`, but does not substitute for this check on the final implementation; property tests without a deliberate mutation are not mutation evidence either. A scoped mutation score is evidence about those mutants, never a correctness guarantee or a demand for a global 100% score.
+
+For a heavy pre-merge or end-to-end sweep, read `references/test-strength.md`: it defines risk selection, mutation scope, property/fuzz runs and their evidence. `review` and `full-stack-e2e-review` use that protocol rather than repeating it.
 
 ## Any number you report
 
