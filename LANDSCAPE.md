@@ -519,6 +519,7 @@ Decisions:
 
 - `verify` is self-evidence; every claim is labelled verified, inferred or assumed, and an unlabelled completion claim is a red flag (`ruaridh-mode` non-negotiable 5; Ruaridh, 2026-10-22).
 - The blast-radius proof ladder is kept as the way a claim advances from "you said so" to "you ran it", and the writeup alone never counts as proof (wave 2 decisions; pstack feed).
+- Diff-scoped mutation proof tests the tests protecting changed load-bearing guards and invariants. A green baseline, a killed realistic mutant and a green restored run are distinct evidence; TDD red-first alone is not a mutation run. Mutation scope, survivor triage, safe restoration and the shared heavy mutation/property sweep protocol belong to `verify` (session decision).
 - The benchmark checklist is read in full whenever a number is reported, a ballpark is one run with the error and "did it happen" checks, and a choice between options is never a ballpark (Ruaridh, 2026-10-22).
 - The hook is `.agents/prove-landed.md`, and the default is the tests on the merged sha; proving is separate from merging, so the word "done" waits for it (`ruaridh-mode` chain; wave 0 layering).
 - The decision trail is a TSV at `.scratch/decisions/<ticket>.tsv`, appended with `scripts/log.sh`, part of every `implement` run, and uncommitted (Ruaridh, 2026-10-22).
