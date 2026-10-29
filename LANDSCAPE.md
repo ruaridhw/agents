@@ -547,6 +547,7 @@ Decisions:
 Decisions:
 
 - The order is fixed: the two axes first, then the adversarial `reviewer`-role pass, then the receiving-side rules, then the prose pass (`ruaridh-mode` chain; Ruaridh, 2026-10-22).
+- Heavy pre-merge sweeps target changed high-risk logic, with mutation/property checks bound by `.agents/review.md` and the shared protocol in `verify/references/test-strength.md`. Real coverage gaps and falsified properties are Act-on findings; equivalent mutants and tool failures are classified separately (session decision).
 - The adversarial pass runs in a Herdr pane through `herdr`, read-only, with the interrogate brief; roles come from `~/.config/agents/models.toml` and a missing role's model stops the pass rather than substituting a weaker one (wave 1/2 environment rules; `herdr`).
 - The two axes also run as panes, one per axis, because the environment rule turns parallel sub-agents into Herdr panes; the Standards pane is `reviewer`, the Spec pane is `cheap` when the spec is small (environment edit; `herdr`).
 - The final list is one ranked list, not two sections: the axes stay separate while findings are gathered, and meet ordered by effect in the report (Ruaridh, 2026-10-22: "one ranked list that ends with exactly one of ready to merge: yes, no or with fixes").
