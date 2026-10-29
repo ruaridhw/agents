@@ -370,6 +370,8 @@ Decisions:
 
 ## update-skills
 
+Local addition (session decision): generated `full-stack-e2e-review` has one approved `local:test-strength` block. Save it before regeneration, reapply it to the regenerated base, and review placement conflicts explicitly; other generated text remains verbatim.
+
 **Opinion.** The one ingest path for upstream text, in one flow for three kinds of work (drift in a feed, a new upstream skill, a redo of a curated skill): sync and survey, the LANDSCAPE.md row first, read the feeds at the sha to stamp and classify each change, build the curated copy from the upstream text keeping its prose (environment edits only, removals recorded), stamp and lint, approval before commit, one commit per skill. Manual cadence.
 
 Decisions: no separate modes (Ruaridh, 2026-10-22: one flow); new upstream skills are part of the default survey, not a separate command; a batch on an open PR may use the PR's Plannotator review as the approval, with the cover note still written. Generated skills (`browser` and `full-stack-e2e-review`, regenerated from a throwaway-`HOME` `betterwright skill --install`) are refreshed on the same cadence by a short section in the skill, not by a stamp, because there is no upstream clone to stamp against (Ruaridh, 2026-10-27).
