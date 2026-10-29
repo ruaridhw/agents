@@ -158,8 +158,9 @@ A generated skill is the output of a tool's own command, so it has no upstream c
 
 1. Upgrade the tool (`bun update -g betterwright`, then `betterwright doctor`).
 2. Regenerate into a throwaway `HOME`, so nothing real is written: `T=$(mktemp -d); HOME=$T betterwright skill --install`.
-3. Copy `$T/.claude/skills/<name>/SKILL.md` over `.agents/skills/<name>/SKILL.md` for each generated skill, and read the diff.
-4. Take the new text whole, because an edit would be lost on the next regeneration; update the version named in each skill's LANDSCAPE.md section, and put the change in the cover note.
+3. Before replacing `full-stack-e2e-review`, save its approved block between `<!-- local:test-strength:start -->` and `<!-- local:test-strength:end -->` (inclusive) in the run's scratch directory. Confirm exactly one intact block; missing or duplicate markers stop the replacement for investigation. This is the only locally maintained exception; `browser` stays verbatim.
+4. Copy `$T/.claude/skills/<name>/SKILL.md` over `.agents/skills/<name>/SKILL.md` for each generated skill. For `full-stack-e2e-review`, reapply the saved block at the focused-test rung before live API checks. If that location changed or upstream now covers the same protocol, retain the saved block and propose the placement/reconciliation for approval rather than silently dropping or duplicating it.
+5. Read the diff against both the generated base and the previous curated copy. Keep the generated base whole and its `generated_by` provenance; confirm the approved local block is present exactly once. Update the version and any approved local-addition decisions in LANDSCAPE.md, and put the changes in the cover note.
 
 Never run the tool's `--install` against the real `HOME`: it writes to `~/.claude/skills` and `~/.agents/skills`, and once a skill is linked it would write through the symlink into the repo.
 
