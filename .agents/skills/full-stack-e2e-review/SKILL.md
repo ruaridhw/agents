@@ -89,6 +89,14 @@ Run from narrow and fast to broad and realistic:
 5. Real browser interaction and visual review.
 6. Broader regression suites after any fix.
 
+<!-- local:test-strength:start -->
+### Pre-merge test-strength sweep
+
+Before declaring a heavy pre-merge or end-to-end review complete, read `<skills dir>/verify/references/test-strength.md` and run its diff-scoped mutation and property/fuzz protocol on changed domain, parser, authorization, billing/quota and state-transition logic. Read `.agents/review.md` for mandatory surface commands and budgets. This extends the focused-test rung above; live API and browser checks remain required.
+
+Add the selected invariants and test-strength results to the review matrix. Close demonstrated coverage gaps and falsified properties through step 7; carry commands, mutant dispositions, seeds, shrunk counterexamples, restoration evidence and any blocked/limited checks into step 8. Classify equivalent mutants and harness failures separately rather than treating every survivor as a product bug.
+<!-- local:test-strength:end -->
+
 For live API checks, build an explicit actor-by-scenario matrix. Verify status code and response body for positive and negative cases, including:
 
 - personal versus shared scope

@@ -407,12 +407,12 @@ Decisions:
 Decisions:
 
 - **Ingested verbatim** (Ruaridh, 2026-10-27): the file betterwright 2.8.8 installs, byte for byte, `generated_by` line included. It was loose, identical copies in `~/.claude/skills` and `~/.agents/skills`.
-- **No edits, no feed**: generated text, so an edit would be lost on the next regeneration; refreshed by the same routine as `browser` (`update-skills`, "Generated skills").
+- **Generated base with a local test-strength addition** (session decision): retain the generated base and its `generated_by` provenance, with the local pre-merge mutation/property sweep enclosed by `local:test-strength` markers. `update-skills` saves and reapplies that block when regenerating this skill; changed placement is reviewed rather than silently dropping it. This supersedes the no-edits decision for this block only.
 - **Separate from `review`**: `review` is the diff-level review in the chain; this is an opt-in whole-feature pass a person asks for, so it is not wired into the chain or a hook point.
 
 | Feed | Taken | Dropped |
 | --- | --- | --- |
-| no feed (betterwright's installed `full-stack-e2e-review`, 2.8.8) | The whole file. | Nothing. |
+| no feed (betterwright's installed `full-stack-e2e-review`, 2.8.8) | The whole generated base, plus the locally approved test-strength sweep pointing to `verify`'s shared protocol. | Nothing. |
 
 ## herdr
 
