@@ -341,6 +341,7 @@ Decisions:
 Decisions:
 
 - The files live in `.agents/` at the repo root, never upstream's `docs/agents/`; general skills read them from there (wave 1).
+- The review-gate template offers scoped mutation and property/fuzz commands for high-risk surfaces, with a pinned diff base, a run budget and survivor triage; these are not added to every red-green cycle (session decision).
 - Two tracker profiles, kata (`conventions/tracker-kata.md`) and GitHub (`conventions/tracker-github.md`); propose what the repo already uses, fill the profile's Project block (wave 1).
 - GitLab and local-markdown trackers are not profiles and are dropped whole (wave 1).
 - Triage label strings are fixed in the profiles, so the skill asks no question about them and writes no label-mapping file (wave 1); a repo already using other strings for the four roles gets a note in `.agents/tracker.md` rather than new labels (wave 1 redo: the overrides idea survives without upstream's mapping file).

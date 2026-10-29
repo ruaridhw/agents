@@ -81,6 +81,23 @@ Hard violations (cite the rule):
 - <rule, one line>
 ```
 
+For high-risk code surfaces, offer this additional review-gate block. Fill it with commands verified against the repo's installed tool versions; omit it for unrelated surfaces. `review` and `full-stack-e2e-review` share the protocol in `<skills dir>/verify/references/test-strength.md`.
+
+```markdown
+## Test strength (paths: <domain/parser/authorization/billing/state-machine globs>)
+Checks, in order:
+- `<covering test command>` — green baseline for the selected invariants.
+- `<mutation command scoped to the reviewed base/head diff or enclosing module>` — test sensitivity to realistic breaks.
+- `<property/fuzz command with reproducible seed and bounded run profile>` — generated boundary/adversarial cases against independent invariants.
+Scope/budget: record base/head, selected modules/tests and <time/case budget> before running.
+If no mutation runner exists, use isolated targeted manual mutants and report that narrower scope.
+Hard violations:
+- A demonstrated coverage gap or falsified contract property remains open.
+- A mandatory check is unresolved or blocked but reported as passed.
+Evidence: commands, scope, mutant dispositions, seeds/cases, shrunk counterexamples and restored green run.
+Justify equivalent/out-of-contract survivors; classify timeouts and tool errors separately from killed mutants.
+```
+
 ## references.md
 
 ```markdown
