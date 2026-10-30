@@ -36,6 +36,8 @@ upstream:
 
 # research
 
+> **Without Herdr** (`HERDR_ENV` is not `1`, for example Claude Code on the web): investigators and the synthesizer are Agent-tool subagents; an explorer that needs a connector the subagent lacks is run in the main session. See `<skills dir>/ruaridh-mode/references/cloud.md`.
+
 Investigate a question against **primary sources** and answer it with citations. Never a secondary write-up of the source that owns the claim: official docs, the source code itself, specs, first-party APIs, the commit and review that made the change, the ticket that forced it, the session that decided it. Follow every claim back to the source that owns it.
 
 Two questions arrive here, and they take the same shape:

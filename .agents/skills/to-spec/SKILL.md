@@ -18,6 +18,8 @@ upstream:
 
 # to-spec
 
+> **Without Herdr** (`HERDR_ENV` is not `1`, for example Claude Code on the web): the builder check is an Agent-tool subagent and the Plannotator gate is the file gate in `cloud.md` (an Artifact or the reply, then stop for approval). See `<skills dir>/ruaridh-mode/references/cloud.md`.
+
 A builder's contract, not a generic PRD: each consequential decision has a source, a change or disposition, and a way to tell whether it worked. Use existing project spec conventions where they meet this contract.
 
 This skill takes the current conversation, the codebase understanding and the sources gathered around it and produces a spec. Do NOT interview Ruaridh; synthesize what you already know. A decision that is missing and that only he can make becomes an Open item with an owner, never a guessed requirement.

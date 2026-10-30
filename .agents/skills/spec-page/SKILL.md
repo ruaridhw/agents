@@ -8,6 +8,8 @@ description: >-
 
 # Render a spec page
 
+> **Without Herdr** (`HERDR_ENV` is not `1`, for example Claude Code on the web): skip the Plannotator step. Publish the generated page as an Artifact if the tool is there; otherwise give the file path on the session branch. See `<skills dir>/ruaridh-mode/references/cloud.md`.
+
 The Markdown is the source; the page is generated beside it and never edited by
 hand. The page gives a long, table-heavy spec a sticky contents rail, tinted open
 items with a count in the header, linkable row ids and an optional cost ladder,

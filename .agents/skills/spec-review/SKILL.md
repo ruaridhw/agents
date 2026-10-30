@@ -9,6 +9,8 @@ upstream:
 
 # spec-review
 
+> **Without Herdr** (`HERDR_ENV` is not `1`, for example Claude Code on the web): the independent reviewer is a read-only Agent-tool subagent with a fresh context. Say on the review file's first line when it is the same model family as the author. See `<skills dir>/ruaridh-mode/references/cloud.md`.
+
 A sibling challenges a draft; the author answers from decision history. The output is a ledger of material gaps, not a quota of questions. The author alone owns spec edits and readiness. If no independent reviewer can be had, say so and label the pass a self-review.
 
 It runs between the `to-spec` gate and publishing the spec issue. The reviewer is a sibling Herdr pane in the spec-reviewer role (`~/.config/agents/models.toml`); its only write destination is one review file beside the spec. Spawning and prompting belong to `herdr`; the shapes a pane writes belong to `handoff`.

@@ -18,6 +18,8 @@ upstream:
 
 # handoff
 
+> **Without Herdr** (`HERDR_ENV` is not `1`, for example Claude Code on the web): there are no panes to stop or close, and the checkout is discarded with the session, so commit the summary to the session branch. See `<skills dir>/ruaridh-mode/references/cloud.md`.
+
 Work crosses a session boundary in one of two directions: a session stops and
 hands over, or a session picks up what an earlier one stopped. This skill owns
 both directions, and the two files every delegated agent writes along the way.

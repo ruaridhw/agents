@@ -18,6 +18,8 @@ upstream:
 
 # triage
 
+> **Without Herdr** (`HERDR_ENV` is not `1`, for example Claude Code on the web): the wave gate is the file gate in `cloud.md`, not `plannotator annotate`; `references/serving.md` does not apply. See `<skills dir>/ruaridh-mode/references/cloud.md`.
+
 Move issues on the project issue tracker through a small state machine of triage roles.
 
 Read `.agents/tracker.md` first: it gives the tracker, the label strings for the roles below, the commands that set and query them, and the mechanism that notifies a human. Without it, ask Ruaridh to run `setup-project`.
