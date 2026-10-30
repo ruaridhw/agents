@@ -59,7 +59,7 @@ Look for the originating spec, in this order:
 3. A spec file under `.scratch/specs/` matching the branch name or the feature.
 4. If nothing is found, ask where the spec is. If there is none, the Spec axis is skipped and the report says "no spec available".
 
-The spec is a vision document. It says what the software must do; it does not enumerate every input, environment or condition the software will meet. For behaviour the spec is silent on, judge by what a reasonable person using this software would expect: that expectation is a requirement, and silence is not permission. Grade such a finding by its effect on that person, not by whether the spec names the trigger.
+The spec is a vision document; silence in it is not permission. `references/criteria.md` has the rule and how to grade behaviour the spec does not name.
 
 ## 3. Identify the standards sources
 
@@ -67,33 +67,15 @@ The spec is a vision document. It says what the software must do; it does not en
 
 For a heavy pre-merge sweep, read `<skills dir>/verify/references/test-strength.md` and run its scoped mutation and property/fuzz protocol on changed high-risk logic. `.agents/review.md` binds the per-surface commands and budgets; without configured tools, the protocol defines manual mutation fallback and how to report property-suite gaps. Carry real protection gaps and falsified properties into step 7 as Act-on findings. Keep justified equivalent mutants and tool/harness blockers distinct; an unresolved mandatory check prevents a ready-to-merge verdict.
 
-Search the repo for every file that documents how code should be written. When `CODING_STANDARDS.md` or `CONTRIBUTING.md` exists, it must be on the list. `.agents/` files count where they carry rules (a build loop's commit rules, a tracker's comment rules), and a documented `AGENTS.md` rule is a standard.
+Search the repo for every file that documents how code should be written, as `references/criteria.md` describes: `CODING_STANDARDS.md` and `CONTRIBUTING.md` when present, `.agents/` files that carry rules, documented `AGENTS.md` rules.
 
-On top of whatever the repo documents, the Standards axis always carries the **smell baseline** below: a fixed set of Fowler code smells (_Refactoring_, ch.3) that applies even when a repo documents nothing. Two rules bind it:
-
-- **The repo overrides.** A documented repo standard always wins; where it endorses something the baseline would flag, suppress the smell.
-- **Always a judgement call.** Each smell is a labelled heuristic ("possible Feature Envy"), never a hard violation. Like any standard here, skip anything tooling already enforces.
-
-Each smell reads *what it is* → *how to fix*; match it against the diff:
-
-- **Mysterious Name**: a function, variable, or type whose name doesn't reveal what it does or holds. → rename it; if no honest name comes, the design's murky.
-- **Duplicated Code**: the same logic shape appears in more than one hunk or file in the change. → extract the shared shape, call it from both.
-- **Feature Envy**: a method that reaches into another object's data more than its own. → move the method onto the data it envies.
-- **Data Clumps**: the same few fields or params keep travelling together (a type wanting to be born). → bundle them into one type, pass that.
-- **Primitive Obsession**: a primitive or string standing in for a domain concept that deserves its own type. → give the concept its own small type.
-- **Repeated Switches**: the same `switch`/`if`-cascade on the same type recurs across the change. → replace with polymorphism, or one map both sites share.
-- **Shotgun Surgery**: one logical change forces scattered edits across many files in the diff. → gather what changes together into one module.
-- **Divergent Change**: one file or module is edited for several unrelated reasons. → split so each module changes for one reason.
-- **Speculative Generality**: abstraction, parameters, or hooks added for needs the spec doesn't have. → delete it; inline back until a real need shows.
-- **Message Chains**: long `a.b().c().d()` navigation the caller shouldn't depend on. → hide the walk behind one method on the first object.
-- **Middle Man**: a class or function that mostly just delegates onward. → cut it, call the real target direct.
-- **Refused Bequest**: a subclass or implementer that ignores or overrides most of what it inherits. → drop the inheritance, use composition.
+On top of whatever the repo documents, the Standards axis always carries the **smell baseline** in `references/criteria.md`: it applies even when a repo documents nothing.
 
 ## 4. Run the two axes
 
 Both axes run as **parallel reviewers in Herdr panes** so they don't pollute each other's context, then this skill aggregates their findings. Spawning is `herdr`'s: one named tab for the review, panes inside it, a worker brief, and the two-file summary and raw paths. Use the `reviewer` role for the Standards axis; the `cheap` role takes the Spec axis when the spec is small enough to hand over whole, otherwise `reviewer` too. Never invent a model id.
 
-**Standards reviewer** gets, in its brief: the full diff command and the commit list; the list of standards-source files found in step 3, **plus the smell baseline from step 3 pasted in full** (the pane has no other access to it); and this ask:
+**Standards reviewer** gets, in its brief: the full diff command and the commit list; the list of standards-source files found in step 3, **plus the smell baseline from `references/criteria.md` pasted in full** (the pane has no other access to it); and this ask:
 
 > Report, per file/hunk where relevant, (a) every place the diff violates a documented standard: cite the standard (file + the rule); and (b) any baseline smell you spot: name it and quote the hunk. Distinguish hard violations from judgement calls: documented-standard breaches can be hard, but baseline smells are always judgement calls, and a documented repo standard overrides the baseline. Skip anything tooling enforces. Under 400 words.
 
