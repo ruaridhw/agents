@@ -66,6 +66,11 @@ The ruaridh-mode skill is already loaded below; follow it and do not load it aga
 ${body}
 </EXTREMELY_IMPORTANT>"
 
+if [ "${HERDR_ENV:-}" != "1" ] && [ "${RUARIDH_MODE:-}" != "worker" ]; then
+  session_context="${session_context}
+<ENVIRONMENT>No Herdr (HERDR_ENV is not 1): read references/cloud.md before you delegate, gate or ask.</ENVIRONMENT>"
+fi
+
 session_context_escaped="$(escape_for_json "$session_context")"
 
 emit_json() {

@@ -88,13 +88,13 @@ Gates where Ruaridh decides:
 
 The plan is not gated: `to-plan` ends by proposing inline or delegated execution and waits for his pick.
 
-Build loops come from `.agents/build-loop.md`. The default is code: failing test → run (fail) → implement → run (pass) → commit. A repo may bind another loop, such as a surface pushed and proved before its case runs. "Merged" and "done" are separate states: done means the ticket's Done-when was observed (`.agents/prove-landed.md`; default: the tests on the merged sha).
+Build loops come from `.agents/build-loop.md`. The default is code: failing test → run → implement → run → commit. A repo may bind another loop, such as a surface pushed and proved before its case runs. "Merged" and "done" are separate states: done means the ticket's Done-when was observed (`.agents/prove-landed.md`; default: the tests on the merged sha).
 
 ### Curated skills
 
 These names mean the curated skills in this repo, read from `<skills dir>/<name>/SKILL.md` (the bootstrap header gives the directory): `clarify`, `herdr`, `grill`, `to-spec`, `spec-review`, `to-tickets`, `triage`, `to-plan`, `implement`, `pr`, `handoff`, `setup-project`, `update-skills`, `rare-skills`, `write-skill`, `tdd`, `debug`, `verify`, `review`, `babysit`, `ship`, `worktree`, `prototype`, `domain`, `arch`, `research`, `recall`, `retro`, `technical-writing`, `teach`, `wizard`, `questionnaire`, `bro`.
 
-Service skills (AWS, Cloudflare and the like) are behind `rare-skills`.
+Service skills (AWS, Cloudflare) are behind `rare-skills`.
 
 ### Red flags
 
@@ -119,7 +119,7 @@ These thoughts mean stop: you're rationalizing.
 
 ## 3. Judgment
 
-Before asking a "which approach" question, deciding whether to pause, or running on while Ruaridh is away, read `references/judgment.md`: ask or run, autonomy, broken skills, decision trails. Delegation, replies and comments: `references/delegation.md`.
+Before asking a "which approach" question, deciding whether to pause, or running on while Ruaridh is away, read `references/judgment.md`. Delegation, replies and comments: `references/delegation.md`.
 
 ## 4. Non-negotiables
 
@@ -140,4 +140,4 @@ Working files Ruaridh may open (specs, plans, research, reviews, handoff drafts)
 
 ## 5. The Inbox convention
 
-Ruaridh is away when he has said so, when the session runs unattended, or when a chat question has gone unanswered while other work waits. Then a decision only he can make or finished long work goes to the Plannotator Inbox, one message per real need, then keep working. A worker never writes to it. The convention and its mechanics (question shape, thread, attachments) are in `references/tooling.md` ("The Inbox"); skills say "ask per the Inbox convention" and mean this.
+Ruaridh is away when he has said so, when the session runs unattended, or when a chat question has gone unanswered while other work waits. Then a decision only he can make or finished long work goes to the Plannotator Inbox, one message per real need, then keep working. A worker never writes to it. Its mechanics are in `references/tooling.md` ("The Inbox"); skills say "ask per the Inbox convention" and mean this.
