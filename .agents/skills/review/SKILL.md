@@ -69,7 +69,7 @@ For a heavy pre-merge sweep, read `<skills dir>/verify/references/test-strength.
 
 Search the repo for every file that documents how code should be written, as `references/criteria.md` describes: `CODING_STANDARDS.md` and `CONTRIBUTING.md` when present, `.agents/` files that carry rules, documented `AGENTS.md` rules.
 
-On top of whatever the repo documents, the Standards axis always carries the **smell baseline** in `references/criteria.md`: a fixed set of Fowler code smells that applies even when a repo documents nothing. The repo's documented standards override it, and each smell is a judgement call, never a hard violation.
+On top of whatever the repo documents, the Standards axis always carries the **smell baseline** in `references/criteria.md`: it applies even when a repo documents nothing.
 
 ## 4. Run the two axes
 

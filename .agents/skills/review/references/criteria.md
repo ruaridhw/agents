@@ -10,7 +10,7 @@ The spec says what the software must do; it does not enumerate every input, envi
 
 Search the repo for every file that documents how code should be written. When `CODING_STANDARDS.md` or `CONTRIBUTING.md` exists, it must be on the list. `.agents/` files count where they carry rules (a build loop's commit rules, a tracker's comment rules), and a documented `AGENTS.md` rule is a standard.
 
-When the repo has `.agents/review.md`, it names, per surface (a path pattern), the checks that must run on every review of a diff touching that surface and the rules that are hard violations there. Its rules join the standards sources as documented repo rules.
+When the repo has `.agents/review.md`, it names, per surface (a path pattern), the checks that must run on every review of a diff touching that surface and the rules that are hard violations there. Its rules join the standards sources as documented repo rules. Findings from the checks it names are Act-on findings.
 
 ## Documented rules are hard violations
 
