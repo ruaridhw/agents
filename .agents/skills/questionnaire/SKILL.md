@@ -9,6 +9,8 @@ upstream:
 
 # questionnaire
 
+> **Without Herdr** (`HERDR_ENV` is not `1`, for example Claude Code on the web): there is no Inbox. Deliver the questions as the last part of the reply, in the same `:::question` shape, and end the turn. See `<skills dir>/ruaridh-mode/references/cloud.md`.
+
 Turn something the agent cannot answer alone into a **questionnaire**: a set of questions for the one person who holds the knowledge. They answer async, or in a meeting, and the agent gets back a decision it could not make.
 
 Two deliveries, and the first is the default:

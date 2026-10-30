@@ -36,6 +36,8 @@ upstream:
 
 # review
 
+> **Without Herdr** (`HERDR_ENV` is not `1`, for example Claude Code on the web): the parallel reviewers are read-only Agent-tool subagents, one per axis, started in the background. See `<skills dir>/ruaridh-mode/references/cloud.md`.
+
 `review` is other eyes. `verify` is the evidence you gather on your own work; a review is what a context that did not write the code can see. The two are separate passes and the same session can run both, but an author reading their own diff is `verify`, not this.
 
 The review file goes in `.scratch/reviews/`, which is gitignored and never cleaned by a skill. Its one job is to end with a single verdict line.

@@ -36,6 +36,8 @@ upstream:
 
 # implement
 
+> **Without Herdr** (`HERDR_ENV` is not `1`, for example Claude Code on the web): delegated mode uses Agent-tool subagents, one level deep, with `isolation: "worktree"` for builders; the roles map to model aliases when `models.toml` is absent. See `<skills dir>/ruaridh-mode/references/cloud.md`.
+
 Execute a plan, ticket by ticket: fetch the ticket, cut a worktree, run the plan's tasks or derive them from the ticket, prove each step with a test you watched fail and then pass, and leave a record that survives your own forgetting.
 
 The ticket is the contract, the spec is the authority behind it, the plan is its argument.

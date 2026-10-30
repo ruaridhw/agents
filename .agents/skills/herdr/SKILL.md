@@ -12,6 +12,8 @@ upstream:
 
 # herdr
 
+> **Without Herdr** (`HERDR_ENV` is not `1`, for example Claude Code on the web): these scripts cannot run. Spawn through the Agent tool instead and keep the same brief-by-file, fresh-worker and own-the-diff rules. See `<skills dir>/ruaridh-mode/references/cloud.md`.
+
 Mechanics only. What to put in a brief, how to split a wave and when to delegate belong to the skill that is delegating (`implement`, `to-spec`, `spec-review`, `research`); the summary and raw file shapes belong to `handoff`.
 
 Scripts are in `scripts/` beside this file. Run them with `python3 <this dir>/scripts/<name>.py`.
