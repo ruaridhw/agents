@@ -1,5 +1,7 @@
 # Tooling rules
 
+Without Herdr (`HERDR_ENV` not `1`), the Herdr, pi, Plannotator and Inbox sections below do not apply: use `cloud.md`.
+
 Machine-specific values (hostnames, collector URLs, token paths, tailnet recipes) are not in this public file. Read `~/AGENTS.md` and, when it exists, `~/.config/agents/tooling.local.md`.
 
 ## Shell

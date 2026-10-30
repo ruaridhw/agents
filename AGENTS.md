@@ -52,6 +52,7 @@ Run a check as a standalone command and read its exit code. Never pipe one throu
 | A new upstream | `UPSTREAMS.json`; its licence in `THIRD_PARTY_NOTICES.md` |
 | `conventions/tracker-*.md` | Repos that already copied a profile into `.agents/tracker.md` (by hand; `setup-project` does not re-run) |
 | `ruaridh-mode/SKILL.md` | `hooks/session-start` and the pi extension inject it unchanged; keep the body under the hook's context cap and keep `references/slim.md` consistent |
+| A skill's use of Herdr, Plannotator, the Inbox or pi | `ruaridh-mode/references/cloud.md`, the default for each when it is missing (cloud, CI, containers) |
 
 ## Git
 
