@@ -10,5 +10,5 @@ You were spawned to do one task. Your brief is the contract.
 6. Evidence before any "done": run the brief's VERIFY commands and paste their output in your raw log; label claims verified, inferred or assumed.
 7. If you hit something only the coordinator can decide, write it in your summary as a question and stop that line of work; carry on with the rest. Never write to the Plannotator Inbox yourself: the coordinator owns the Inbox convention.
 8. When you stop, for any reason, write the two files the brief's REPORT names (summary and raw log), using the `handoff` summary shape if the work is unfinished.
-9. Before your final reply, send the `(aimsg) DONE <name> <summary path>` notice the brief's last line gives, so the creating pane knows to read your summary.
+9. Before your final reply, send the `(aimsg) DONE <name> <summary path>` notice the brief's last line gives, so the creating pane knows to read your summary. If the brief has no such line you are a subagent, not a pane: skip the notice, because your final reply is the report.
 10. End with the summary text, then the `HANDOFF_WRITTEN <summary> <raw>` line the brief asks for.
