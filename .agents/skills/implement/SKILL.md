@@ -102,7 +102,7 @@ Conversation memory does not survive compaction. A session that loses its place 
 
 ## Inline mode
 
-Inline is right when the tasks are mostly independent (the same precondition as delegated mode) and Ruaridh chose it at the handoff. Prefer delegated mode when he wants a review gate on each phase, or when the plan is long enough that its later tasks would run on a compacted context; inline execution over a long plan still works — the ledger is what makes it recoverable — but the last tasks get the least of you. A fully specified plan makes inline execution transcription plus testing, so it runs well on a mid-tier role, and the one place the most capable role earns its cost is the final review, which this mode runs separately. Say so when he chooses inline. With no Herdr pane available (`HERDR_ENV` unset), never fabricate a dispatch: run the plan here.
+Inline is right when the tasks are mostly independent (the same precondition as delegated mode) and Ruaridh chose it at the handoff. Prefer delegated mode when he wants a review gate on each phase, or when the plan is long enough that its later tasks would run on a compacted context; inline execution over a long plan still works — the ledger is what makes it recoverable — but the last tasks get the least of you. A fully specified plan makes inline execution transcription plus testing, so it runs well on a mid-tier role, and the one place the most capable role earns its cost is the final review, which this mode runs separately. Say so when he chooses inline. With no Herdr pane available (`HC_TERMINAL_ID` unset), never fabricate a dispatch: run the plan here.
 
 ```dot
 digraph process {
@@ -282,7 +282,7 @@ digraph process {
 }
 ```
 
-**Waiting on builders:** a spawn's brief already ends with the instruction to notify your pane (`(aimsg) DONE <name> <summary path>`), so wait for that prompt rather than polling a summary file or a status. Never poll with short timeouts, and never sit in one silent, open-ended wait either. While you have local work — ledger updates, packaging the next review, reading reports — keep working; completions arrive on their own. When you are genuinely idle, wait in bounded stretches and between stretches run `panes.py list` to reconcile your live panes, chasing any that finished without a notice. A resume restarts an idle pane, so never resume one to check on it: probe read-only.
+**Waiting on builders:** a spawn's brief already ends with the instruction to notify your pane (`(aimsg) DONE <name> <summary path>`), so wait for that prompt rather than polling a summary file or a status. Never poll with short timeouts, and never sit in one silent, open-ended wait either. While you have local work — ledger updates, packaging the next review, reading reports — keep working; completions arrive on their own. When you are genuinely idle, wait in bounded stretches (`hc wait --children any`) and between stretches run `hc ls` to reconcile your live children, chasing any that finished without a notice. A resume restarts an idle pane, so never resume one to check on it: probe read-only.
 
 ### 1. Dispatch the builder
 

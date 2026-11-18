@@ -56,7 +56,7 @@ them, and redact secrets.
 
 The worker ends its final chat message with the summary text and
 `HANDOFF_WRITTEN <summary path> <raw path>`, after sending
-`(aimsg) DONE <name> <summary path>` to the pane that created it (`herdr`).
+`(aimsg) DONE <name> <summary path>` to the terminal that created it (`hc send`, see `herdr`).
 
 ## Raw log
 

@@ -40,8 +40,8 @@ not pause: those mean continue. The other triggers are context that is nearly
 spent, and a session that is about to end with work in flight.
 
 1. **Stop at a safe boundary.** Finish the current atomic step, or back out of
-   it. Start nothing new, and tell every worker you started in a Herdr pane to
-   stop at a safe boundary and write its two files (`herdr`).
+   it. Start nothing new, and tell every worker you started as an hc terminal to
+   stop at a safe boundary and write its two files (`hc send <name> "(aimsg) ..."`, `herdr`).
 2. **Take no irreversible action to pause.** No PR and no merge to pause; no
    push you did not already have out.
 3. **Make the work durable.** Commit uncommitted edits as one clear
@@ -49,9 +49,10 @@ spent, and a session that is about to end with work in flight.
    worktree, with a one-line body saying why, so nothing is lost. If the tree
    is broken, say so in the commit body in one line. Push it only if the branch
    is already pushed.
-4. **Close the panes you created** through `herdr` (`panes.py close --mine`),
-   which records each worker's session before closing, so pickup can bring back
-   the same session. Close only what this session created.
+4. **Close the terminals you started** through `herdr`: first make sure each
+   worker's row is in `.herdr-handoffs/sessions.jsonl` (name, harness, session
+   id), then `hc kill <name>; hc rm <name>`, so pickup can bring back the same
+   session. Close only what this session started.
 5. **Write the summary** to `.herdr-handoffs/<YYYY-MM-DD>-<slug>-summary.md`, in
    the shape in `references/shapes.md`: intent, where you are, progress and what
    is verified, current state, next step, key files, gotchas. Capture it
@@ -80,11 +81,11 @@ Triggered when intake finds a summary in `.herdr-handoffs/`, a ticket with
    comments, the branch, the plan, the ledger. Read the overview and the last
    messages first, then scan back for the decision points. For history beyond
    what they carry, search AgentsView rather than grepping session transcripts;
-   parse a long trail in a Herdr pane and keep the reduced timeline in this
+   parse a long trail in an hc terminal and keep the reduced timeline in this
    thread, choosing the pane's model by role (`~/.config/agents/models.toml`).
 2. **Reconstruct operational state.** The branch and worktree, what already
    landed (`git log`, `git diff` against the base), the open todos, the
-   decisions made, the panes that were closed with their sessions recorded. The
+   decisions made, the terminals that were closed with their sessions recorded. The
    prior trail is authoritative input: resist the bias to re-derive it. If the
    branch moved and you have no local commits, adopt the remote head.
 3. **Diff done vs pending.** Compare what shipped against what was planned, name
@@ -101,8 +102,9 @@ Triggered when intake finds a summary in `.herdr-handoffs/`, a ticket with
    goal on the real artifact: run the tests the summary says pass (`verify`). A
    passing prior self-report is not the proof. A re-derivation of everything is
    waste.
-6. **Resume the panes the next step needs** with `herdr`
-   (`panes.py resume <name>`), each worker back in its own session. The `wip:`
+6. **Resume the terminals the next step needs** with `herdr` (start a new
+   `hc run --bg` on the session recorded in `sessions.jsonl`), each worker back
+   in its own session. The `wip:`
    commit stays in history; follow it with a real commit.
 
 **Reply:** where the prior agent stopped, what you inherited versus what you
@@ -135,7 +137,7 @@ one form.
 Both paths are absolute and come from the brief. Read a raw log only when the
 summary says blocked or uncertain, or when exact evidence is needed; never paste
 one into chat. Before its final reply, a worker sends `(aimsg) DONE <name>
-<summary path>` to the pane that created it, then the summary text and
+<summary path>` to the terminal that created it (`hc send <creator id> ...`), then the summary text and
 `HANDOFF_WRITTEN <summary path> <raw path>`.
 
 The shapes are in `references/shapes.md`. Spawning and the brief are not this
