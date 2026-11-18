@@ -24,7 +24,10 @@ def no_key_env():
 class Parse(unittest.TestCase):
     def test_kinds(self):
         parts = mod["parse"]("# T\n\n## H\n\nOne.\n\n\nTwo.\n")
-        self.assertEqual(parts, [("title", "T"), ("heading", "H"), ("para", "One."), ("para", "Two.")])
+        self.assertEqual(
+            parts,
+            [("title", "T"), ("heading", "H"), ("para", "One."), ("para", "Two.")],
+        )
 
     def test_example_is_lint_clean(self):
         parts = mod["parse"](EXAMPLE.read_text())
@@ -32,7 +35,9 @@ class Parse(unittest.TestCase):
         self.assertEqual(parts[0][0], "title")
 
     def test_lint_flags_ear_hostile_text(self):
-        parts = mod["parse"]("# T\n\nCosts 40 pounds (roughly).\n\n- a bullet\n\nSee https://x.test and `code`.")
+        parts = mod["parse"](
+            "# T\n\nCosts 40 pounds (roughly).\n\n- a bullet\n\nSee https://x.test and `code`."
+        )
         issues = " ".join(mod["lint"](parts))
         for needle in ("parentheses", "digits", "list markers", "markdown or URL"):
             self.assertIn(needle, issues)
@@ -40,10 +45,30 @@ class Parse(unittest.TestCase):
 
 class Plan(unittest.TestCase):
     def test_gaps(self):
-        parts = [("title", "T"), ("heading", "H"), ("para", "a"), ("para", "b"), ("heading", "H2"), ("para", "c")]
-        self.assertEqual(mod["plan"](parts, GAPS), [
-            ("say", 0), ("pause", 2.2), ("say", 1), ("pause", 1.5), ("say", 2), ("pause", 0.8),
-            ("say", 3), ("pause", 2.2), ("say", 4), ("pause", 1.5), ("say", 5)])
+        parts = [
+            ("title", "T"),
+            ("heading", "H"),
+            ("para", "a"),
+            ("para", "b"),
+            ("heading", "H2"),
+            ("para", "c"),
+        ]
+        self.assertEqual(
+            mod["plan"](parts, GAPS),
+            [
+                ("say", 0),
+                ("pause", 2.2),
+                ("say", 1),
+                ("pause", 1.5),
+                ("say", 2),
+                ("pause", 0.8),
+                ("say", 3),
+                ("pause", 2.2),
+                ("say", 4),
+                ("pause", 1.5),
+                ("say", 5),
+            ],
+        )
 
     def test_no_trailing_or_leading_pause(self):
         steps = mod["plan"]([("heading", "H"), ("para", "a")], GAPS)
@@ -71,15 +96,22 @@ class Key(unittest.TestCase):
             self.assertEqual(mod["get_key"]("exit 1", self.cache), "secret")
 
     def test_missing_key_exits_with_guidance(self):
-        with mock.patch.dict(os.environ, no_key_env(), clear=True), self.assertRaises(SystemExit) as cm:
+        with (
+            mock.patch.dict(os.environ, no_key_env(), clear=True),
+            self.assertRaises(SystemExit) as cm,
+        ):
             mod["get_key"](None, self.cache)
         self.assertIn("--key-cmd", str(cm.exception))
 
 
 class Cli(unittest.TestCase):
     def test_dry_run_needs_no_key_and_reports_length(self):
-        r = subprocess.run([sys.executable, str(SCRIPT), str(EXAMPLE), "--dry-run"],
-                           capture_output=True, text=True, env=no_key_env())
+        r = subprocess.run(
+            [sys.executable, str(SCRIPT), str(EXAMPLE), "--dry-run"],
+            capture_output=True,
+            text=True,
+            env=no_key_env(),
+        )
         self.assertEqual(r.returncode, 0, r.stderr)
         self.assertIn("words, about", r.stdout)
         self.assertIn("lint clean", r.stdout)

@@ -6,7 +6,7 @@ The craft of explaining is `teach`'s: its one-conversation shape (the smallest c
 
 - **Who is listening?** Ask once. If the listener is the user, use their acronyms freely, but say once what each stands for and what the thing actually is.
 - **Why, and for how long?** The mission is the reason they are listening (a commute, an onboarding, a meeting tomorrow). It decides what is cut. A first episode is five to six minutes. Later episodes go longer and deeper.
-- **Facts come from sources, not memory.** Read the repo, the docs or the system before writing. Cite the source in your reply, never in the spoken script. A claim you could not check is either cut or said aloud as a guess.
+- **Facts come from sources, not memory.** Read the repo, the docs or the system before writing. Cite the source in your reply; the script carries only what is said aloud. A claim you could not check is either cut or said aloud as a guess.
 
 ## Shape of an episode
 
@@ -20,7 +20,7 @@ The craft of explaining is `teach`'s: its one-conversation shape (the smallest c
 ## Writing for the ear
 
 - Short sentences. One idea each.
-- No parentheses, no bullet lists, no tables, no code, no URLs, no markdown emphasis. The voice reads them badly or reads the symbols.
+- Plain spoken prose: commas and full stops, lists as "first, second, third", code and URLs described in words. The voice reads symbols and brackets badly.
 - Write numbers as words: "forty pounds", "three days". Spell out acronyms on first use and say them as they are spoken.
 - Say the thing again in different words at the hard step. On paper that is padding. In audio it is the rewind button.
 - Prefer concrete nouns to abstractions, and the active voice.
