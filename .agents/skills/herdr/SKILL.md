@@ -28,7 +28,7 @@ Mechanics only, through `hc` (herdr-core), not the older `herdr` multiplexer CLI
 test -n "${HC_TERMINAL_ID:-}" && hc ls >/dev/null
 ```
 
-`$HC_TERMINAL_ID` is your address; the children's reports reach you through it. If it is unset, you are not inside an hc terminal: say so and stop rather than inventing a dispatch. Terminals are addressed by id (`t7`), name (`review`) or `machine/t7`.
+`$HC_TERMINAL_ID` is your address; the children's reports reach you through it. Terminals started from inside an hc terminal get it set and are your children; from anywhere else it is empty and children have no parent to report to. If it is unset, you are not inside an hc terminal: say so and stop rather than inventing a dispatch. Terminals are addressed by id (`t7`), name (`review`) or `machine/t7`.
 
 ## Single worker
 
@@ -37,7 +37,8 @@ Check `hc templates` first: a ready-made role that fits beats a hand-built comma
 ```bash
 mkdir -p .herdr-handoffs
 hc run --bg --name worker-1 --cwd "$PWD" \
-  env RUARIDH_MODE=worker pi --model <builder model> --lean --session-id <uuid> \
+  env RUARIDH_MODE=worker pi --model <builder model> <lean flags> \
+  -e /home/ruaridh/code/agents/.pi/extensions/ruaridh-mode.ts --session-id <uuid> \
   "(aimsg) ruaridh-mode: worker
 
 TASK:
@@ -51,11 +52,11 @@ TASK:
 
 - **Always `--bg`** for agents; without it their whole screen streams into your output. Name each one (1-32 of `a-z 0-9 - _`) and give it an exact scope.
 - **Interactive, never one-shot.** No `pi -p` or other print mode for work that must stay watchable and steerable. The exception is the `cheap` role, which is a one-shot no-tool pass handed its content in the prompt.
-- **The task goes in the launch.** A send to a booting agent can be dropped. Check `first_message.sent` in the launch result: if false, the task was not sent. `hc read <name>` first (a trust dialog may need `hc keys <name> down enter`, and you do not answer a trust prompt for Ruaridh; ask per the Inbox convention when he is away), then send it, and read before resending.
-- **Plain launch** when a task cannot ride the launch: `hc run --bg --name w pi --model <m>`, then `hc wait w`, then `hc send w "<task>"`.
+- **The task goes in the launch.** A send to a booting agent can be dropped. A template launch with a task reports `first_message.sent` (`hc get <name>` keeps it); a direct launch like the one above does not, so confirm by `hc read <name>` that the prompt landed. If it did not, `hc read <name>` first (a trust dialog may need `hc keys <name> down enter`, and you do not answer a trust prompt for Ruaridh; ask per the Inbox convention when he is away), then send it, and read before resending.
+- **Plain launch** when a task cannot ride the launch: `hc run --bg --name w pi --model <m>`, then `hc wait w`, then `hc send w "<task>"`. Without a launch task, startup idle counts as stopped, so the first `hc wait` returns at once with `status: idle`, `turn: 0`; with the task in the launch, wait again until `status` is `done` and `turn` is at least 1.
 - **Worker mode is the default.** `RUARIDH_MODE=worker` and the prompt's first line `(aimsg) ruaridh-mode: worker` make the worker load the slim mode body. Use interactive mode only for an agent Ruaridh will drive himself. `hc run` has no env flag, so the variable rides as a leading `env`.
 - **Models by role**, never by name: read `~/.config/agents/models.toml` and pass the exact id and args for the role (see "Model choice"). Never clone your own model by habit.
-- **Lean workers**: `--lean` for pi starts it without the skills index, extensions and prompt templates (about 3.8k tokens at first turn instead of 14.3k, repeated every turn). The AGENTS.md chain still loads, and worker mode loads the `ruaridh-mode` extension explicitly. With no skills index, cite any skill file the worker needs by exact path in its brief.
+- **Lean workers**: `--lean` in `models.toml` is not a pi flag; it means "expand to these": `--no-skills --no-extensions --no-prompt-templates`, plus `-e <repo>/.pi/extensions/ruaridh-mode.ts` so worker mode still loads (explicit `-e` paths survive `--no-extensions`). That cuts the first-turn baseline from about 14.3k to about 3.8k tokens, repeated every turn. The AGENTS.md chain still loads. Never pass a literal `--lean` to `pi`. With no skills index, cite any skill file the worker needs by exact path in its brief.
 - **Codex** must run with `--no-daemon`, or its commands execute outside hc.
 - **Do not let children start more agents** unless you assign that explicitly.
 - Use `--task-file`-style briefs for anything longer than a sentence: write the brief to `.scratch/` and have the launch say "Read <absolute path> and do it". Summaries and raw logs go to `.herdr-handoffs/<name>-summary.md` and `-raw.md`, as absolute paths.
@@ -100,7 +101,7 @@ Use when work should be divided or workers should know about each other. Write a
 
 ## Model choice
 
-Choose the worker model by task; do not blindly clone the caller's model. Roles are in `~/.config/agents/models.toml` (`main`, `reviewer`, `builder`, `cheap`, `spec-reviewer`), each with a harness, a model and optional args; pass the role's exact id and pass its args through (`builder` carries `--lean`, `cheap` is a one-shot no-tool pass, so it suits work handed its content in the prompt). The running session is `main` and is not spawned. Check availability before spawning (`pi --list-models`, or the harness's own list for a Claude role); if the role's model is unavailable, stop rather than silently switching providers or to a weaker model. Do not assume a higher version is automatically a better substitute.
+Choose the worker model by task; do not blindly clone the caller's model. Roles are in `~/.config/agents/models.toml` (`main`, `reviewer`, `builder`, `cheap`, `spec-reviewer`), each with a harness, a model and optional args; pass the role's exact id and pass its args through (`builder` carries `--lean`, which you expand as above; `cheap` is a one-shot no-tool pass, so it suits work handed its content in the prompt). The running session is `main` and is not spawned. Check availability before spawning (`pi --list-models`, or the harness's own list for a Claude role); if the role's model is unavailable, stop rather than silently switching providers or to a weaker model. Do not assume a higher version is automatically a better substitute.
 
 | Use case | Role |
 | --- | --- |
