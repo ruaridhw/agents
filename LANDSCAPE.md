@@ -21,7 +21,7 @@ Every curated skill lives in `.agents/skills/<name>/` and carries `upstream:` st
 
 - **Curated (wave 1)**: `ruaridh-mode`, `clarify`, `herdr`, `grill`, `to-spec`, `spec-review`, `to-tickets`, `triage`, `to-plan`, `implement`, `pr`, `handoff`, `setup-project`, `update-skills`, `rare-skills`.
 - **Curated (wave 2)**: `write-skill`, `tdd`, `debug`, `verify`, `review`, `babysit`, `ship`, `worktree`, `prototype`, `domain`, `arch`, `research`, `recall`, `retro`, `technical-writing`, `teach`, `wizard`, `questionnaire`, `bro`, `wayfinder`. `principles` waits for its own grilling.
-- **Curated (wave 4)**: `spec-page`, `browser` and `full-stack-e2e-review`, with no upstream feed, added after the cutover.
+- **Curated (wave 4)**: `spec-page`, `browser`, `full-stack-e2e-review` and `teach-via-audio`, with no upstream feed, added after the cutover.
 - **Kept as shipped**: the employer's operator skills and kit (changed only through the kit's feedback channel); the Plannotator family; Anthropic artifact, dataviz and document skills; the effective-html family; own scheduled-job skills (`morning`, `granola-notion`, `notion-todoist-tasks`).
 - **Rare** (moved to `~/.agents/rare/`, reached through `rare-skills`): AWS, Cloudflare and other service skills.
 - **Dropped**: mattpocock loop-me, caveman, request-refactor-plan, scaffold-exercises, migrate-to-shoehorn, setup-pre-commit, git-guardrails-claude-code, claude-handoff, setup-ts-deep-modules, writing-beats, writing-shape, writing-fragments, edit-article, and the loose find-skills, claude-code-peer-messaging, obsidian-vault; superpowers diagnosing-superpowers; pstack setup-pstack, poteto-agent, make-bot-ui, visual-parity, autopilot-full, autopilot-stack, eval, hillclimb, create/maintain-verification-skill, typescript-best-practices and the automations.
@@ -907,6 +907,22 @@ Environment edits, not removals: `/teach` and `argument-hint` are dropped (the s
 | pstack `pstack/skills/teach/SKILL.md` | The second half, prose kept: explain what a thing is, how it works and why, in one plain account at the person's pace, with the goal being understanding rather than change; the five steps in full (decide the few takeaways from why he is asking and what he already knows, read rather than quiz; let the how and why runs do the work, in parallel, matched to the question's size, narrowing the why in the ask itself and widening it only when the reasons are the point; start with a plain definition and build, the smallest complete answer first, no framing labels, layers on request; keep it a conversation with no quizzes, no pacing theatre and no importance flags; show and build diagrams one part at a time, with Mermaid for flows and a generated image for the spatial case); the confidence-language exception; the voice rules with the virtualization target density; and the reply rule (the explanation, never a report) | The `how` and `why` skill names: `research`'s how-mode and why-mode. The **unslop** skill invocation: `technical-writing`'s unslop pass. `disable-model-invocation: true` and the slash triggers: reached by name. The image-generation tool as a named capability: kept as "a generated image", since the tool is the harness's |
 | pstack `pstack/skills/how/SKILL.md` | Stamped because the explanation half routes to its how-mode; the how-mode prose itself is `research`'s, where it is taken in full | Nothing taken into this skill's text: the how-mode lives in `research`, and this skill points at it rather than keeping a second copy |
 
+
+## teach-via-audio
+
+**Opinion.** `teach` for the ear: a topic explained as a narrated voicenote (MP3) through the ElevenLabs API. The medium changes the craft (one pass, no interrupting, no visuals), so the skill keeps only what changes: ask who is listening, open with the whole thing in one sentence, add layers behind spoken signposts, follow one worked example with numbers, restate the one sentence at the end, and write for the ear. The audio half is a stdlib script that sends one request per paragraph with `previous_text` and `next_text`, joins them with real silence rather than break tags, caches each paragraph, and lints the script before spending anything.
+
+Decisions:
+
+- **A sibling of `teach`, not a mode of it** (this build): `teach` is a near-copy of two upstream feeds and its prose is kept whole, so a mode would either fork stamped text or bolt a media-specific pipeline onto a skill whose subject is understanding. The sibling points at `teach` for the craft and owns only the audio constraints, the script and the workspace notes.
+- **The key is never written down** (this build): `ELEVENLABS_API_KEY`, else a 0600 session cache in the temp directory, else a `--key-cmd` the user supplies once, cached after the first run so a password manager is not asked per call. The skill names no vault, item or path.
+- **One request per paragraph, real silence** (this build, from a first episode): a single long request rushed, and many break tags made the voice unstable. Gaps and settings are flags whose defaults are the values that worked (`references/audio.md`).
+- **Length is fixed in the script, never the speed** (this build): about one hundred and twenty spoken words a minute with pauses in; an over-long script is trimmed and re-rendered, which the cache makes cheap.
+- **Outputs stay in `.scratch/teach/<topic>/`** (this build, matching `teach`): the repo never tracks an episode.
+
+| Feed | Taken | Dropped |
+| --- | --- | --- |
+| no feed (written for this skill) | The script craft, the audio script and its tests, and the generic example. | Nothing. |
 
 ## wizard
 

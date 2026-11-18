@@ -79,7 +79,7 @@ skills = ["ruaridh-mode", "herdr", "handoff", "worktree", "recall", "rare-skills
 [[families]]
 name = "Thinking and shaping"
 blurb = "Work out what to build before building it."
-skills = ["clarify", "grill", "prototype", "research", "domain", "arch", "questionnaire", "bro", "teach"]
+skills = ["clarify", "grill", "prototype", "research", "domain", "arch", "questionnaire", "bro", "teach", "teach-via-audio"]
 
 [[families]]
 name = "Planning and ticketing"
@@ -119,6 +119,7 @@ arch = "Sketch two or more designs and compare them before code crosses a bounda
 questionnaire = "Turn a decision the agent can't make into questions for the person who can."
 bro = "Say it again so it lands: plainer, with context, or one layer up."
 teach = "Lessons over several sessions, or one plain account of a body of work."
+teach-via-audio = "A topic explained as a narrated voicenote, rendered with ElevenLabs."
 to-spec = "A build-ready spec, written without an interview and gated before publishing."
 spec-review = "An adversarial reviewer in its own pane, answered from the decision history."
 spec-page = "A Markdown spec rendered as one self-contained page for reading and annotation."
