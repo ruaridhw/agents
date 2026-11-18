@@ -39,8 +39,46 @@ class Parse(unittest.TestCase):
             "# T\n\nCosts 40 pounds (roughly).\n\n- a bullet\n\nSee https://x.test and `code`."
         )
         issues = " ".join(mod["lint"](parts))
-        for needle in ("parentheses", "digits", "list markers", "markdown or URL"):
+        for needle in (
+            "parentheses",
+            "standalone numbers",
+            "list markers",
+            "markdown or URL",
+        ):
             self.assertIn(needle, issues)
+
+
+class Numbers(unittest.TestCase):
+    def flagged(self, text):
+        return mod["STANDALONE_NUMBER"].findall(text)
+
+    def test_spoken_numbers_are_flagged(self):
+        self.assertEqual(self.flagged("It took 200 ms."), ["200"])
+        self.assertEqual(self.flagged("The 10th run, at 3 o'clock."), ["10th", "3"])
+        self.assertEqual(self.flagged("About 1,000 or 2.5 units."), ["1,000", "2.5"])
+
+    def test_codes_and_acronyms_with_letters_are_left_alone(self):
+        for text in (
+            "Our 3PL ships it.",
+            "Run MB51 first.",
+            "Pick the B2 tier.",
+            "See v2 and x86.",
+        ):
+            self.assertEqual(self.flagged(text), [], text)
+
+    def test_number_findings_are_advisory_in_the_exit_code(self):
+        with tempfile.TemporaryDirectory() as d:
+            script = Path(d) / "s.md"
+            script.write_text("# T\n\nThe 3PL posts code 551 at 200 ms.\n")
+            r = subprocess.run(
+                [sys.executable, str(SCRIPT), str(script), "--dry-run"],
+                capture_output=True,
+                text=True,
+                env=no_key_env(),
+            )
+        self.assertEqual(r.returncode, 0, r.stdout)
+        self.assertIn("note:", r.stdout)
+        self.assertNotIn("3PL", r.stdout.split("standalone numbers")[1])
 
 
 class Plan(unittest.TestCase):

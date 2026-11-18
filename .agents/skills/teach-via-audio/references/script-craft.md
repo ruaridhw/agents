@@ -21,7 +21,7 @@ The craft of explaining is `teach`'s: its one-conversation shape (the smallest c
 
 - Short sentences. One idea each.
 - Plain spoken prose: commas and full stops, lists as "first, second, third", code and URLs described in words. The voice reads symbols and brackets badly.
-- Write numbers as words: "forty pounds", "three days". Spell out acronyms on first use and say them as they are spoken.
+- Write numbers as words: "forty pounds", "three days". Spell out acronyms on first use and say them as they are spoken. `--dry-run` notes standalone numbers as advisory only: a system code such as five five one can stay as digits when the voice reads it right, and tokens that mix letters and digits (MB51, 3PL) are never flagged.
 - Say the thing again in different words at the hard step. On paper that is padding. In audio it is the rewind button.
 - Prefer concrete nouns to abstractions, and the active voice.
 - Read it aloud in your head. A sentence you run out of breath on gets split.
