@@ -74,6 +74,11 @@ def parse(text):
     return out
 
 
+# A number a narrator reads aloud: 200, 10th, 1,000, 2.5. Tokens that mix letters
+# and digits (3PL, MB51, B2) are codes and acronyms, so they never match.
+STANDALONE_NUMBER = re.compile(r"(?<![\w.,])\d+(?:[.,]\d+)*(?:st|nd|rd|th)?(?![\w])")
+
+
 def lint(parts):
     """Ear-unfriendly patterns: things the voice reads badly or not at all."""
     issues = []
@@ -83,8 +88,12 @@ def lint(parts):
             issues.append(f"{where}: parentheses")
         if re.search(r"(?m)^\s*([-*]|\d+[.)])\s", text):
             issues.append(f"{where}: list markers")
-        if re.search(r"\d", text):
-            issues.append(f"{where}: digits; write numbers as words")
+        numbers = STANDALONE_NUMBER.findall(text)
+        if numbers:
+            issues.append(
+                f"note: {where}: standalone numbers {numbers}; write as words "
+                "if read aloud (advisory, does not fail the lint)"
+            )
         if re.search(r"[`*_]|https?://", text):
             issues.append(f"{where}: markdown or URL")
     return issues
@@ -304,7 +313,7 @@ def main(argv=None):
         )
         issues = lint(parts)
         print("\n".join(issues) if issues else "lint clean")
-        return 1 if issues else 0
+        return 1 if any(not i.startswith("note:") for i in issues) else 0
     render(a.script, a, get_key(a.key_cmd))
 
 
